@@ -12,18 +12,22 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
+import com.sokoban.juego.logica.GestorUsuarios;
 
 public class LoginScreen implements Screen {
 
     private Stage stage;
     private Skin skin;
     private Main game;
-    
-    public LoginScreen(Main game){
+    private GestorUsuarios gestor;
+
+    public LoginScreen(Main game) {
         this.game = game;
+        gestor = GestorUsuarios.getInstancia();
     }
 
     @Override
@@ -39,7 +43,6 @@ public class LoginScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        // --------- Contenido centrado ---------
         Label titleLabel = new Label("Login", skin, "title");
 
         TextField usernameField = new TextField("", skin);
@@ -54,10 +57,29 @@ public class LoginScreen implements Screen {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                String user = usernameField.getText();
-                String pass = passwordField.getText();
-                System.out.println("Usuario: " + user + " Contraseña: " + pass);
-                // Aquí tu lógica de verificación
+                // Mostrar un diálogo o label de "Cargando..."
+                Dialog cargando = ventanaDialog("Verificando credenciales...");
+
+                new Thread(() -> {
+                    boolean resultado = gestor.loginUsuario(usernameField.getText(), passwordField.getText());
+
+                    // Usamos un pequeño delay para que se note el cuadro
+                    Gdx.app.postRunnable(() -> {
+                        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+                            @Override
+                            public void run() {
+                                cargando.hide(); // ocultar el "cargando"
+
+                                if (resultado) {
+                                    ventanaDialog("Inicio de Sesión exitoso.");
+                                    game.setScreen(new MenuScreen(game));
+                                } else {
+                                    ventanaDialog("Usuario o contraseña incorrectas.");
+                                }
+                            }
+                        }, 2f); // <-- segundos de espera extra (2 segundos aquí)
+                    });
+                }).start();
             }
         });
 
@@ -85,12 +107,26 @@ public class LoginScreen implements Screen {
         registerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                game.setScreen(new RegistroScreen(game)); 
+                game.setScreen(new RegistroScreen(game));
             }
         });
 
         // Abajo a la derecha
         root.add(bottomRight).expandX().right().pad(10);
+    }
+
+    private Dialog ventanaDialog(String mensaje) {
+        Dialog dialog = new Dialog("Aviso", skin) {
+            @Override
+            protected void result(Object object) {
+                System.out.println("Botón: " + object);
+            }
+        };
+        dialog.text(mensaje);
+        dialog.button("Aceptar", true);
+        dialog.show(stage);
+
+        return dialog;
     }
 
     @Override

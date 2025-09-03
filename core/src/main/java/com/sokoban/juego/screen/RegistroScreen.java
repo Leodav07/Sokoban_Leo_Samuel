@@ -59,18 +59,18 @@ public class RegistroScreen implements Screen {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if (gestor.existeUsuario(usernameField.getText())) {
-                    Dialog dialog = new Dialog("Aviso", skin) {
-                        @Override
-                        protected void result(Object object) {
-                            System.out.println("Botón: " + object);
-                        }
-                    };
-                    dialog.text("Elige otro nombre de usuario.");
-                    dialog.button("Aceptar", true);
-                    dialog.show(stage);
-                }
-                gestor.registrarUsuario(usernameField.getText(), passwordField.getText(), nombreField.getText());
+               new Thread(()->{
+                  if(gestor.existeUsuario(usernameField.getText())){
+                      Gdx.app.postRunnable(()->{
+                      ventanaDialog("Elige otro nombre de usuario.");
+                  });
+                  } else{
+                      gestor.registrarUsuario(usernameField.getText(), passwordField.getText(), nombreField.getText());
+                  Gdx.app.postRunnable(()->{
+                      ventanaDialog("Usuario registrado correctamente");
+                  });
+                  }
+               }).start();
             }
         });
 
@@ -80,7 +80,7 @@ public class RegistroScreen implements Screen {
         content.add(new Label("Usuario:", skin)).pad(10);
         content.add(usernameField).width(220);
         content.row();
-        content.add(new Label("Contraseña:", skin)).pad(10);
+        content.add(new Label("Contrasena:", skin)).pad(10);
         content.add(passwordField).width(220);
         content.row();
         content.add(new Label("Nombre Completo:", skin)).pad(10);
@@ -106,7 +106,19 @@ public class RegistroScreen implements Screen {
         // Abajo a la derecha
         root.add(bottomRight).expandX().right().pad(10);
     }
+  private void ventanaDialog(String mensaje) {
+        Dialog dialog = new Dialog("Aviso", skin) {
+            @Override
+            protected void result(Object object) {
+                System.out.println("Botón: " + object);
+            }
+        };
+        dialog.text(mensaje);
+        dialog.button("Aceptar", true);
+        dialog.show(stage);
 
+        
+    }
     @Override
     public void render(float delta) {
         // Fondo negro (como antes)

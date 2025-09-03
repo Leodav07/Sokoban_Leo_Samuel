@@ -60,8 +60,10 @@ public class GestorUsuarios {
 
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream("users" + "/" + username + "/" + username + ".dat"));
                 userLeido = (Usuario) ois.readObject();
-                userLeido.verifyPass(password);
-                return true;
+                if (userLeido.verifyPass(password)) {
+                    usuarioActual = userLeido;
+                    return true;
+                }
 
             }
         } catch (Exception e) {
