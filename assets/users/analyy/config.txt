@@ -1,0 +1,2 @@
+volumen=0.5
+idioma=en

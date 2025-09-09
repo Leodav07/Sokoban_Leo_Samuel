@@ -71,3 +71,5 @@ subprojects {
 }
 
 eclipse.project.name = 'SokobanGame' + '-parent'
+
+

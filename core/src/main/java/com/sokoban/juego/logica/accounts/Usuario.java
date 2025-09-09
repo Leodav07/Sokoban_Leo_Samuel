@@ -4,16 +4,13 @@
  */
 package com.sokoban.juego.logica.accounts;
 
-import java.io.Serializable;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
 import java.util.Calendar;
 
 /**
  *
  * @author hnleo
  */
-public class Usuario extends PasswordSecure implements Serializable {
+public class Usuario {
 
     private String username;
     private String password;
@@ -22,27 +19,41 @@ public class Usuario extends PasswordSecure implements Serializable {
 
     public Usuario(String username, String password, String nombreCompleto) {
         this.username = username;
-
-        byte[] salt = generarSalt();
-        super.saltBase64 = Base64.getEncoder().encodeToString(salt);
-        try {
-            this.password = passwordHashed(password, salt);
-        } catch (InvalidKeySpecException e) {
-            System.out.println("Key inválida");
-        } catch (Exception i) {
-            System.out.println("Ocurrio un error: " + i.getMessage());
-        }
+        this.password = password;
         this.nombreCompleto = nombreCompleto;
-        this.fechaRegistro = Calendar.getInstance();
+
     }
 
-    public boolean verifyPass(String password) throws Exception {
-        byte[] salt = Base64.getDecoder().decode(saltBase64);
-        String hashIt = passwordHashed(password, salt);
-        return hashIt.equals(this.password);
-    }
-    
-    public String getUser(){
+    public String getUsername() {
         return username;
     }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getNombreCompleto() {
+        return nombreCompleto;
+    }
+
+    public void setNombreCompleto(String nombreCompleto) {
+        this.nombreCompleto = nombreCompleto;
+    }
+
+    public Calendar getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(Calendar fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
 }

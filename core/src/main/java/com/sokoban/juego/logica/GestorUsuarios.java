@@ -1,98 +1,116 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.sokoban.juego.logica;
 
-import com.sokoban.juego.logica.MyFile;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.sokoban.juego.logica.accounts.Usuario;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.InputMismatchException;
 
-/**
- *
- * @author hnleo
- */
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Calendar;
+
+
 public class GestorUsuarios {
 
-    private MyFile mf = new MyFile();
-    private Usuario usuario;
-    private ObjectOutputStream oos;
     private static GestorUsuarios instancia;
-    private static Usuario usuarioActual;
+    public static Usuario usuarioActual;
 
-    public boolean registrarUsuario(String username, String password, String nombreCompleto) {
+    public GestorUsuarios() {
+        FileHandle usersFolder = Gdx.files.local("users");
+        if (!usersFolder.exists()) {
+            usersFolder.mkdirs();
+        }
+    }
 
+   
+    public boolean registrarUsuarios(String username, String password, String nombreCompleto)
+            throws IOException, NoSuchAlgorithmException {
+
+        FileHandle carpetaUsuario = Gdx.files.local("users/" + username);
+        if (!carpetaUsuario.exists()) {
+            carpetaUsuario.mkdirs(); 
+
+            FileHandle fileHandle = carpetaUsuario.child(username + ".usr");
+            File file = fileHandle.file(); 
+
+            
+            try (RandomAccessFile fileUser = new RandomAccessFile(file, "rw")) {
+                fileUser.writeUTF(username);
+
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+                String passwordHash = Base64.getEncoder().encodeToString(hash);
+
+                fileUser.writeUTF(passwordHash);
+                fileUser.writeUTF(nombreCompleto);
+                fileUser.writeLong(Calendar.getInstance().getTimeInMillis());
+            } 
+
+            return true;
+        } else {
+            System.out.println("Ya existe usuario: " + username);
+            return false;
+        }
+    }
+
+    
+    public boolean loginUsuario(String username, String password)
+            throws IOException, NoSuchAlgorithmException {
+        RandomAccessFile fileUser = null; 
         try {
+            FileHandle archivoUser = Gdx.files.local("users/" + username + "/" + username + ".usr");
+            if (!archivoUser.exists()) {
+                System.out.println("Usuario no existe: " + username);
+                return false;
+            }
 
-            if (!existeUsuario(username)) {
-                mf.setFile(username);
-                mf.crearFolder();
-                usuario = new Usuario(username, password, nombreCompleto);
-                oos = new ObjectOutputStream(new FileOutputStream("users" + "/" + username + "/" + username + ".dat"));
-                oos.writeObject(usuario);
-                System.out.println("Usuario creado correctamente.");
+            File file = archivoUser.file();
+            fileUser = new RandomAccessFile(file, "r"); // Asigna la instancia aquí
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            String passwordHash = Base64.getEncoder().encodeToString(hash);
+
+            String usuarioAlmacenado = fileUser.readUTF();
+            String passwordAlmacenado = fileUser.readUTF();
+            String nombreCompletoAlmacenado = fileUser.readUTF();
+            long fechaRegistro = fileUser.readLong();
+
+            if (usuarioAlmacenado.equals(username) && passwordAlmacenado.equals(passwordHash)) {
+                System.out.println("Inicio de sesión exitoso: " + username);
+                // Almacena el usuario actual para usarlo en otras pantallas
+                usuarioActual = new Usuario(usuarioAlmacenado, password, nombreCompletoAlmacenado);
+                // Puedes establecer la fecha de registro si es necesaria en el objeto Usuario
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(fechaRegistro);
+                usuarioActual.setFechaRegistro(cal);
                 return true;
             } else {
-                System.out.println("Nombre de usuario ya existe.");
-
+                System.out.println("Usuario o contraseña incorrectos.");
+                return false;
             }
-
-        } catch (IOException io) {
-            System.out.println("Ocurrio un error en disco: " + io.getMessage());
-        } catch (NullPointerException nu) {
-            System.out.println("Objeto File vacío. " + nu.getMessage());
-        } catch (InputMismatchException in) {
-            System.out.println("Dato no compatible. " + in.getMessage());
-        }
-        return false;
-    }
-
-    public boolean loginUsuario(String username, String password) {
-        Usuario userLeido;
-        try {
-            if (existeUsuario(username)) {
-
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream("users" + "/" + username + "/" + username + ".dat"));
-                userLeido = (Usuario) ois.readObject();
-                if (userLeido.verifyPass(password)) {
-                    usuarioActual = userLeido;
-                    return true;
-                }
-
+        } finally {
+            if (fileUser != null) {
+                fileUser.close();
             }
-        } catch (Exception e) {
-            System.out.println("Ocurrio un error: " + e.getMessage());
         }
-
-        return false;
     }
 
-    public boolean existeUsuario(String username) {
-        File usuarioCarpeta = new File("users/" + username);
-        return usuarioCarpeta.exists() && usuarioCarpeta.isDirectory();
+    
+    public static void cerrarSesion() {
+        usuarioActual = null;
+        System.out.println("Sesión cerrada.");
     }
 
+   
     public static GestorUsuarios getInstancia() {
         if (instancia == null) {
             instancia = new GestorUsuarios();
         }
         return instancia;
     }
-
-    public static void main(String[] args) {
-        GestorUsuarios gs = new GestorUsuarios();
-        if (gs.loginUsuario("popo", "holapopo")) {
-            System.out.println("Correcto inicio de sesion");
-
-        } else {
-            System.out.println("Ocurrio un error");
-        }
-    }
-
 }

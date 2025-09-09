@@ -17,6 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginScreen implements Screen {
 
@@ -35,10 +37,8 @@ public class LoginScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Usa la skin por defecto de LibGDX
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        // Root table: una fila central con el contenido y una fila inferior con el registro
         Table root = new Table();
         root.setFillParent(true);
         stage.addActor(root);
@@ -57,28 +57,34 @@ public class LoginScreen implements Screen {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // Mostrar un diálogo o label de "Cargando..."
+
                 Dialog cargando = ventanaDialog("Verificando credenciales...");
 
                 new Thread(() -> {
-                    boolean resultado = gestor.loginUsuario(usernameField.getText(), passwordField.getText());
+                    try {
+                        boolean resultado = gestor.loginUsuario(usernameField.getText(), passwordField.getText());
 
-                    // Usamos un pequeño delay para que se note el cuadro
-                    Gdx.app.postRunnable(() -> {
-                        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
-                            @Override
-                            public void run() {
-                                cargando.hide(); // ocultar el "cargando"
+                        Gdx.app.postRunnable(() -> {
+                            com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+                                @Override
+                                public void run() {
+                                    cargando.hide(); // ocultar el "cargando"
 
-                                if (resultado) {
-                                    ventanaDialog("Inicio de Sesión exitoso.");
-                                    game.setScreen(new MenuScreen(game));
-                                } else {
-                                    ventanaDialog("Usuario o contraseña incorrectas.");
+                                    if (resultado) {
+                                        ventanaDialog("Inicio de Sesión exitoso.");
+                                        game.setScreen(new MenuScreen(game));
+                                    } else {
+                                        ventanaDialog("Usuario o contraseña incorrectas.");
+                                    }
                                 }
-                            }
-                        }, 2f); // <-- segundos de espera extra (2 segundos aquí)
-                    });
+                            }, 2f); // <-- segundos de espera extra (2 segundos aquí)
+                        });
+                    } catch (IOException io) {
+                        ventanaDialog("Ocurrio un error en Disco. " + io.getMessage());
+                    }  catch (NoSuchAlgorithmException n) {
+                        ventanaDialog("Error a hashear contraseña. " + n.getMessage());
+                    }
+
                 }).start();
             }
         });
@@ -94,7 +100,6 @@ public class LoginScreen implements Screen {
         content.row();
         content.add(loginButton).colspan(2).padTop(20).width(160);
 
-        // Coloca el contenido centrado
         root.add(content).expand().center();
         root.row();
 
@@ -116,16 +121,9 @@ public class LoginScreen implements Screen {
     }
 
     private Dialog ventanaDialog(String mensaje) {
-        Dialog dialog = new Dialog("Aviso", skin) {
-            @Override
-            protected void result(Object object) {
-                System.out.println("Botón: " + object);
-            }
-        };
-        dialog.text(mensaje);
-        dialog.button("Aceptar", true);
-        dialog.show(stage);
-
+       Dialog dialog = new Dialog("Aviso", skin);
+       dialog.text(mensaje); 
+       dialog.show(stage);
         return dialog;
     }
 

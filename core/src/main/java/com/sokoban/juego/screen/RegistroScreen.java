@@ -15,6 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 public class RegistroScreen implements Screen {
 
@@ -36,7 +38,6 @@ public class RegistroScreen implements Screen {
         // Usa la skin por defecto de LibGDX
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        // Root table: una fila central con el contenido y una fila inferior con el registro
         Table root = new Table();
         root.setFillParent(true);
         stage.addActor(root);
@@ -59,18 +60,24 @@ public class RegistroScreen implements Screen {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-               new Thread(()->{
-                  if(gestor.existeUsuario(usernameField.getText())){
-                      Gdx.app.postRunnable(()->{
-                      ventanaDialog("Elige otro nombre de usuario.");
-                  });
-                  } else{
-                      gestor.registrarUsuario(usernameField.getText(), passwordField.getText(), nombreField.getText());
-                  Gdx.app.postRunnable(()->{
-                      ventanaDialog("Usuario registrado correctamente");
-                  });
-                  }
-               }).start();
+                new Thread(() -> {
+                    try {
+                        if (!gestor.registrarUsuarios(usernameField.getText(), passwordField.getText(), nombreField.getText())) {
+                            Gdx.app.postRunnable(() -> {
+                                ventanaDialog("Elige otro nombre de usuario.");
+                            });
+                        } else {
+
+                            Gdx.app.postRunnable(() -> {
+                                ventanaDialog("Usuario registrado correctamente");
+                            });
+                        }
+                    }catch (IOException io) {
+                      ventanaDialog("Ocurrio un error en Disco. "+io.getMessage());
+                    } catch (NoSuchAlgorithmException n) {
+                      ventanaDialog("Error a hashear contraseña. "+ n.getMessage());
+                    }
+                }).start();
             }
         });
 
@@ -106,7 +113,8 @@ public class RegistroScreen implements Screen {
         // Abajo a la derecha
         root.add(bottomRight).expandX().right().pad(10);
     }
-  private void ventanaDialog(String mensaje) {
+
+    private void ventanaDialog(String mensaje) {
         Dialog dialog = new Dialog("Aviso", skin) {
             @Override
             protected void result(Object object) {
@@ -117,8 +125,8 @@ public class RegistroScreen implements Screen {
         dialog.button("Aceptar", true);
         dialog.show(stage);
 
-        
     }
+
     @Override
     public void render(float delta) {
         // Fondo negro (como antes)

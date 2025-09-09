@@ -15,3 +15,6 @@ dependencies {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 }
+
+sourceSets.main.resources.srcDirs += [ "../assets" ]
+

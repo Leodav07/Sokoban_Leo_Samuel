@@ -18,7 +18,6 @@ apply plugin: 'io.github.fourlastor.construo'
 
 import io.github.fourlastor.construo.Target
 
-sourceSets.main.resources.srcDirs = [ file('assets') ]
 
 mainClassName = 'com.sokoban.juego.lwjgl3.Lwjgl3Launcher'
 application.setMainClass(mainClassName)
