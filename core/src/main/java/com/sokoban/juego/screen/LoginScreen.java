@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.logica.accounts.GestorProgreso;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -72,6 +73,7 @@ public class LoginScreen implements Screen {
 
                                     if (resultado) {
                                         ventanaDialog("Inicio de Sesión exitoso.");
+                                        GestorProgreso.getInstancia().cargarProgreso();
                                         game.setScreen(new MenuScreen(game));
                                     } else {
                                         ventanaDialog("Usuario o contraseña incorrectas.");

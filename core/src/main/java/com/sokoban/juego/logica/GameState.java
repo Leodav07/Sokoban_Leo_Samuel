@@ -1,9 +1,10 @@
 package com.sokoban.juego.logica;
 
+import com.sokoban.juego.logica.accounts.GestorProgreso;
 import java.util.Scanner;
 
 public class GameState {
-    private enum Elementos {
+     private enum Elementos {
         VACIO, META,
         CAJA, MURO, JUGADOR,
         CAJAMETA, JUGADORMETA
@@ -14,8 +15,19 @@ public class GameState {
     private int numMetasTotales = 0;
     private int ancho, largo;
     private int playerY, playerX;
+    
+    // Nuevas variables para tracking
+    private int contadorMovimientos = 0;
+    private long tiempoInicio;
+    private int nivelActual;
+    private GestorProgreso gestorProgreso;
 
-    public GameState(String[] layout) {
+    public GameState(String[] layout, int nivelId) {
+        this.nivelActual = nivelId;
+        this.gestorProgreso = GestorProgreso.getInstancia();
+        this.tiempoInicio = System.currentTimeMillis();
+        this.contadorMovimientos = 0;
+        
         this.largo = layout.length;
         this.ancho = layout[0].length();
         this.grid = new Elementos[largo][ancho];
@@ -67,6 +79,7 @@ public class GameState {
             moverCelda(playerY, playerX, targetY, targetX);
             this.playerX = targetX;
             this.playerY = targetY;
+            contadorMovimientos++; // Incrementar contador
             return;
         }
 
@@ -84,6 +97,7 @@ public class GameState {
                 moverCelda(playerY, playerX, targetY, targetX); // Mueve al jugador
                 this.playerX = targetX;
                 this.playerY = targetY;
+                contadorMovimientos++; // Incrementar contador
             }
         }
     }
@@ -120,6 +134,9 @@ public class GameState {
     }
 
     public void imprimirGame() {
+        System.out.println("\nNivel " + nivelActual + " | Movimientos: " + contadorMovimientos + 
+                          " | Tiempo: " + formatearTiempo(getTiempoTranscurrido()));
+        
         for (int y = 0; y < largo; y++) {
             for (int x = 0; x < ancho; x++) {
                 char simbolo = ' ';
@@ -134,51 +151,35 @@ public class GameState {
                 }
                 System.out.print(simbolo);
             }
-            System.out.println(); // Salto de línea después de cada fila
+            System.out.println();
         }
         System.out.println("Cajas en meta: " + numCajasEnMeta + "/" + numMetasTotales);
     }
 
     public boolean verificarVictoria() {
-        return numMetasTotales > 0 && numCajasEnMeta == numMetasTotales;
-    }
-
-    public static void main(String[] args) {
-        String[] lay = {
-            "##########    ",
-            "#@, .   ######",
-            "#  ,         #",
-            "# .       , .#",
-            "##############"
-        };
-
-        GameState gP = new GameState(lay);
-        Scanner sc = new Scanner(System.in);
-        String input;
-
-        while (!gP.verificarVictoria()) {
-            gP.imprimirGame();
-            System.out.print("wasd pa moverse o q para salir: ");
-            input = sc.next();
-
-            if (input.equalsIgnoreCase("q")) break;
-
-            switch (input.toLowerCase()) {
-                case "w": gP.moverPlayer(0, -1); break; // Arriba
-                case "s": gP.moverPlayer(0, 1);  break; // Abajo
-                case "a": gP.moverPlayer(-1, 0); break; // Izquierda
-                case "d": gP.moverPlayer(1, 0);  break; // Derecha
-                default: System.out.println("Tecla invalida"); break;
-            }
+        boolean victoria = numMetasTotales > 0 && numCajasEnMeta == numMetasTotales;
+        
+        if (victoria) {
+            // Registrar la victoria en el sistema de progreso
+            long tiempoFinal = getTiempoTranscurrido();
+            gestorProgreso.completarNivel(nivelActual, contadorMovimientos, tiempoFinal);
         }
         
-        sc.close(); // Se cierra al final, fuera del bucle
-
-        if (gP.verificarVictoria()) {
-            System.out.println("\n¡GANASTE!");
-            gP.imprimirGame();
-        } else {
-            System.out.println("\nSaliendo del juego.");
-        }
+        return victoria;
     }
+    
+    public long getTiempoTranscurrido() {
+        return System.currentTimeMillis() - tiempoInicio;
+    }
+    
+    private String formatearTiempo(long tiempoMs) {
+        long segundos = tiempoMs / 1000;
+        long minutos = segundos / 60;
+        segundos = segundos % 60;
+        return String.format("%02d:%02d", minutos, segundos);
+    }
+    
+    // Getters adicionales
+    public int getContadorMovimientos() { return contadorMovimientos; }
+    public int getNivelActual() { return nivelActual; }
 }

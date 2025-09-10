@@ -92,7 +92,8 @@ public class MenuScreen implements Screen {
         jugarButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                ventanaDialog(game.bundle.get("menu.jugar.mensaje")); 
+               // ventanaDialog(game.bundle.get("menu.jugar.mensaje")); 
+                game.setScreen(new LvlSelectScreen());
             }
         });
 
