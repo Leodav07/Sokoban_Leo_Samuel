@@ -80,8 +80,8 @@ public class GameState {
 
             Elementos celdaCajaA = grid[cajaYA][cajaXA];
             if (celdaCajaA == Elementos.VACIO || celdaCajaA == Elementos.META) {
-                moverCelda(targetY, targetX, cajaYA, cajaXA); // Mueve la caja
-                moverCelda(playerY, playerX, targetY, targetX); // Mueve al jugador
+                moverCelda(targetY, targetX, cajaYA, cajaXA); 
+                moverCelda(playerY, playerX, targetY, targetX); 
                 this.playerX = targetX;
                 this.playerY = targetY;
             }

@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.niveles.NivelUno;
 import java.util.Locale;
 
 public class MenuScreen implements Screen {
@@ -92,7 +93,8 @@ public class MenuScreen implements Screen {
         jugarButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                ventanaDialog(game.bundle.get("menu.jugar.mensaje")); 
+                game.setScreen(new NivelUno(game));
+                
             }
         });
 

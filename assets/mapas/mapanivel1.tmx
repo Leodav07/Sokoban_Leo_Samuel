@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="12" height="10" tilewidth="64" tileheight="64" infinite="0" nextlayerid="6" nextobjectid="23">
+ <tileset firstgid="1" source="../texture.tsx"/>
+ <layer id="1" name="terreno" width="12" height="10">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,1,1,
+1,2,2,2,2,2,2,2,2,2,2,1,
+1,2,2,2,2,2,2,2,2,2,2,1,
+1,1,1,1,1,1,2,2,2,1,1,1,
+1,2,2,2,2,1,2,2,2,2,4,1,
+1,2,2,2,2,1,2,2,2,1,1,1,
+1,2,2,2,2,2,2,2,2,2,2,1,
+1,2,1,2,2,2,2,2,2,2,2,1,
+1,4,1,2,2,2,2,2,2,2,2,1,
+1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+ <objectgroup id="2" name="cajas">
+  <object id="2" x="321.819" y="128.095" width="63.2567" height="61.6753">
+   <properties>
+    <property name="tipo" value="caja"/>
+   </properties>
+  </object>
+  <object id="3" x="513.961" y="447.541" width="61.6753" height="63.2567">
+   <properties>
+    <property name="tipo" value="caja"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="3" name="jugador">
+  <object id="4" x="65.6289" y="65.6289" width="62.466" height="60.0939">
+   <properties>
+    <property name="tipo" value="spawn"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="5" name="colliders">
+  <object id="14" x="0" y="0" width="766.197" height="64.0474">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="15" x="0.395446" y="68.3964" width="63.2566" height="568.52">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="16" x="704.522" y="66.8149" width="63.2566" height="568.52">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="17" x="703.351" y="579.004" width="59.2673" height="636.516" rotation="90.0354">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="18" x="128.886" y="450.309" width="63.2566" height="123.351">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="19" x="321.028" y="190.166" width="63.2566" height="192.142">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="20" x="64.8382" y="190.166" width="254.608" height="66.4197">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="21" x="576.427" y="192.142" width="128.095" height="63.2569">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+  <object id="22" x="577.218" y="320.237" width="128.095" height="63.2569">
+   <properties>
+    <property name="movible" type="bool" value="false"/>
+    <property name="objetivo" type="bool" value="false"/>
+    <property name="solido" type="bool" value="true"/>
+    <property name="tipo" value="muro"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
