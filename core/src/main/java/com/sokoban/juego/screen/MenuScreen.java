@@ -67,7 +67,7 @@ public class MenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
+        skin = new Skin(Gdx.files.internal("skin/mario_skin.json"));
 
         Table root = new Table();
         root.setFillParent(true);
@@ -93,10 +93,8 @@ public class MenuScreen implements Screen {
         jugarButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                game.setScreen(new NivelUno(game));
-                
-
-             
+                game.setScreen(new LvlSelectScreen(game));
+          
             }
         });
 

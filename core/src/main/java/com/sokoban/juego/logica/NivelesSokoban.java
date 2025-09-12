@@ -13,10 +13,12 @@ public class NivelesSokoban {
     public static final String[][] NIVELES = {
         // Nivel 1 - Inicio (Tutorial básico)
         {
-            "########",
-            "#@, .  #", 
-            "#      #",
-            "########"
+            "################",
+            "#@, .          ###", 
+            "#                #",
+            "##################",
+            "##",
+             ""
         },
         
         // Nivel 2 - Básico (Empujar una caja)

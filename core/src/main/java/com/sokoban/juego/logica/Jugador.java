@@ -38,7 +38,7 @@ public class Jugador {
     public Jugador(float x, float y) {
         this.x = x;
         this.y = y;
-        this.velocidad = 350f;
+        this.velocidad = 1050f;
         this.bounds = new Rectangle(x, y, FRAME_WIDTH, FRAME_HEIGHT);
         this.direccionActual = Direccion.DOWN;
 

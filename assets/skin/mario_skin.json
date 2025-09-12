@@ -1,0 +1,63 @@
+{
+ 
+  "com.badlogic.gdx.graphics.g2d.BitmapFont": {
+    "default-font": { "file": "skin/mario_font.fnt" },
+   "subtitle-font": { "file": "skin/mario_font_subtitle.fnt"
+  },
+     "title-font": { "file": "skin/mario_font_title.fnt" }
+  },
+
+
+  "com.badlogic.gdx.graphics.Color": {
+    "white": { "r": 1, "g": 1, "b": 1, "a": 1 },
+    "gray": { "r": 0.6, "g": 0.6, "b": 0.6, "a": 1 },
+    "hover-white": { "r": 0.9, "g": 0.9, "b": 0.9, "a": 1 }
+  },
+
+
+  "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+     "default": {
+      "font": "default-font",
+      "fontColor": "white"
+    },
+    "title": {
+      "font": "title-font",
+      "fontColor": "white"
+    },
+     "subtitle-font": {
+      "font": "subtitle-font",
+      "fontColor": "white"
+    }
+
+  },
+
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "default": {
+      "font": "default-font",
+  
+      "fontColor": "gray",
+    
+      "overFontColor": "hover-white",
+   
+      "downFontColor": "white"
+  
+    }
+  },
+
+
+  "com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle": 
+  {
+    "default": {
+     
+    },
+    "invisible": {
+        "up": null,
+        "down": null,
+        "over": null
+    }
+  }
+
+
+
+
+}

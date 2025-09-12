@@ -12,12 +12,23 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Nivel;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
+import com.sokoban.juego.niveles.NivelUno;
 
 /**
  *
@@ -39,20 +50,41 @@ public class LvlSelectScreen implements Screen {
     private Texture iconoCaja;
     private Texture iconoMeta;
 
+    private Texture playerTexture;
+    private Animation<TextureRegion> playerAnimation;
+    private float stateTime = 0f; // Para controlar el tiempo de la animación
+
+    // Posición LÓGICA del jugador en el grid (casillas)
+    private int playerGridX;
+    private int playerGridY;
+
     // Progreso del jugador
     private boolean[] nivelesCompletados;
+    private Main game;
 
-    public LvlSelectScreen() {
+    private Viewport vp;
+
+    private TiledMap tiledMap;
+    private TmxMapLoader mapLoader;
+    private OrthogonalTiledMapRenderer mapRenderer;
+
+    private final int TILE_SIZE = 16;
+
+    public LvlSelectScreen(Main game) {
+        this.game = game;
         inicializar();
         crearMapa();
         cargarProgreso();
     }
 
     private void inicializar() {
+
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(400, 300, 0);
+        camera.setToOrtho(false, 320, 160);
+        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+
         camera.update();
 
         font = new BitmapFont();
@@ -72,11 +104,40 @@ public class LvlSelectScreen implements Screen {
             {5, 6},
             {6, 7}
         };
+        vp = new FitViewport(320, 160, camera);
+        mapLoader = new TmxMapLoader();
+        tiledMap = mapLoader.load("mundo/mapaCompleto.tmx"); // ¡Usa el nombre de tu archivo!
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-//                for (int i = 1; i <= 7; i++) {
-//            GestorProgreso.getInstancia().getProgresoPorNivel(i).setDesbloqueado(true);
-//        }  
-//                GestorProgreso.getInstancia().guardarProgreso();
+        // 1. Carga la textura del jugador
+        playerTexture = new Texture("mundo/marioMap.png"); // Asegúrate que el archivo esté en 'assets'
+        playerTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        // 2. Crea la animación con la versión normal y la volteada (flip)
+        TextureRegion frame1 = new TextureRegion(playerTexture);
+        TextureRegion frame2 = new TextureRegion(playerTexture);
+        frame2.flip(true, false); // Voltea el frame horizontalmente
+
+        // Crea la animación que cambia de frame cada 0.5 segundos
+        playerAnimation = new Animation<TextureRegion>(0.5f, frame1, frame2);
+
+        MapObjects objects = tiledMap.getLayers().get("hitboxes").getObjects();
+        MapObject startObject = objects.get("start");
+
+        if (startObject != null) {
+            // Obtenemos las coordenadas en píxeles
+            float startX = startObject.getProperties().get("x", Float.class);
+            float startY = startObject.getProperties().get("y", Float.class);
+
+            // Convertimos las coordenadas de píxeles a coordenadas de grid
+            playerGridX = (int) (startX / TILE_SIZE);
+            playerGridY = (int) (startY / TILE_SIZE);
+        } else {
+            // Si no se encuentra, ponlo en una posición por defecto
+            playerGridX = 1;
+            playerGridY = 1;
+        }
+
     }
 
     private void crearMapa() {
@@ -130,6 +191,7 @@ public class LvlSelectScreen implements Screen {
     @Override
     public void render(float delta) {
         manejarInput();
+        vp.apply();
 
         // Limpiar pantalla con color azul oscuro tipo Mario World
         Gdx.gl.glClearColor(0.1f, 0.3f, 0.6f, 1);
@@ -137,145 +199,29 @@ public class LvlSelectScreen implements Screen {
 
         camera.update();
 
-        // Dibujar fondo del mapa
+        // --- DIBUJAR EL MAPA ---
+        // 1. Configura el renderizador para que use tu cámara
+        mapRenderer.setView(camera);
+        // 2. Dibuja el mapa en la pantalla
+        mapRenderer.render();
+
+        // AHORA, puedes dibujar cosas ENCIMA del mapa, como al jugador o la UI
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        // Título del mapa
-        font.getData().setScale(2.0f);
-        font.setColor(Color.WHITE);
-        font.draw(batch, "SOKOBAN - MUNDO DE NIVELES", 20, 550);
+        TextureRegion currentFrame = playerAnimation.getKeyFrame(stateTime, true); // 'true' para que la animación se repita
 
-        // Dibujar nubes decorativas simples
-        font.getData().setScale(3.0f);
-        font.setColor(Color.WHITE);
-        font.draw(batch, "☁", 50, 450);
-        font.draw(batch, "☁", 650, 480);
-        font.draw(batch, "☁", 350, 420);
+        // Calcula dónde dibujar en píxeles, basándose en la posición del grid
+        float drawX = playerGridX * 16; // Asumiendo tiles de 16px
+        float drawY = playerGridY * 16; // Asumiendo tiles de 16px
 
+        // Dibuja el frame actual en la posición calculada
+        batch.draw(currentFrame, drawX, drawY);
+
+        // Aquí es donde más tarde dibujarás el sprite de Mario
+        // font.draw(batch, "¡Mi mapa!", 10, 10); // Ejemplo de texto
         batch.end();
 
-        // Dibujar conexiones entre niveles (caminos)
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        for (int[] conexion : conexiones) {
-            int origenIndex = conexion[0] - 1; // Convertir ID a índice
-            int destinoIndex = conexion[1] - 1;
-
-            if (origenIndex < niveles.length && destinoIndex < niveles.length) {
-                Nivel origen = niveles[origenIndex];
-                Nivel destino = niveles[destinoIndex];
-
-                // Solo dibujar camino si el nivel origen está disponible o completado
-                if (origen.puedeJugar() || origen.getEstado() == Nivel.SELECCIONADO) {
-                    shapeRenderer.setColor(0.4f, 0.6f, 0.3f, 1); // Verde pasto
-                } else {
-                    shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1); // Gris bloqueado
-                }
-
-                dibujarCamino(origen.getX(), origen.getY(), destino.getX(), destino.getY(), 8);
-            }
-        }
-
-        shapeRenderer.end();
-
-        // Dibujar niveles como círculos
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        for (Nivel nivel : niveles) {
-            Color color = nivel.getColor();
-            float radio = nivel.esBoss() ? 35 : 25;
-
-            // Sombra del círculo
-            shapeRenderer.setColor(0, 0, 0, 0.3f);
-            shapeRenderer.circle(nivel.getX() + 3, nivel.getY() - 3, radio + 2);
-
-            // Borde del círculo
-            shapeRenderer.setColor(Color.BLACK);
-            shapeRenderer.circle(nivel.getX(), nivel.getY(), radio + 2);
-
-            // Círculo principal
-            shapeRenderer.setColor(color);
-            shapeRenderer.circle(nivel.getX(), nivel.getY(), radio);
-
-            // Efecto de brillo si está seleccionado
-            if (nivel.getEstado() == Nivel.SELECCIONADO) {
-                shapeRenderer.setColor(1, 1, 1, 0.3f);
-                shapeRenderer.circle(nivel.getX(), nivel.getY(), radio - 5);
-            }
-        }
-
-        shapeRenderer.end();
-
-        // Dibujar texto de los niveles
-        batch.begin();
-        font.getData().setScale(1.2f);
-
-        for (Nivel nivel : niveles) {
-            // Número del nivel en el centro
-            font.setColor(Color.BLACK);
-            String numeroNivel = String.valueOf(nivel.getId());
-            font.draw(batch, numeroNivel, nivel.getX() - 8, nivel.getY() + 6);
-
-            // Nombre del nivel debajo
-            font.getData().setScale(0.8f);
-            font.setColor(Color.WHITE);
-            float anchoTexto = nivel.getNombre().length();
-            font.draw(batch, nivel.getNombre(), nivel.getX() - anchoTexto / 2, nivel.getY() - 50);
-
-            // Estrella si está completado
-            if (nivel.getEstado() == Nivel.COMPLETADO) {
-                font.getData().setScale(1.5f);
-                font.setColor(Color.GOLD);
-                font.draw(batch, "★", nivel.getX() + 20, nivel.getY() + 25);
-            }
-
-            // Candado si está bloqueado
-            if (nivel.getEstado() == Nivel.BLOQUEADO) {
-                font.getData().setScale(1.2f);
-                font.setColor(Color.RED);
-                font.draw(batch, "🔒", nivel.getX() + 20, nivel.getY() + 20);
-            }
-
-            font.getData().setScale(1.2f);
-        }
-
-        // Información del nivel seleccionado
-        if (nivelSeleccionadoIndex < niveles.length) {
-            Nivel nivelActual = niveles[nivelSeleccionadoIndex];
-            font.getData().setScale(1.5f);
-            font.setColor(Color.YELLOW);
-            font.draw(batch, "→ " + nivelActual.getNombre(), 50, 150);
-
-            font.getData().setScale(1.0f);
-            font.setColor(Color.WHITE);
-            String estado = "";
-            switch (nivelActual.getEstado()) {
-                case Nivel.BLOQUEADO:
-                    estado = "BLOQUEADO";
-                    break;
-                case Nivel.DISPONIBLE:
-                    estado = "LISTO PARA JUGAR";
-                    break;
-                case Nivel.COMPLETADO:
-                    estado = "COMPLETADO ★";
-                    break;
-                case Nivel.SELECCIONADO:
-                    estado = "SELECCIONADO";
-                    break;
-            }
-            font.draw(batch, "Estado: " + estado, 50, 120);
-        }
-
-        // Instrucciones
-        font.getData().setScale(1.0f);
-        font.setColor(Color.WHITE);
-        font.draw(batch, "CONTROLES:", 50, 80);
-        font.draw(batch, "FLECHAS: Navegar  |  ENTER: Jugar  |  ESC: Menú", 50, 50);
-        font.draw(batch, "CLICK: Seleccionar nivel", 50, 30);
-
-        batch.end();
     }
 
     private void manejarInput() {
@@ -298,9 +244,11 @@ public class LvlSelectScreen implements Screen {
             if (nivelSeleccionadoIndex < niveles.length) {
                 Nivel nivel = niveles[nivelSeleccionadoIndex];
                 if (nivel.puedeJugar()) {
-                    iniciarNivel(nivel.getId());
+                    // iniciarNivel(nivel.getId());
+
                 }
             }
+            game.setScreen(new NivelUno(game));
         }
 
         // Volver al menú
@@ -478,6 +426,7 @@ public class LvlSelectScreen implements Screen {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
         camera.update();
+        vp.update(width, height, true);
     }
 
     @Override
@@ -494,6 +443,10 @@ public class LvlSelectScreen implements Screen {
 
     @Override
     public void dispose() {
+
+        shapeRenderer.dispose();
+        font.dispose();
+        tiledMap.dispose();
         batch.dispose();
         shapeRenderer.dispose();
         font.dispose();
