@@ -1,2 +1,2 @@
 volumen=0.65999997
-idioma=es
+idioma=en

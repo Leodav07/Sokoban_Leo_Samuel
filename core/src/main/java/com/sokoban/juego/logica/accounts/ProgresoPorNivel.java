@@ -16,12 +16,12 @@ public class ProgresoPorNivel {
     private int mejorPuntaje;
     private int menorCantidadMovimientos;
     private int vecesCompletado;
-    private long tiempoMejorRecord; // en milisegundos
+    private long tiempoMejorRecord; 
 
     public ProgresoPorNivel(int nivelId) {
         this.nivelId = nivelId;
         this.completado = false;
-        this.desbloqueado = (nivelId == 1); // Solo el primer nivel está desbloqueado inicialmente
+        this.desbloqueado = (nivelId == 1); // Solo el primer nivel está desbloqueado inicialmente (standard)
         this.mejorPuntaje = 0;
         this.menorCantidadMovimientos = Integer.MAX_VALUE;
         this.vecesCompletado = 0;
@@ -41,13 +41,11 @@ public class ProgresoPorNivel {
         int nuevoPuntaje = calcularPuntaje(movimientos, tiempoEnMs);
 
         if (!completado) {
-            // Primera vez completando el nivel
             completado = true;
             mejorPuntaje = nuevoPuntaje;
             menorCantidadMovimientos = movimientos;
             tiempoMejorRecord = tiempoEnMs;
         } else {
-            // Actualizar si es mejor
             if (nuevoPuntaje > mejorPuntaje) {
                 mejorPuntaje = nuevoPuntaje;
             }
@@ -79,7 +77,6 @@ public class ProgresoPorNivel {
         return "☆☆☆ COMPLETADO";
     }
 
-    // Getters y Setters
     public int getNivelId() {
         return nivelId;
     }

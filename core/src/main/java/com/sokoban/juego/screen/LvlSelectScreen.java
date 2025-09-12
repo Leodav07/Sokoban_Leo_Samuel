@@ -16,8 +16,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Nivel;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
+import com.sokoban.juego.niveles.NivelUnoScreen;
 
 /**
  *
@@ -41,11 +43,15 @@ public class LvlSelectScreen implements Screen {
 
     // Progreso del jugador
     private boolean[] nivelesCompletados;
+    private Main game;
+    
 
-    public LvlSelectScreen() {
+    public LvlSelectScreen(Main game) {
+         this.game = game;
         inicializar();
         crearMapa();
         cargarProgreso();
+       
     }
 
     private void inicializar() {
@@ -301,6 +307,8 @@ public class LvlSelectScreen implements Screen {
                     iniciarNivel(nivel.getId());
                 }
             }
+           game.setScreen(new NivelUnoScreen(game));
+           
         }
 
         // Volver al menú

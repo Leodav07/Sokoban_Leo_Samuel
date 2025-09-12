@@ -11,9 +11,10 @@ import java.awt.Image;
  *
  * @author hnleo
  */
-public class Caja extends Elemento{
-         public Caja(int x, int y, Texture textura){
-             super(x, y, textura);
-         }
+public class Objetivo extends Elemento{
+    
+    public Objetivo(int x, int y, Texture textura) {
+        super(x, y, textura);
+    }
     
 }
