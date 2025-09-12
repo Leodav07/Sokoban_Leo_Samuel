@@ -10,16 +10,10 @@ import com.badlogic.gdx.Input;
  * @author hnleo
  */
 public class EntradaGestor {
-     private Jugador jugador;
-    private TileMapRun tileMap;
+     private JugadorExample jugador;
     private float tiempoUltimoMovimiento = 0f;
     private static final float DELAY = 0.08f; 
-    
-    public EntradaGestor(Jugador jugador, TileMapRun tileMap) {
-        this.jugador = jugador;
-        this.tileMap = tileMap;
-    }
-    
+   
     public void update(float deltaTime) {
         tiempoUltimoMovimiento += deltaTime;
         
@@ -30,21 +24,13 @@ public class EntradaGestor {
         boolean seMovio = false;
         
         if ( Gdx.input.isKeyPressed(Input.Keys.W)) {
-            if (jugador.mover(Direccion.UP, deltaTime, tileMap)) {
-                seMovio = true;
-            }
+            
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            if (jugador.mover(Direccion.DOWN, deltaTime, tileMap)) {
-                seMovio = true;
-            }
+            
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            if (jugador.mover(Direccion.LEFT, deltaTime, tileMap)) {
-                seMovio = true;
-            }
+            
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            if (jugador.mover(Direccion.RIGHT, deltaTime, tileMap)) {
-                seMovio = true;
-            }
+           
         }
         
         if (seMovio) {
@@ -54,8 +40,5 @@ public class EntradaGestor {
             jugador.setEstaMoviendo(false);
         }
     }
-    
-    public void setTileMap(TileMapRun tileMap) {
-        this.tileMap = tileMap;
-    }
+ 
 }

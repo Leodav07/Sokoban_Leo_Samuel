@@ -16,7 +16,6 @@ public class GameState {
     private int ancho, largo;
     private int playerY, playerX;
     
-    // Nuevas variables para tracking
     private int contadorMovimientos = 0;
     private long tiempoInicio;
     private int nivelActual;
@@ -79,7 +78,7 @@ public class GameState {
             moverCelda(playerY, playerX, targetY, targetX);
             this.playerX = targetX;
             this.playerY = targetY;
-            contadorMovimientos++; // Incrementar contador
+            contadorMovimientos++; 
             return;
         }
 
@@ -97,7 +96,7 @@ public class GameState {
                 moverCelda(playerY, playerX, targetY, targetX); 
                 this.playerX = targetX;
                 this.playerY = targetY;
-                contadorMovimientos++; // Incrementar contador
+                contadorMovimientos++; 
             }
         }
     }
@@ -160,7 +159,6 @@ public class GameState {
         boolean victoria = numMetasTotales > 0 && numCajasEnMeta == numMetasTotales;
         
         if (victoria) {
-            // Registrar la victoria en el sistema de progreso
             long tiempoFinal = getTiempoTranscurrido();
             gestorProgreso.completarNivel(nivelActual, contadorMovimientos, tiempoFinal);
         }
@@ -179,7 +177,6 @@ public class GameState {
         return String.format("%02d:%02d", minutos, segundos);
     }
     
-    // Getters adicionales
     public int getContadorMovimientos() { return contadorMovimientos; }
     public int getNivelActual() { return nivelActual; }
 }

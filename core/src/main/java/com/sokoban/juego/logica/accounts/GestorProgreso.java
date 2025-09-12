@@ -51,7 +51,6 @@ public class GestorProgreso {
             progreso.actualizarRecord(movimientos, tiempoEnMs);
             int nuevoPuntaje = progreso.getMejorPuntaje();
             
-            // Actualizar puntaje total solo si mejoró
             if (nuevoPuntaje > puntajeAnterior) {
                 puntajeTotalAcumulado += (nuevoPuntaje - puntajeAnterior);
             }
@@ -59,7 +58,6 @@ public class GestorProgreso {
             totalMovimientosRealizados += movimientos;
             tiempoTotalJugado += tiempoEnMs;
             
-            // Desbloquear siguiente nivel
             if (nivelId < 7) {
                 ProgresoPorNivel siguienteNivel = progresoPorNivel.get(nivelId + 1);
                 if (siguienteNivel != null && !siguienteNivel.isDesbloqueado()) {
@@ -76,7 +74,7 @@ public class GestorProgreso {
     private void mostrarResultadoNivel(int nivelId, int movimientos, long tiempoMs) {
         ProgresoPorNivel progreso = progresoPorNivel.get(nivelId);
         if (progreso != null) {
-            System.out.println("\n🎉 ¡NIVEL " + nivelId + " COMPLETADO! 🎉");
+            System.out.println("\n¡NIVEL " + nivelId + " COMPLETADO!");
             System.out.println("Movimientos realizados: " + movimientos);
             System.out.println("Tiempo: " + formatearTiempo(tiempoMs));
             System.out.println("Puntaje obtenido: " + progreso.calcularPuntaje(movimientos, tiempoMs));
@@ -84,10 +82,10 @@ public class GestorProgreso {
             System.out.println("Clasificación: " + progreso.getClasificacion());
             
             if (movimientos == progreso.getMenorCantidadMovimientos()) {
-                System.out.println("🏆 ¡NUEVO RÉCORD DE MOVIMIENTOS!");
+                System.out.println("¡NUEVO RÉCORD DE MOVIMIENTOS!");
             }
             if (tiempoMs == progreso.getTiempoMejorRecord()) {
-                System.out.println("⚡ ¡NUEVO RÉCORD DE TIEMPO!");
+                System.out.println("¡NUEVO RÉCORD DE TIEMPO!");
             }
         }
     }
@@ -215,7 +213,7 @@ public class GestorProgreso {
         System.out.println("Usuario: " + usuario.getUsername());
         System.out.println("=".repeat(50));
         
-        System.out.println("📊 RESUMEN GENERAL:");
+        System.out.println("RESUMEN GENERAL:");
         System.out.println("Puntaje Total: " + puntajeTotalAcumulado);
         System.out.println("Movimientos Totales: " + totalMovimientosRealizados);
         System.out.println("Tiempo Total Jugado: " + formatearTiempo(tiempoTotalJugado));
@@ -223,16 +221,16 @@ public class GestorProgreso {
         int nivelesCompletados = 0;
         int nivelesDesbloqueados = 0;
         
-        System.out.println("\n🎮 PROGRESO POR NIVEL:");
+        System.out.println("\nPROGRESO POR NIVEL:");
         for (int i = 1; i <= 7; i++) {
             ProgresoPorNivel progreso = progresoPorNivel.get(i);
             if (progreso != null) {
                 if (progreso.isDesbloqueado()) nivelesDesbloqueados++;
                 if (progreso.isCompletado()) nivelesCompletados++;
                 
-                String estado = "🔒 BLOQUEADO";
+                String estado = "BLOQUEADO";
                 if (progreso.isDesbloqueado()) {
-                    estado = progreso.isCompletado() ? "✅ COMPLETADO" : "🔓 DISPONIBLE";
+                    estado = progreso.isCompletado() ? "COMPLETADO" : "DISPONIBLE";
                 }
                 
                 System.out.println("Nivel " + i + ": " + estado);
@@ -247,13 +245,12 @@ public class GestorProgreso {
             }
         }
         
-        System.out.println("🏆 PROGRESO GENERAL:");
+        System.out.println("PROGRESO GENERAL:");
         System.out.println("Niveles Desbloqueados: " + nivelesDesbloqueados + "/7");
         System.out.println("Niveles Completados: " + nivelesCompletados + "/7");
         
         if (nivelesCompletados == 7) {
-            System.out.println("🎉 ¡FELICIDADES! ¡HAS COMPLETADO TODOS LOS NIVELES!");
-            System.out.println("🌟 Eres un Maestro del Sokoban!");
+            System.out.println("¡FELICIDADES! ¡HAS COMPLETADO TODOS LOS NIVELES!");
         }
         
         System.out.println("=".repeat(50));
@@ -286,11 +283,18 @@ public class GestorProgreso {
         return String.format("%02d:%02d", minutos, segundos);
     }
     
-    // Getters adicionales
-    public int getPuntajeTotalAcumulado() { return puntajeTotalAcumulado; }
-    public int getTotalMovimientosRealizados() { return totalMovimientosRealizados; }
-    public long getTiempoTotalJugado() { return tiempoTotalJugado; }
-    public ProgresoPorNivel getProgresoPorNivel(int nivelId) { return progresoPorNivel.get(nivelId); }
+    public int getPuntajeTotalAcumulado() {
+        return puntajeTotalAcumulado; 
+    }
+    public int getTotalMovimientosRealizados() {
+        return totalMovimientosRealizados; 
+    }
+    public long getTiempoTotalJugado() {
+        return tiempoTotalJugado; 
+    }
+    public ProgresoPorNivel getProgresoPorNivel(int nivelId) {
+        return progresoPorNivel.get(nivelId); 
+    }
     
     public int getNivelesCompletados() {
         int count = 0;

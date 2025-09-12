@@ -69,7 +69,7 @@ public class GestorUsuarios {
             }
 
             File file = archivoUser.file();
-            fileUser = new RandomAccessFile(file, "r"); // Asigna la instancia aquí
+            fileUser = new RandomAccessFile(file, "r");
 
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
@@ -82,9 +82,7 @@ public class GestorUsuarios {
 
             if (usuarioAlmacenado.equals(username) && passwordAlmacenado.equals(passwordHash)) {
                 System.out.println("Inicio de sesión exitoso: " + username);
-                // Almacena el usuario actual para usarlo en otras pantallas
                 usuarioActual = new Usuario(usuarioAlmacenado, password, nombreCompletoAlmacenado);
-                // Puedes establecer la fecha de registro si es necesaria en el objeto Usuario
                 Calendar cal = Calendar.getInstance();
                 cal.setTimeInMillis(fechaRegistro);
                 usuarioActual.setFechaRegistro(cal);

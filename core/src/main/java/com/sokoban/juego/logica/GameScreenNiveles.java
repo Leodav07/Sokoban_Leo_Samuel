@@ -23,7 +23,6 @@ public class GameScreenNiveles {
         this.scanner = new Scanner(System.in);
         this.gestorProgreso = GestorProgreso.getInstancia();
         
-        // Cargar el nivel específico
         String[] layoutNivel = NivelesSokoban.getNivel(nivelId);
         this.gameState = new GameState(layoutNivel, nivelId);
         
@@ -56,15 +55,12 @@ public class GameScreenNiveles {
             }
         }
         
-        // ¡Victoria!
         if (gameState.verificarVictoria()) {
             System.out.println("\n🎉 ¡NIVEL COMPLETADO! 🎉");
             gameState.imprimirGame();
             
-            // Marcar nivel como completado
             gestorProgreso.completarNivel(nivelActual, gameState.getContadorMovimientos(), gameState.getTiempoTranscurrido());
             
-            // Mostrar mensaje especial para el nivel final
             if (nivelActual == 7) {
                 System.out.println("🏆 ¡FELICIDADES! ¡HAS COMPLETADO TODOS LOS NIVELES! 🏆");
             } else {
@@ -77,7 +73,6 @@ public class GameScreenNiveles {
         }
     }
     
-    // Método para probar rápidamente un nivel
     public static void main(String[] args) {
         System.out.println("¿Qué nivel quieres probar? (1-7): ");
         Scanner sc = new Scanner(System.in);
