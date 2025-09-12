@@ -20,8 +20,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -41,6 +43,11 @@ public class LvlSelectScreen implements Screen {
     private OrthographicCamera camera;
     private BitmapFont font;
 
+    private enum PlayerState {
+        IDLE, MOVING
+    }
+    private PlayerState pS = PlayerState.IDLE;
+
     private Nivel[] niveles;
     private int[][] conexiones; // [nivel_origen][nivel_destino]
     private int nivelSeleccionadoIndex;
@@ -58,12 +65,23 @@ public class LvlSelectScreen implements Screen {
     private int playerGridX;
     private int playerGridY;
 
+    // --- NUEVAS VARIABLES PARA LA ANIMACIÓN DEL MOVIMIENTO ---
+// Posición VISUAL del jugador en píxeles (para el movimiento suave)
+    private Vector2 playerVisualPosition = new Vector2();
+// Vectores para saber desde y hacia dónde animar
+    private Vector2 moveFrom = new Vector2();
+    private Vector2 moveTo = new Vector2();
+// Temporizador para la animación
+    private float moveTimer = 0f;
+// Duración de la animación en segundos (ajústalo a tu gusto)
+    private final float MOVE_DURATION = 0.2f;
     // Progreso del jugador
     private boolean[] nivelesCompletados;
     private Main game;
 
     private Viewport vp;
 
+    private boolean[][] esCamino;
     private TiledMap tiledMap;
     private TmxMapLoader mapLoader;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -138,6 +156,19 @@ public class LvlSelectScreen implements Screen {
             playerGridY = 1;
         }
 
+        TiledMapTileLayer caminosLayer = (TiledMapTileLayer) tiledMap.getLayers().get("caminos");
+        int mapWidthInTiles = caminosLayer.getWidth();
+        int mapHeightInTiles = caminosLayer.getHeight();
+        esCamino = new boolean[mapWidthInTiles][mapHeightInTiles];
+
+        for (int x = 0; x < mapWidthInTiles; x++) {
+            for (int y = 0; y < mapHeightInTiles; y++) {
+                // Si hay una celda en la capa "Caminos" en esta coordenada, es caminable
+                esCamino[x][y] = (caminosLayer.getCell(x, y) != null);
+            }
+        }
+        playerVisualPosition.set(playerGridX * TILE_SIZE, playerGridY * TILE_SIZE);
+
     }
 
     private void crearMapa() {
@@ -193,6 +224,21 @@ public class LvlSelectScreen implements Screen {
         manejarInput();
         vp.apply();
 
+        stateTime += delta;
+
+        // --- LÓGICA DE ANIMACIÓN DE MOVIMIENTO ---
+        if (pS == PlayerState.MOVING) {
+            moveTimer += delta;
+            float progress = Math.min(1f, moveTimer / MOVE_DURATION);
+
+            // Interpolar (mover suavemente) la posición visual desde el origen al destino
+            playerVisualPosition.set(moveFrom).lerp(moveTo, progress);
+
+            // Si la animación ha terminado, volver al estado IDLE
+            if (progress >= 1f) {
+                pS = PlayerState.IDLE;
+            }
+        }
         // Limpiar pantalla con color azul oscuro tipo Mario World
         Gdx.gl.glClearColor(0.1f, 0.3f, 0.6f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -212,11 +258,8 @@ public class LvlSelectScreen implements Screen {
         TextureRegion currentFrame = playerAnimation.getKeyFrame(stateTime, true); // 'true' para que la animación se repita
 
         // Calcula dónde dibujar en píxeles, basándose en la posición del grid
-        float drawX = playerGridX * 16; // Asumiendo tiles de 16px
-        float drawY = playerGridY * 16; // Asumiendo tiles de 16px
-
         // Dibuja el frame actual en la posición calculada
-        batch.draw(currentFrame, drawX, drawY);
+        batch.draw(currentFrame, playerVisualPosition.x, playerVisualPosition.y);
 
         // Aquí es donde más tarde dibujarás el sprite de Mario
         // font.draw(batch, "¡Mi mapa!", 10, 10); // Ejemplo de texto
@@ -225,59 +268,48 @@ public class LvlSelectScreen implements Screen {
     }
 
     private void manejarInput() {
-        // Navegación con teclado
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-            moverSeleccion(1);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-            moverSeleccion(-1);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            buscarNivelEnDireccion(0, 1);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            buscarNivelEnDireccion(0, -1);
-        }
+        // Solo aceptar input de movimiento si el jugador está quieto
+        if (pS == PlayerState.IDLE) {
+            int targetGridX = playerGridX;
+            int targetGridY = playerGridY;
 
-        // Iniciar nivel
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            if (nivelSeleccionadoIndex < niveles.length) {
-                Nivel nivel = niveles[nivelSeleccionadoIndex];
-                if (nivel.puedeJugar()) {
-                    // iniciarNivel(nivel.getId());
-
-                }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+                targetGridX++;
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+                targetGridX--;
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                targetGridY--; // Correcto para SUBIR
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                targetGridY++; // Correcto para BAJAR
             }
-            game.setScreen(new NivelUno(game));
-        }
 
-        // Volver al menú
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            // game.setScreen(new MenuPrincipalScreen(game));
-            System.out.println("Volviendo al menú principal...");
-        }
+            // Comprobar si la nueva posición es válida
+            if (targetGridX >= 0 && targetGridX < esCamino.length
+                    && targetGridY >= 0 && targetGridY < esCamino[0].length
+                    && esCamino[targetGridX][targetGridY]) {
 
-        // Click del mouse
-        if (Gdx.input.justTouched()) {
-            Vector3 clickPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(clickPos);
-
-            for (int i = 0; i < niveles.length; i++) {
-                Nivel nivel = niveles[i];
-                float distancia = calcularDistancia(nivel.getX(), nivel.getY(),
-                        clickPos.x, clickPos.y);
-
-                float radio = nivel.esBoss() ? 35 : 25;
-                if (distancia <= radio && nivel.puedeJugar()) {
-                    seleccionarNivel(i);
-                    // Doble click para iniciar
-                    if (distancia <= radio - 10) {
-                        iniciarNivel(nivel.getId());
-                    }
-                    break;
-                }
+                // Si es válida, iniciar el movimiento
+                iniciarMovimiento(targetGridX, targetGridY);
             }
         }
+        // Aquí puedes añadir la lógica para presionar ENTER, etc.
+    }
+
+// Nuevo método de ayuda para configurar la animación
+    private void iniciarMovimiento(int targetX, int targetY) {
+        // Origen del movimiento (posición actual en píxeles)
+        moveFrom.set(playerGridX * TILE_SIZE, playerGridY * TILE_SIZE);
+
+        // Destino del movimiento (nueva posición en píxeles)
+        moveTo.set(targetX * TILE_SIZE, targetY * TILE_SIZE);
+
+        // Actualizar la posición lógica final del jugador
+        playerGridX = targetX;
+        playerGridY = targetY;
+
+        // Iniciar la animación
+        moveTimer = 0f;
+        pS = PlayerState.MOVING;
     }
 
     private void moverSeleccion(int direccion) {
@@ -423,9 +455,8 @@ public class LvlSelectScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        camera.update();
+        
+      
         vp.update(width, height, true);
     }
 
