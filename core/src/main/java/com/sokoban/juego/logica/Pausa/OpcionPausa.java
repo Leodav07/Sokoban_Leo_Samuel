@@ -4,6 +4,8 @@
  */
 package com.sokoban.juego.logica.Pausa;
 
+import static com.sokoban.juego.logica.Pausa.OpcionPausa.values;
+
 /**
  *
  * @author hnleo

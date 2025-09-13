@@ -25,4 +25,13 @@ public class Elemento {
    public void dibujar(SpriteBatch batch, int tamCelda, int offsetX, int offsetY, int filas) {
         batch.draw(textura, offsetX + x * tamCelda, offsetY + (filas - 1 - y) * tamCelda, tamCelda, tamCelda);
     }
+   
+   public void dibujarEn(SpriteBatch batch, float screenX, float screenY, int tileSize) {
+    if (textura != null) {
+        batch.draw(textura, screenX, screenY, tileSize, tileSize);
+    }
+}
+   public Texture getTextura() {
+    return textura;
+}
 }

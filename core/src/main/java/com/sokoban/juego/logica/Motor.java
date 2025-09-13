@@ -14,6 +14,7 @@ public class Motor {
     private int[][] layout;
     private Jugador jugador;
     private int filas, columnas;
+    private int tileSize;
     private Texture cajaImg, metaImg, sueloImg;
 
     public interface MotorListener {
@@ -28,7 +29,7 @@ public class Motor {
     private MotorListener listener;
 
     public Motor(Elemento[][] mapa, int[][] layout, Jugador jugador,
-            int filas, int columnas, Texture cajaImg, Texture metaImg, Texture sueloImg) {
+            int filas, int columnas, Texture cajaImg, Texture metaImg, Texture sueloImg, int tileSize) {
         this.mapa = mapa;
         this.layout = layout;
         this.jugador = jugador;
@@ -37,6 +38,7 @@ public class Motor {
         this.cajaImg = cajaImg;
         this.metaImg = metaImg;
         this.sueloImg = sueloImg;
+        this.tileSize = tileSize;
     }
 
     public void setListener(MotorListener listener) {
@@ -47,16 +49,16 @@ public class Motor {
         if (jugador == null || jugador.estaMoviendose()) {
             return false;
         }
+        
+        int nuevoX = jugador.getX() + dx;
+        int nuevoY = jugador.getY() + dy;
 
-        int nx = jugador.x + dx;
-        int ny = jugador.y + dy;
-
-        if (nx < 0 || nx >= columnas || ny < 0 || ny >= filas) {
+        if (nuevoX < 0 || nuevoX >= columnas || nuevoY < 0 || nuevoY >= filas) {
             notificarMovimientoInvalido();
             return false;
         }
 
-        Elemento obj = mapa[ny][nx];
+        Elemento obj = mapa[nuevoY][nuevoX];
 
         if (obj instanceof Muro) {
             notificarMovimientoInvalido();
@@ -64,8 +66,10 @@ public class Motor {
         }
 
         if (obj instanceof Caja) {
-            if (empujarCajas(nx, ny, dx, dy)) {
-                jugador.moverCelda(nx, ny);
+            // El jugador va a empujar una caja
+            if (empujarCajas(nuevoX, nuevoY, dx, dy)) {
+                // Usar la animación de empuje
+                jugador.moverEmpujandoA(nuevoX, nuevoY);
                 notificarMovimientoRealizado();
 
                 if (nivelCompletado()) {
@@ -78,7 +82,8 @@ public class Motor {
                 return false;
             }
         } else {
-            jugador.moverCelda(nx, ny);
+            // Movimiento normal (sin empujar)
+            jugador.moverA(nuevoX, nuevoY);
             notificarMovimientoRealizado();
             return true;
         }
@@ -137,7 +142,7 @@ public class Motor {
             int nuevaX = cajaPos.x + dx;
             int nuevaY = cajaPos.y + dy;
 
-            Caja cajaNueva = new Caja(nuevaX, nuevaY, cajaImg);
+            Caja cajaNueva = new Caja(nuevaX, nuevaY, cajaImg, tileSize);
             mapa[nuevaY][nuevaX] = cajaNueva;
 
             restaurarElementoOriginal(cajaPos.x, cajaPos.y);
@@ -197,7 +202,7 @@ public class Motor {
 
     public Posicion getPosicionJugador() {
         if (jugador != null) {
-            return new Posicion(jugador.x, jugador.y);
+            return new Posicion(jugador.getX(), jugador.getY());
         }
         return null;
     }

@@ -1,203 +1,334 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.sokoban.juego.logica;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-//
-//
-//public class Jugador {
-//
-//    private float x, y;
-//    private Rectangle bounds;
-//    private float velocidad;
-//    private boolean estaMoviendo = false;
-//    private Direccion direccionActual;
-//
-//    private Animation<TextureRegion> animacionCaminarArriba;
-//    private Animation<TextureRegion> animacionCaminarAbajo;
-//    private Animation<TextureRegion> animacionCaminarIzquierda;
-//    private Animation<TextureRegion> animacionCaminarDerecha;
-//    private Animation<TextureRegion> animacionIdle;
-//
-//    private float tiempoAnimacion = 0f;
-//    private Texture spriteSheet;
-//
-//    private static final int FRAME_WIDTH = 40;
-//    private static final int FRAME_HEIGHT = 64;
-//    private static final float FRAME_DURATION = 0.08f;
-//
-//    public Jugador(float x, float y) {
-//        this.x = x;
-//        this.y = y;
-//        this.velocidad = 1050f;
-//        this.bounds = new Rectangle(x, y, FRAME_WIDTH, FRAME_HEIGHT);
-//        this.direccionActual = Direccion.DOWN;
-//
-//        cargarAnimaciones();
-//    }
-//
-//    private void cargarAnimaciones() {
-//        spriteSheet = new Texture("jugador_spritesheet.png");
-//
-//        if (spriteSheet == null) {
-//            System.out.println("NO ENCONTRE EL ARCHIVO");
-//        } else {
-//            System.out.println("si lo encontre");
-//        }
-//
-//        TextureRegion[][] frames = TextureRegion.split(spriteSheet, FRAME_WIDTH, FRAME_HEIGHT);
-//
-//        TextureRegion[] framesCaminarAbajo = new TextureRegion[3];
-//        for (int i = 0; i < 3; i++) {
-//            framesCaminarAbajo[i] = frames[2][i];
-//        }
-//        animacionCaminarAbajo = new Animation<>(FRAME_DURATION, framesCaminarAbajo);
-//
-//        TextureRegion[] framesCaminarArriba = new TextureRegion[3];
-//        for (int i = 0; i < 3; i++) {
-//            framesCaminarArriba[i] = frames[0][i];
-//        }
-//        animacionCaminarArriba = new Animation<>(FRAME_DURATION, framesCaminarArriba);
-//
-//        TextureRegion[] framesCaminarIzquierda = new TextureRegion[3];
-//        for (int i = 0; i < 3; i++) {
-//            framesCaminarIzquierda[i] = frames[3][i];
-//        }
-//        animacionCaminarIzquierda = new Animation<>(FRAME_DURATION, framesCaminarIzquierda);
-//
-//        TextureRegion[] framesCaminarDerecha = new TextureRegion[3];
-//        for (int i = 0; i < 3; i++) {
-//            framesCaminarDerecha[i] = frames[1][i];
-//        }
-//        animacionCaminarDerecha = new Animation<>(FRAME_DURATION, framesCaminarDerecha);
-//
-//        TextureRegion[] framesIdle = {frames[0][0]};
-//        animacionIdle = new Animation<>(1f, framesIdle);
-//    }
-//
-//    public boolean mover(Direccion direccion, float deltaTime, TileMapRun tileMap) {
-//        float nuevaX = x + direccion.dx * velocidad * deltaTime;
-//        float nuevaY = y + direccion.dy * velocidad * deltaTime;
-//
-////        int tileX = (int) (nuevaX / tileMap.tileWidth);
-////        int tileY = (int) (nuevaY / tileMap.tileHeight);
-//
-////        if (tileMap.dentroInside(tileX, tileY)) {
-////            TileCell cell = tileMap.grid[tileX][tileY];
-////            
-////            if (cell != null && !cell.isBloqueado()) {
-////                int oldTileX = (int) (x / tileMap.tileWidth);
-////                int oldTileY = (int) (y / tileMap.tileHeight);
-////                if (tileMap.dentroInside(oldTileX, oldTileY) && tileMap.grid[oldTileX][oldTileY] != null) {
-////                    tileMap.grid[oldTileX][oldTileY].tieneJugador = false;
-////                }
-////                
-////                x = nuevaX;
-////                y = nuevaY;
-////                bounds.setPosition(x, y);
-////                
-////                cell.tieneJugador = true;
-////                
-////                estaMoviendo = true;
-////                direccionActual = direccion;
-////                return true; 
-////            }else{
-////                estaMoviendo = false;
-////                return false;
-////            }
-////        }
-//        if (!colisionesMuro(nuevaX, nuevaY, tileMap)) {
-//            x = nuevaX;
-//            y = nuevaY;
-//            bounds.setPosition(x, y);
-//
-//            estaMoviendo = true;
-//            direccionActual = direccion;
-//            return true;
-//        }
-//        estaMoviendo = false;
-//        direccionActual = direccion;
-//        return false;
-//    }
-//
-//    private boolean colisionesMuro(float nuevaX, float nuevaY, TileMapRun tileMap) {
-//        Rectangle futuro = new Rectangle(nuevaX, nuevaY, bounds.width, bounds.height);
-//
-//    int leftTile   = (int)(futuro.x / tileMap.tileWidth);
-//    int rightTile  = (int)((futuro.x + futuro.width - 1) / tileMap.tileWidth);
-//    int bottomTile = (int)(futuro.y / tileMap.tileHeight);
-//    int topTile    = (int)((futuro.y + futuro.height - 1) / tileMap.tileHeight);
-//
-//    for (int tx = leftTile; tx <= rightTile; tx++) {
-//        for (int ty = bottomTile; ty <= topTile; ty++) {
-//            if (!tileMap.dentroInside(tx, ty)) return true; 
-//            TileCell cell = tileMap.grid[tx][ty];
-//            if (cell != null && cell.isBloqueado()) {
-//                return true; 
-//            }
-//        }
-//    }
-//    return false;
 
-/**
- *
- * @author hnleo
- */
-public class Jugador extends Elemento{
-    float posX, posY;
-    float velocidad = 384f;
-    float targetX, targetY;
-    boolean moviendose = false;
-    
-    public Jugador(int x, int y, Texture textura) {
-        super(x, y, textura);
-        this.posX = x * 64f;
-        this.posY = y * 64f;
-        this.targetX = posX;
-        this.targetY = posY;
+public class Jugador {
+
+    private int x, y;
+    private int tileSize;
+
+    private float posX, posY;
+
+    private boolean moviendose = false;
+    private int destinoX, destinoY;
+    private float velocidad = 80f;
+
+    private Animation<TextureRegion> animacionActual;
+    private Animation<TextureRegion> idleAbajo, idleArriba, idleIzquierda, idleDerecha;
+    private Animation<TextureRegion> caminarAbajo, caminarArriba, caminarIzquierda, caminarDerecha;
+    private Animation<TextureRegion> empujarAbajo, empujarArriba, empujarIzquierda, empujarDerecha;
+
+    private float tiempoAnimacion = 0f;
+    private DireccionMovimiento direccionActual = DireccionMovimiento.ARRIBA;
+    private EstadoAnimacion estadoActual = EstadoAnimacion.IDLE;
+
+    public enum DireccionMovimiento {
+        ABAJO, ARRIBA, IZQUIERDA, DERECHA
     }
-    
-    public void moverCelda(int nuevoX, int nuevoY){
-        x = nuevoX;
-        y = nuevoY;
-        targetX = x * 64f;
-        targetY = y * 64f;
-        moviendose = true;
+
+    public enum EstadoAnimacion {
+        IDLE, CAMINANDO, EMPUJANDO
     }
-    
-    public boolean estaMoviendose(){
+
+    public Jugador(int x, int y, Texture jugadorImg, int tileSize) {
+        this.x = x;
+        this.y = y;
+        this.tileSize = tileSize;
+
+        this.posX = x * tileSize;
+        this.posY = y * tileSize;
+
+        this.destinoX = x;
+        this.destinoY = y;
+
+        configurarAnimaciones(jugadorImg);
+
+        animacionActual = idleArriba;
+    }
+
+    public Jugador(Texture spritesheet, int x, int y, int tileSize) {
+        this(x, y, spritesheet, tileSize);
+    }
+
+    private void configurarAnimaciones(Texture spritesheet) {
+        int FRAME_WIDTH = 16;
+        int FRAME_HEIGHT = 16;
+        float DURACION_FRAME = 0.3f;
+        float DURACION_IDLE = 2.0f;
+
+        System.out.println("=== CONFIGURANDO ANIMACIONES ===");
+        System.out.println("Spritesheet dimensiones: " + spritesheet.getWidth() + "x" + spritesheet.getHeight());
+
+        try {
+            TextureRegion[] sprites = new TextureRegion[14];
+            for (int i = 0; i < 14; i++) {
+                sprites[i] = new TextureRegion(spritesheet, i * FRAME_WIDTH, 0, FRAME_WIDTH, FRAME_HEIGHT);
+            }
+
+            idleAbajo = new Animation<TextureRegion>(DURACION_IDLE, sprites[13]);
+            idleIzquierda = new Animation<TextureRegion>(DURACION_IDLE, sprites[0]);
+            idleDerecha = new Animation<TextureRegion>(DURACION_IDLE, sprites[1]);
+            idleArriba = new Animation<TextureRegion>(DURACION_IDLE, sprites[12]);
+
+            caminarArriba = new Animation<TextureRegion>(DURACION_FRAME, sprites[9], sprites[8], sprites[12]);
+            caminarIzquierda = new Animation<TextureRegion>(DURACION_FRAME, sprites[2], sprites[0], sprites[2], sprites[0]);
+            caminarDerecha = new Animation<TextureRegion>(DURACION_FRAME, sprites[3], sprites[1], sprites[3], sprites[1]);
+            caminarAbajo = new Animation<TextureRegion>(DURACION_FRAME, sprites[10], sprites[11], sprites[13]);
+
+            empujarArriba = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[9], sprites[8], sprites[12]);
+            empujarIzquierda = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[6], sprites[4], sprites[6], sprites[4]);
+            empujarDerecha = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[7], sprites[5], sprites[7], sprites[5]);
+            empujarAbajo = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[10], sprites[11], sprites[13]);
+
+            System.out.println("*** ANIMACIONES CREADAS EXITOSAMENTE ***");
+
+        } catch (Exception e) {
+            System.out.println("*** ERROR configurando animaciones: " + e.getMessage());
+            e.printStackTrace();
+            crearAnimacionesFallback(spritesheet, FRAME_WIDTH, FRAME_HEIGHT);
+        }
+    }
+
+    public void pausarAnimacion() {
+        tiempoAnimacion = 0f;
+    }
+
+    public void forzarIdle() {
+        if (!moviendose) {
+            estadoActual = EstadoAnimacion.IDLE;
+            tiempoAnimacion = 0f;
+        }
+    }
+
+    private void crearAnimacionesFallback(Texture spritesheet, int frameWidth, int frameHeight) {
+        TextureRegion frameUnico = new TextureRegion(spritesheet, 0, 0,
+                Math.min(frameWidth, spritesheet.getWidth()),
+                Math.min(frameHeight, spritesheet.getHeight()));
+
+        idleAbajo = idleArriba = idleIzquierda = idleDerecha = crearAnimacionEstatica(frameUnico);
+        caminarAbajo = caminarArriba = caminarIzquierda = caminarDerecha = crearAnimacionEstatica(frameUnico);
+        empujarAbajo = empujarArriba = empujarIzquierda = empujarDerecha = crearAnimacionEstatica(frameUnico);
+    }
+
+    private Animation<TextureRegion> crearAnimacionEstatica(TextureRegion frame) {
+        return new Animation<TextureRegion>(1f, frame);
+    }
+
+    public void update(float delta) {
+        if (moviendose) {
+            tiempoAnimacion += delta;
+
+            float targetPosX = destinoX * tileSize;
+            float targetPosY = destinoY * tileSize;
+
+            float dx = targetPosX - posX;
+            float dy = targetPosY - posY;
+
+            actualizarDireccion(dx, dy);
+
+            float distancia = (float) Math.sqrt(dx * dx + dy * dy);
+            float maxMovimiento = velocidad * delta;
+
+            if (distancia <= maxMovimiento) {
+
+                posX = targetPosX;
+                posY = targetPosY;
+                x = destinoX;
+                y = destinoY;
+                moviendose = false;
+
+                estadoActual = EstadoAnimacion.IDLE;
+                tiempoAnimacion = 0f;
+
+                System.out.println("Movimiento completado, cambiando a IDLE");
+            } else {
+                posX += maxMovimiento * dx / distancia;
+                posY += maxMovimiento * dy / distancia;
+            }
+        } else {
+            tiempoAnimacion += delta * 0.5f;
+        }
+
+        actualizarAnimacion();
+    }
+
+    private void actualizarDireccion(float dx, float dy) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+            direccionActual = dx > 0 ? DireccionMovimiento.DERECHA : DireccionMovimiento.IZQUIERDA;
+        } else {
+            direccionActual = dy > 0 ? DireccionMovimiento.ARRIBA : DireccionMovimiento.ABAJO;
+        }
+    }
+
+    private void actualizarAnimacion() {
+        switch (estadoActual) {
+            case IDLE:
+                switch (direccionActual) {
+                    case ABAJO:
+                        animacionActual = idleAbajo;
+                        break;
+                    case ARRIBA:
+                        animacionActual = idleArriba;
+                        break;
+                    case IZQUIERDA:
+                        animacionActual = idleIzquierda;
+                        break;
+                    case DERECHA:
+                        animacionActual = idleDerecha;
+                        break;
+                }
+                break;
+            case CAMINANDO:
+                switch (direccionActual) {
+                    case ABAJO:
+                        animacionActual = caminarAbajo;
+                        break;
+                    case ARRIBA:
+                        animacionActual = caminarArriba;
+                        break;
+                    case IZQUIERDA:
+                        animacionActual = caminarIzquierda;
+                        break;
+                    case DERECHA:
+                        animacionActual = caminarDerecha;
+                        break;
+                }
+                break;
+            case EMPUJANDO:
+                switch (direccionActual) {
+                    case ABAJO:
+                        animacionActual = empujarAbajo;
+                        break;
+                    case ARRIBA:
+                        animacionActual = empujarArriba;
+                        break;
+                    case IZQUIERDA:
+                        animacionActual = empujarIzquierda;
+                        break;
+                    case DERECHA:
+                        animacionActual = empujarDerecha;
+                        break;
+                }
+                break;
+        }
+    }
+
+    public void moverA(int nuevoX, int nuevoY) {
+        if (!moviendose) {
+            if (nuevoX > x) {
+                direccionActual = DireccionMovimiento.DERECHA;
+            } else if (nuevoX < x) {
+                direccionActual = DireccionMovimiento.IZQUIERDA;
+            } else if (nuevoY > y) {
+                direccionActual = DireccionMovimiento.ARRIBA;
+            } else if (nuevoY < y) {
+                direccionActual = DireccionMovimiento.ABAJO;
+            }
+
+            destinoX = nuevoX;
+            destinoY = nuevoY;
+            moviendose = true;
+            estadoActual = EstadoAnimacion.CAMINANDO;
+            tiempoAnimacion = 0f;
+            System.out.println(">>> INICIANDO MOVIMIENTO NORMAL a (" + nuevoX + ", " + nuevoY + ") dirección: " + direccionActual);
+        }
+    }
+
+    public void moverEmpujandoA(int nuevoX, int nuevoY) {
+        if (!moviendose) {
+            if (nuevoX > x) {
+                direccionActual = DireccionMovimiento.DERECHA;
+            } else if (nuevoX < x) {
+                direccionActual = DireccionMovimiento.IZQUIERDA;
+            } else if (nuevoY > y) {
+                direccionActual = DireccionMovimiento.ABAJO;
+            } else if (nuevoY < y) {
+                direccionActual = DireccionMovimiento.ARRIBA;
+            }
+
+            destinoX = nuevoX;
+            destinoY = nuevoY;
+            moviendose = true;
+            estadoActual = EstadoAnimacion.EMPUJANDO;
+            tiempoAnimacion = 0f;
+            System.out.println(">>> INICIANDO MOVIMIENTO EMPUJANDO a (" + nuevoX + ", " + nuevoY + ") dirección: " + direccionActual);
+        }
+    }
+
+    public void cambiarDireccion(DireccionMovimiento nuevaDireccion) {
+        direccionActual = nuevaDireccion;
+        if (!moviendose) {
+            estadoActual = EstadoAnimacion.IDLE;
+        }
+        System.out.println("Dirección cambiada a: " + nuevaDireccion);
+    }
+
+    public void establecerEstadoEmpujando(boolean empujando) {
+        if (moviendose) {
+            estadoActual = empujando ? EstadoAnimacion.EMPUJANDO : EstadoAnimacion.CAMINANDO;
+            System.out.println(">>> CAMBIO DE ESTADO: " + (empujando ? "EMPUJANDO" : "CAMINANDO"));
+        }
+    }
+
+    public void dibujar(SpriteBatch batch, int tileSize, int offsetX, int offsetY, int filas) {
+        dibujarConOffset(batch, tileSize, offsetX, offsetY, filas);
+    }
+
+    public void dibujarConOffset(SpriteBatch batch, int tileSize, int offsetX, int offsetY, int filas) {
+        float screenX = offsetX + posX;
+        float screenY = offsetY + (filas - 1 - (posY / tileSize)) * tileSize;
+
+        TextureRegion frameActual = animacionActual.getKeyFrame(tiempoAnimacion, true);
+
+        batch.draw(frameActual, screenX, screenY, tileSize, tileSize);
+    }
+
+    public void dibujarEn(SpriteBatch batch, float screenX, float screenY, int tileSize) {
+        TextureRegion frameActual = animacionActual.getKeyFrame(tiempoAnimacion, true);
+        batch.draw(frameActual, screenX, screenY, tileSize, tileSize);
+    }
+
+    public void establecerDireccion(DireccionMovimiento direccion) {
+        this.direccionActual = direccion;
+    }
+
+    public DireccionMovimiento getDireccion() {
+        return direccionActual;
+    }
+
+    public EstadoAnimacion getEstadoAnimacion() {
+        return estadoActual;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public boolean estaMoviendose() {
         return moviendose;
     }
-    
-    public void update(float delta){
-         if (!moviendose) return;
-        
-        float distanciaX = targetX - posX;
-        float distanciaY = targetY - posY;
-        
-        if (Math.abs(distanciaX) < 2f && Math.abs(distanciaY) < 2f) {
-            posX = targetX;
-            posY = targetY;
-            moviendose = false;
-            return;
-        }
-        
-        float factor = MathUtils.clamp(velocidad * delta / 64f, 0f, 1f);
-        posX = MathUtils.lerp(posX, targetX, factor);
-        posY = MathUtils.lerp(posY, targetY, factor);
+
+    public float getPosX() {
+        return posX;
     }
-    
-    public void dibujar(SpriteBatch batch, int tamCelda, int offsetX, int offsetY, int filas) {
-        float drawX = Math.round(offsetX + posX);
-        float drawY = Math.round(offsetY + (filas * tamCelda - tamCelda - posY));
-        
-        batch.draw(textura, drawX, drawY, tamCelda, tamCelda);
+
+    public float getPosY() {
+        return posY;
+    }
+
+    public Texture getTextura() {
+        TextureRegion frameActual = animacionActual.getKeyFrame(tiempoAnimacion, true);
+        return frameActual.getTexture();
+    }
+
+    public TextureRegion getTextureRegionActual() {
+        return animacionActual.getKeyFrame(tiempoAnimacion, true);
     }
 }
