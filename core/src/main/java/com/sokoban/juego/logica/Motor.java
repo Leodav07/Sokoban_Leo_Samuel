@@ -8,7 +8,6 @@ import java.util.List;
  *
  * @author hnleo
  */
-
 public class Motor {
 
     private Elemento[][] mapa;
@@ -16,13 +15,16 @@ public class Motor {
     private Jugador jugador;
     private int filas, columnas;
     private Texture cajaImg, metaImg, sueloImg;
-    
+
     public interface MotorListener {
+
         void onMovimientoRealizado();
+
         void onNivelCompletado();
+
         void onMovimientoInvalido();
     }
-    
+
     private MotorListener listener;
 
     public Motor(Elemento[][] mapa, int[][] layout, Jugador jugador,
@@ -36,7 +38,7 @@ public class Motor {
         this.metaImg = metaImg;
         this.sueloImg = sueloImg;
     }
-    
+
     public void setListener(MotorListener listener) {
         this.listener = listener;
     }
@@ -65,11 +67,11 @@ public class Motor {
             if (empujarCajas(nx, ny, dx, dy)) {
                 jugador.moverCelda(nx, ny);
                 notificarMovimientoRealizado();
-                
+
                 if (nivelCompletado()) {
                     notificarNivelCompletado();
                 }
-                
+
                 return true;
             } else {
                 notificarMovimientoInvalido();
@@ -86,25 +88,24 @@ public class Motor {
         List<Posicion> cajas = new ArrayList<>();
         int checkX = inicialX;
         int checkY = inicialY;
-
-        while (checkX >= 0 && checkX < columnas && checkY >= 0 && checkY < filas) {
-            Elemento elemento = mapa[checkY][checkX];
-
-            if (elemento instanceof Caja) {
-                cajas.add(new Posicion(checkX, checkY));
-                checkX += dx;
-                checkY += dy;
-            } else {
-                break;
+        Elemento elemento = mapa[checkY][checkX];
+        if (elemento instanceof Caja) {
+            cajas.add(new Posicion(checkX, checkY));
+            checkX += dx;
+            checkY += dy;
+            if (checkX >= 0 && checkX < columnas && checkY >= 0 && checkY < filas) {
+                Elemento siguienteElemento = mapa[checkY][checkX];
+                if (siguienteElemento instanceof Caja) {
+                    return false;
+                }
             }
+        } else {
+            return false;
         }
-
         if (!sePuedenMoverCajas(cajas, dx, dy)) {
             return false;
         }
-
         moverCajas(cajas, dx, dy);
-
         return true;
     }
 
@@ -146,7 +147,7 @@ public class Motor {
     private void restaurarElementoOriginal(int x, int y) {
         if (layout[y][x] == 3) { // Era un objetivo
             mapa[y][x] = new Objetivo(x, y, metaImg);
-        } else { 
+        } else {
             mapa[y][x] = new Terreno(x, y, sueloImg);
         }
     }
@@ -154,22 +155,22 @@ public class Motor {
     public boolean nivelCompletado() {
         int cajasEnObjetivo = 0;
         int objetivosTotales = 0;
-        
+
         for (int y = 0; y < filas; y++) {
             for (int x = 0; x < columnas; x++) {
                 if (layout[y][x] == 3) {
                     objetivosTotales++;
-                    
+
                     if (mapa[y][x] instanceof Caja) {
                         cajasEnObjetivo++;
                     }
                 }
             }
         }
-        
+
         return objetivosTotales > 0 && cajasEnObjetivo == objetivosTotales;
     }
-    
+
     public int getCajasEnObjetivo() {
         int count = 0;
         for (int y = 0; y < filas; y++) {
@@ -181,7 +182,7 @@ public class Motor {
         }
         return count;
     }
-    
+
     public int getObjetivosTotales() {
         int count = 0;
         for (int y = 0; y < filas; y++) {
@@ -193,26 +194,26 @@ public class Motor {
         }
         return count;
     }
-    
+
     public Posicion getPosicionJugador() {
         if (jugador != null) {
             return new Posicion(jugador.x, jugador.y);
         }
         return null;
     }
-    
+
     private void notificarMovimientoRealizado() {
         if (listener != null) {
             listener.onMovimientoRealizado();
         }
     }
-    
+
     private void notificarNivelCompletado() {
         if (listener != null) {
             listener.onNivelCompletado();
         }
     }
-    
+
     private void notificarMovimientoInvalido() {
         if (listener != null) {
             listener.onMovimientoInvalido();
@@ -220,26 +221,31 @@ public class Motor {
     }
 
     public static class Posicion {
+
         public final int x, y;
 
         public Posicion(int x, int y) {
             this.x = x;
             this.y = y;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
             Posicion posicion = (Posicion) obj;
             return x == posicion.x && y == posicion.y;
         }
-        
+
         @Override
         public int hashCode() {
             return x * 1000 + y;
         }
-        
+
         @Override
         public String toString() {
             return "(" + x + ", " + y + ")";
