@@ -7,15 +7,21 @@ package com.sokoban.juego.screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -23,6 +29,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -30,13 +37,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Nivel;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
-import com.sokoban.juego.niveles.NivelUno;
+import com.sokoban.juego.niveles.NivelUnoScreen;
 
 /**
  *
  * @author unwir
  */
-public class LvlSelectScreen implements Screen {
+public class LvlSelectScreen implements Screen, InputProcessor {
 
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
@@ -44,7 +51,7 @@ public class LvlSelectScreen implements Screen {
     private BitmapFont font;
 
     private enum PlayerState {
-        IDLE, MOVING
+        IDLE, MOVING, ENTERING_LEVEL
     }
     private PlayerState pS = PlayerState.IDLE;
 
@@ -60,24 +67,37 @@ public class LvlSelectScreen implements Screen {
     private Texture playerTexture;
     private Animation<TextureRegion> playerAnimation;
     private float stateTime = 0f; // Para controlar el tiempo de la animación
+    private TextureRegion playerHandUpFrame;
+    private float transitionTimer = 0f;
+    private int nivelParaCargar = -1;
 
     // Posición LÓGICA del jugador en el grid (casillas)
     private int playerGridX;
     private int playerGridY;
 
-    // --- NUEVAS VARIABLES PARA LA ANIMACIÓN DEL MOVIMIENTO ---
-// Posición VISUAL del jugador en píxeles (para el movimiento suave)
+    private FrameBuffer fbo;
+    private ShaderProgram wipeShader;
+
+    private boolean moverArriba, moverAbajo, moverIzquierda, moverDerecha;
+    
+    // --- VARIABLES PARA LA ANIMACIÓN DEL MOVIMIENTO ---
+    // Posición VISUAL del jugador en píxeles (para el movimiento suave)
     private Vector2 playerVisualPosition = new Vector2();
-// Vectores para saber desde y hacia dónde animar
+    // Vectores para saber desde y hacia dónde animar
     private Vector2 moveFrom = new Vector2();
     private Vector2 moveTo = new Vector2();
-// Temporizador para la animación
+    // Temporizador para la animación
     private float moveTimer = 0f;
-// Duración de la animación en segundos (ajústalo a tu gusto)
+    // Duración de la animación en segundos (ajústalo a tu gusto)
     private final float MOVE_DURATION = 0.2f;
+    
     // Progreso del jugador
     private boolean[] nivelesCompletados;
     private Main game;
+    
+    private Music backgroundMusic;
+    private Sound moveSound;
+    private Sound selectSound;
 
     private Viewport vp;
 
@@ -100,7 +120,7 @@ public class LvlSelectScreen implements Screen {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.setToOrtho(false, 320, 160);
+        camera.setToOrtho(false, 320, 192);
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 
         camera.update();
@@ -122,13 +142,13 @@ public class LvlSelectScreen implements Screen {
             {5, 6},
             {6, 7}
         };
-        vp = new FitViewport(320, 160, camera);
+        vp = new FitViewport(320, 192, camera);
         mapLoader = new TmxMapLoader();
-        tiledMap = mapLoader.load("mundo/mapaCompleto.tmx"); // ¡Usa el nombre de tu archivo!
+        tiledMap = mapLoader.load("mundo/mapaCompleto.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         // 1. Carga la textura del jugador
-        playerTexture = new Texture("mundo/marioMap.png"); // Asegúrate que el archivo esté en 'assets'
+        playerTexture = new Texture("mundo/marioMap.png");
         playerTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
         // 2. Crea la animación con la versión normal y la volteada (flip)
@@ -169,11 +189,29 @@ public class LvlSelectScreen implements Screen {
         }
         playerVisualPosition.set(playerGridX * TILE_SIZE, playerGridY * TILE_SIZE);
 
+        Gdx.input.setInputProcessor(this);
+
+        // Crear FrameBuffer con las dimensiones correctas
+        fbo = new FrameBuffer(Pixmap.Format.RGBA8888, 320, 192, false);
+        
+        // Carga el shader. El vertex shader puede ser el por defecto de LibGDX.
+        wipeShader = new ShaderProgram(Gdx.files.internal("default.vert"), Gdx.files.internal("wipe.frag"));
+        if (!wipeShader.isCompiled()) {
+            Gdx.app.error("Shader Error", wipeShader.getLog());
+        }
+        
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("musica/mapaTema.ogg"));
+        // Carga los efectos de sonido
+        moveSound = Gdx.audio.newSound(Gdx.files.internal("musica/smb3_map_travel.wav"));
+        selectSound = Gdx.audio.newSound(Gdx.files.internal("musica/smb3_enter_level.wav"));
+        
+        backgroundMusic.setLooping(true); // Para que se repita
+        backgroundMusic.setVolume(0.5f);  // Ajusta el volumen (0.0 a 1.0)
+        backgroundMusic.play();    
     }
 
     private void crearMapa() {
         // Crear los 7 niveles en posiciones específicas tipo Mario World
-
         niveles[0] = new Nivel(1, "Inicio", 100f, 200f);
         niveles[1] = new Nivel(2, "Básico", 200f, 250f);
         niveles[2] = new Nivel(3, "Esquinas", 300f, 200f);
@@ -200,9 +238,6 @@ public class LvlSelectScreen implements Screen {
     }
 
     private void cargarProgreso() {
-        // Aquí podrías cargar desde archivo o base de datos
-        // Por ahora, simularemos algunos niveles completados para prueba
-
         // Aplicar progreso a los niveles
         for (int i = 0; i < niveles.length; i++) {
             int nivelId = niveles[i].getId();
@@ -221,84 +256,146 @@ public class LvlSelectScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        // Actualizar lógica del juego
+        actualizarJuego(delta);
+        
+        // Si estamos en transición, renderizar con shader
+        if (pS == PlayerState.ENTERING_LEVEL) {
+            renderizarConTransicion(delta);
+        } else {
+            renderizarNormal();
+        }
+    }
+
+    private void actualizarJuego(float delta) {
         manejarInput();
-        vp.apply();
-
         stateTime += delta;
-
-        // --- LÓGICA DE ANIMACIÓN DE MOVIMIENTO ---
+        
+        // Actualizar animación de movimiento
         if (pS == PlayerState.MOVING) {
             moveTimer += delta;
-            float progress = Math.min(1f, moveTimer / MOVE_DURATION);
-
-            // Interpolar (mover suavemente) la posición visual desde el origen al destino
-            playerVisualPosition.set(moveFrom).lerp(moveTo, progress);
-
-            // Si la animación ha terminado, volver al estado IDLE
-            if (progress >= 1f) {
+            float progress = Math.min(moveTimer / MOVE_DURATION, 1.0f);
+            
+            // Interpolación suave del movimiento
+            playerVisualPosition.x = Interpolation.smooth.apply(moveFrom.x, moveTo.x, progress);
+            playerVisualPosition.y = Interpolation.smooth.apply(moveFrom.y, moveTo.y, progress);
+            
+            // Si la animación terminó
+            if (progress >= 1.0f) {
                 pS = PlayerState.IDLE;
+                playerVisualPosition.set(moveTo);
             }
         }
-        // Limpiar pantalla con color azul oscuro tipo Mario World
+    }
+
+    private void renderizarNormal() {
         Gdx.gl.glClearColor(0.1f, 0.3f, 0.6f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
-
-        // --- DIBUJAR EL MAPA ---
-        // 1. Configura el renderizador para que use tu cámara
+        vp.apply();
+        
+        // Renderizar mapa
         mapRenderer.setView(camera);
-        // 2. Dibuja el mapa en la pantalla
         mapRenderer.render();
 
-        // AHORA, puedes dibujar cosas ENCIMA del mapa, como al jugador o la UI
+        // Renderizar jugador
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-
-        TextureRegion currentFrame = playerAnimation.getKeyFrame(stateTime, true); // 'true' para que la animación se repita
-
-        // Calcula dónde dibujar en píxeles, basándose en la posición del grid
-        // Dibuja el frame actual en la posición calculada
-        batch.draw(currentFrame, playerVisualPosition.x, playerVisualPosition.y);
-
-        // Aquí es donde más tarde dibujarás el sprite de Mario
-        // font.draw(batch, "¡Mi mapa!", 10, 10); // Ejemplo de texto
+        
+        TextureRegion frameParaDibujar = playerAnimation.getKeyFrame(stateTime, true);
+        batch.draw(frameParaDibujar, playerVisualPosition.x, playerVisualPosition.y);
+        
         batch.end();
+    }
 
+    private void renderizarConTransicion(float delta) {
+        transitionTimer += delta;
+        
+        // --- FASE 1: RENDERIZAR ESCENA EN FRAMEBUFFER ---
+        fbo.begin();
+        
+        Gdx.gl.glClearColor(0.1f, 0.3f, 0.6f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        camera.update();
+        mapRenderer.setView(camera);
+        mapRenderer.render();
+
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        
+        TextureRegion frameParaDibujar = playerAnimation.getKeyFrame(stateTime, true);
+        batch.draw(frameParaDibujar, playerVisualPosition.x, playerVisualPosition.y);
+        
+        batch.end();
+        fbo.end();
+
+        // --- FASE 2: RENDERIZAR FRAMEBUFFER CON SHADER ---
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        vp.apply();
+        batch.setProjectionMatrix(vp.getCamera().combined);
+        batch.begin();
+
+        // Aplicar shader de transición Mario Bros 3
+        batch.setShader(wipeShader);
+
+        // Calcular progreso del wipe (0.0 a 1.0)
+        float progress = Math.min((transitionTimer - 0.5f) / 1.0f, 1.0f);
+        if (progress < 0) progress = 0;
+
+        // Pasar parámetros al shader
+        wipeShader.setUniformf("u_progress", progress);
+        wipeShader.setUniformf("u_resolution", camera.viewportWidth, camera.viewportHeight);
+
+        // Dibujar textura del FBO SIN INVERTIR (usar coordenadas normales)
+        Texture fboTexture = fbo.getColorBufferTexture();
+        TextureRegion fboRegion = new TextureRegion(fboTexture);
+        fboRegion.flip(false, true); // Solo voltear Y para corregir el FrameBuffer
+        
+        batch.draw(fboRegion, 0, 0, camera.viewportWidth, camera.viewportHeight);
+
+        batch.end();
+        batch.setShader(null); // ¡Importante! Restaurar shader por defecto
+
+        // Cambiar de pantalla cuando termine la transición
+        if (transitionTimer > 1.5f) {
+            System.out.println("CAMBIANDO DE PANTALLA A NIVEL " + nivelParaCargar);
+            game.setScreen(new NivelUnoScreen(game));
+        }
     }
 
     private void manejarInput() {
-        // Solo aceptar input de movimiento si el jugador está quieto
         if (pS == PlayerState.IDLE) {
             int targetGridX = playerGridX;
             int targetGridY = playerGridY;
 
-            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            if (moverDerecha) {
                 targetGridX++;
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+            } else if (moverIzquierda) {
                 targetGridX--;
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-                targetGridY--; // Correcto para SUBIR
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-                targetGridY++; // Correcto para BAJAR
+            } else if (moverArriba) {
+                targetGridY++; // Eje Y corregido
+            } else if (moverAbajo) {
+                targetGridY--; // Eje Y corregido
             }
 
-            // Comprobar si la nueva posición es válida
-            if (targetGridX >= 0 && targetGridX < esCamino.length
-                    && targetGridY >= 0 && targetGridY < esCamino[0].length
-                    && esCamino[targetGridX][targetGridY]) {
+            // Si se intentó mover y el movimiento es válido
+            if ((moverDerecha || moverIzquierda || moverArriba || moverAbajo)
+                    && esMovimientoValido(targetGridX, targetGridY)) {
 
-                // Si es válida, iniciar el movimiento
+                // Consumimos el input para que no se mueva sin parar
+                moverDerecha = moverIzquierda = moverArriba = moverAbajo = false;
                 iniciarMovimiento(targetGridX, targetGridY);
             }
         }
-        // Aquí puedes añadir la lógica para presionar ENTER, etc.
     }
 
-// Nuevo método de ayuda para configurar la animación
     private void iniciarMovimiento(int targetX, int targetY) {
         // Origen del movimiento (posición actual en píxeles)
-        moveFrom.set(playerGridX * TILE_SIZE, playerGridY * TILE_SIZE);
+        moveFrom.set(playerVisualPosition);
 
         // Destino del movimiento (nueva posición en píxeles)
         moveTo.set(targetX * TILE_SIZE, targetY * TILE_SIZE);
@@ -306,10 +403,11 @@ public class LvlSelectScreen implements Screen {
         // Actualizar la posición lógica final del jugador
         playerGridX = targetX;
         playerGridY = targetY;
-
+        
         // Iniciar la animación
         moveTimer = 0f;
         pS = PlayerState.MOVING;
+        moveSound.play(1.0f);
     }
 
     private void moverSeleccion(int direccion) {
@@ -334,7 +432,8 @@ public class LvlSelectScreen implements Screen {
         if (nivelSeleccionadoIndex >= niveles.length) {
             return;
         }
-
+        
+        
         Nivel nivelActual = niveles[nivelSeleccionadoIndex];
         int mejorIndex = -1;
         float menorDistancia = Float.MAX_VALUE;
@@ -394,7 +493,15 @@ public class LvlSelectScreen implements Screen {
     private void iniciarNivel(int nivelId) {
         System.out.println("Iniciando nivel: " + nivelId);
 
-        // this.setScreen(new GameScreenNiveles(game, nivelId));
+        if (pS == PlayerState.ENTERING_LEVEL) {
+            return;
+        }
+
+        pS = PlayerState.ENTERING_LEVEL; // Cambiamos al nuevo estado
+        transitionTimer = 0f;             // Reiniciamos el temporizador
+        nivelParaCargar = nivelId;
+        selectSound.play(1.0f);
+        backgroundMusic.stop();
     }
 
     public void marcarNivelCompletado(int nivelId) {
@@ -423,26 +530,6 @@ public class LvlSelectScreen implements Screen {
         System.out.println("Progreso guardado");
     }
 
-    private void dibujarCamino(float x1, float y1, float x2, float y2, float grosor) {
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        float longitud = (float) Math.sqrt(dx * dx + dy * dy);
-
-        if (longitud == 0) {
-            return;
-        }
-
-        dx /= longitud;
-        dy /= longitud;
-
-        float perpX = -dy * grosor / 2;
-        float perpY = dx * grosor / 2;
-
-        // Dibujar rectángulo como línea gruesa usando triángulos
-        shapeRenderer.triangle(x1 + perpX, y1 + perpY, x1 - perpX, y1 - perpY, x2 + perpX, y2 + perpY);
-        shapeRenderer.triangle(x2 + perpX, y2 + perpY, x2 - perpX, y2 - perpY, x1 - perpX, y1 - perpY);
-    }
-
     private float calcularDistancia(float x1, float y1, float x2, float y2) {
         float dx = x2 - x1;
         float dy = y2 - y1;
@@ -455,9 +542,15 @@ public class LvlSelectScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        
-      
         vp.update(width, height, true);
+        
+        // Recrear FrameBuffer con las nuevas dimensiones si es necesario
+        if (fbo != null) {
+            fbo.dispose();
+            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, 320, 192, false);
+            // Configurar filtrado NEAREST para evitar blur
+            fbo.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        }
     }
 
     @Override
@@ -473,22 +566,149 @@ public class LvlSelectScreen implements Screen {
     }
 
     @Override
-    public void dispose() {
+    public boolean keyDown(int keycode) {
+        switch (keycode) {
+            case Input.Keys.UP:
+                moverArriba = true;
+                break;
+            case Input.Keys.DOWN:
+                moverAbajo = true;
+                break;
+            case Input.Keys.LEFT:
+                moverIzquierda = true;
+                break;
+            case Input.Keys.RIGHT:
+                moverDerecha = true;
+                break;
+        }
 
-        shapeRenderer.dispose();
-        font.dispose();
-        tiledMap.dispose();
-        batch.dispose();
-        shapeRenderer.dispose();
-        font.dispose();
-        if (fondoMapa != null) {
-            fondoMapa.dispose();
+        if (keycode == Input.Keys.ENTER) {
+            seleccionarNivelActual();
         }
-        if (iconoCaja != null) {
-            iconoCaja.dispose();
+        return true;
+    }
+
+    private void seleccionarNivelActual() {
+        // Solo podemos seleccionar un nivel si no nos estamos moviendo
+        if (pS != PlayerState.IDLE) {
+            return;
         }
-        if (iconoMeta != null) {
-            iconoMeta.dispose();
+
+        // Obtenemos todos los objetos de la capa
+        MapObjects objects = tiledMap.getLayers().get("hitboxes").getObjects();
+
+        // Recorremos cada objeto para ver si coincide con la posición del jugador
+        for (MapObject object : objects) {
+            // Obtenemos las coordenadas del objeto en píxeles
+            float objX = object.getProperties().get("x", Float.class);
+            float objY = object.getProperties().get("y", Float.class);
+
+            // Convertimos esas coordenadas a la cuadrícula (grid)
+            int objGridX = (int) (objX / TILE_SIZE);
+            int objGridY = (int) (objY / TILE_SIZE);
+
+            // Si la posición del jugador coincide con la posición de este objeto...
+            if (playerGridX == objGridX && playerGridY == objGridY) {
+
+                // ...y el nombre del objeto empieza con "nivel_"
+                String objectName = object.getName();
+                if (objectName != null && objectName.startsWith("nivel_")) {
+
+                    try {
+                        // Extraemos el número del nombre (ej: "nivel_1" -> 1)
+                        String numeroNivelStr = objectName.substring("nivel_".length());
+                        int nivelId = Integer.parseInt(numeroNivelStr);
+
+                        // ¡Encontramos el nivel! Lo iniciamos y salimos del bucle.
+                        iniciarNivel(nivelId);
+                        return;
+
+                    } catch (NumberFormatException e) {
+                        // El nombre del objeto no tenía un número válido después de "nivel_"
+                        System.out.println("Advertencia: Objeto mal nombrado: " + objectName);
+                    }
+                }
+            }
         }
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        switch (keycode) {
+            case Input.Keys.UP:
+                moverArriba = false;
+                break;
+            case Input.Keys.DOWN:
+                moverAbajo = false;
+                break;
+            case Input.Keys.LEFT:
+                moverIzquierda = false;
+                break;
+            case Input.Keys.RIGHT:
+                moverDerecha = false;
+                break;
+        }
+        return true;
+    }
+
+    private boolean esMovimientoValido(int targetX, int targetY) {
+        // Primero, comprueba que las coordenadas no se salen de los límites del array
+        if (targetX < 0 || targetX >= esCamino.length
+                || targetY < 0 || targetY >= esCamino[0].length) {
+            return false; // Está fuera del mapa
+        }
+
+        // Si está dentro del mapa, comprueba si esa casilla es un camino
+        return esCamino[targetX][targetY];
+    }
+
+    @Override
+    public boolean touchCancelled(int i, int i1, int i2, int i3) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        return false;
+    }
+    
+    @Override
+    public void dispose() {
+        if (batch != null) batch.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
+        if (font != null) font.dispose();
+        if (tiledMap != null) tiledMap.dispose();
+        if (mapRenderer != null) mapRenderer.dispose();
+        if (playerTexture != null) playerTexture.dispose();
+        if (fbo != null) fbo.dispose();
+        if (wipeShader != null) wipeShader.dispose();
+        if (fondoMapa != null) fondoMapa.dispose();
+        if (iconoCaja != null) iconoCaja.dispose();
+        if (iconoMeta != null) iconoMeta.dispose();
     }
 }
