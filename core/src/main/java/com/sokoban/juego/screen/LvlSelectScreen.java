@@ -37,6 +37,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Nivel;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
+import com.sokoban.juego.niveles.NivelDosScreen;
 import com.sokoban.juego.niveles.NivelUnoScreen;
 
 /**
@@ -363,7 +364,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         // Cambiar de pantalla cuando termine la transición
         if (transitionTimer > 1.5f) {
             System.out.println("CAMBIANDO DE PANTALLA A NIVEL " + nivelParaCargar);
-            game.setScreen(new NivelUnoScreen(game));
+            game.setScreen(new NivelDosScreen(game));
         }
     }
 
