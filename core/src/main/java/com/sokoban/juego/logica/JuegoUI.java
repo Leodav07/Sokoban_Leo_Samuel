@@ -152,7 +152,7 @@ public class JuegoUI {
         y -= 25;
         font.setColor(Color.LIGHT_GRAY);
         font.getData().setScale(0.7f);
-        font.draw(batch, "ESC/P: Pausa | R: Reiniciar | BACKSPACE: Deshacer | TAB: Estadísticas", x, y);
+        font.draw(batch, "ESC/P: Pausa | R: Reiniciar | BACKSPACE: Deshacer", x, y);
         font.getData().setScale(1.0f);
 
         font.setColor(COLOR_TEXTO_NORMAL);
