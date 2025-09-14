@@ -20,7 +20,7 @@ public class NivelManager {
     private MapaBase nivelActual;
     private int nivelActualId;
     
-    private Texture muroTexture, cajaTexture, objetivoTexture, sueloTexture, jugadorTexture;
+    private Texture muroTexture, cajaTexture, objetivoTexture, sueloTexture, jugadorTexture, cajaObjetivoTexture;
     
     private NivelManager() {
         gestorProgreso = GestorProgreso.getInstancia();
@@ -34,12 +34,13 @@ public class NivelManager {
     }
     
     public void inicializar(Texture muro, Texture caja, Texture objetivo, 
-                           Texture suelo, Texture jugador) {
+                           Texture suelo, Texture jugador, Texture cajaObjetivo) {
         this.muroTexture = muro;
         this.cajaTexture = caja;
         this.objetivoTexture = objetivo;
         this.sueloTexture = suelo;
         this.jugadorTexture = jugador;
+        this.cajaObjetivoTexture = cajaObjetivo;
         
         // Cargar progreso del usuario actual
         if (GestorUsuarios.usuarioActual != null) {
@@ -67,8 +68,6 @@ public class NivelManager {
             nivelActual.cargarMapa();
             nivelActual.iniciarColisiones();
             
-            System.out.println("Nivel " + nivelId + " cargado: " + 
-                             ConfigNiveles.getNombreNivel(nivelId));
             return true;
         }
         
@@ -79,7 +78,7 @@ public class NivelManager {
         switch (nivelId) {
             case 1:
                 return new MapaUno(10, 12, muroTexture, cajaTexture, 
-                                  objetivoTexture, sueloTexture, jugadorTexture);
+                                  objetivoTexture, sueloTexture, jugadorTexture, cajaObjetivoTexture);
             case 2:
              
             // Aqui se puede agregar mas niveles samu

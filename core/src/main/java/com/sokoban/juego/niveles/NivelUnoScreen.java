@@ -18,7 +18,7 @@ public class NivelUnoScreen implements Screen, MapaBase.MapaBaseListener {
     private SpriteBatch batch;
     private Main game;
     private MapaUno mapa;
-    private Texture muro, caja, objetivo, suelo, jugador;
+    private Texture muro, caja, objetivo, suelo, jugador, cajaObjetivo;
 
     private OrthographicCamera gameCamera;
     private Viewport gameViewport;
@@ -46,6 +46,7 @@ public class NivelUnoScreen implements Screen, MapaBase.MapaBaseListener {
             objetivo = new Texture("objetivo.png");
             suelo = new Texture("suelo.png");
             jugador = new Texture("spritesheetmariobros.png");
+            cajaObjetivo = new Texture("cajaobjetivo.png");
         } catch (Exception e) {
             System.err.println("Error cargando texturas: " + e.getMessage());
             e.printStackTrace();
@@ -58,7 +59,7 @@ public class NivelUnoScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaUno(10, 12, muro, caja, objetivo, suelo, jugador);
+        mapa = new MapaUno(10, 12, muro, caja, objetivo, suelo, jugador, cajaObjetivo);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();
@@ -181,6 +182,5 @@ public class NivelUnoScreen implements Screen, MapaBase.MapaBaseListener {
             batch = null;
         }
 
-        System.out.println("NivelUnoScreen: Recursos liberados correctamente");
     }
 }

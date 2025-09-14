@@ -133,8 +133,7 @@ public class GameState {
     }
 
     public void imprimirGame() {
-        System.out.println("\nNivel " + nivelActual + " | Movimientos: " + contadorMovimientos + 
-                          " | Tiempo: " + formatearTiempo(getTiempoTranscurrido()));
+
         
         for (int y = 0; y < largo; y++) {
             for (int x = 0; x < ancho; x++) {

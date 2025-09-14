@@ -34,8 +34,8 @@ public class MapaUno extends MapaBase {
     private static final long TIEMPO_OBJETIVO = 120000; // 2 minutos en milisegundos
     
     public MapaUno(int filas, int columnas, Texture muroImg, Texture cajaImg, 
-                  Texture metaImg, Texture sueloImg, Texture jugadorImg) {
-        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, 1); // Nivel ID = 1
+                  Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo) {
+        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg,cajaObjetivo, 1); // Nivel ID = 1
     }
     
     @Override

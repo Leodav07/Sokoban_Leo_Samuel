@@ -17,7 +17,7 @@ import com.sokoban.juego.logica.Mapas.MapaUno;
  */
 public class NivelUno extends ApplicationAdapter{
     private SpriteBatch batch;
-    private Texture muro, caja, objetivo, suelo, jugador;
+    private Texture muro, caja, objetivo, suelo, jugador, cajaObjetivo;
     private MapaUno mapa;
    
     @Override
@@ -28,8 +28,9 @@ public class NivelUno extends ApplicationAdapter{
         objetivo = new Texture("objetivo.png");
         suelo = new Texture("suelo.png");
         jugador = new Texture("jugador.png");
+        cajaObjetivo = new Texture("cajaobjetivo.png");
         
-        mapa = new MapaUno(10, 12, muro, caja, objetivo, suelo, jugador);
+        mapa = new MapaUno(10, 12, muro, caja, objetivo, suelo, jugador, cajaObjetivo);
         mapa.cargarMapa();
         mapa.iniciarColisiones();
     }

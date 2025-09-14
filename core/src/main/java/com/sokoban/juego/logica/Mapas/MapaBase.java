@@ -33,7 +33,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     private static final int GAME_WORLD_WIDTH = 800;
     private static final int GAME_WORLD_HEIGHT = 480;
     private static final int UI_PANEL_HEIGHT = 120;
-
+    protected Texture cajaEnObjetivoImg;
     protected JuegoUI gameUI;
     protected GestorProgreso gestorProgreso;
     protected GestorDePausa gestorPausa;
@@ -61,7 +61,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     protected abstract long getTiempoObjetivo();
 
     public MapaBase(int filas, int columnas, Texture muroImg, Texture cajaImg,
-            Texture metaImg, Texture sueloImg, Texture jugadorImg, int nivelId) {
+            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaEnObjetivoImg, int nivelId) {
         this.filas = filas;
         this.columnas = columnas;
         this.muroImg = muroImg;
@@ -70,6 +70,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         this.sueloImg = sueloImg;
         this.jugadorImg = jugadorImg;
         this.nivelId = nivelId;
+        this.cajaEnObjetivoImg = cajaEnObjetivoImg;
 
         int availableHeight = GAME_WORLD_HEIGHT - UI_PANEL_HEIGHT;
         int maxTileWidth = GAME_WORLD_WIDTH / columnas;
@@ -89,7 +90,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     public void cargarMapa() {
         int[][] layout = getLayout();
-        // Cargar mapa de forma síncrona para evitar problemas de timing
+
         for (int y = 0; y < filas; y++) {
             for (int x = 0; x < columnas; x++) {
                 switch (layout[y][x]) {
@@ -100,14 +101,16 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
                         mapa[y][x] = new Muro(x, y, muroImg);
                         break;
                     case 2:
-                        mapa[y][x] = new Caja(x, y, cajaImg, TILE);
+                        Caja caja = new Caja(x, y, cajaImg, cajaEnObjetivoImg, TILE);
+                        caja.setEstaEnObjetivo(false); 
+                        mapa[y][x] = caja;
                         break;
                     case 3:
                         mapa[y][x] = new Objetivo(x, y, metaImg);
                         break;
                     case 4:
                         mapa[y][x] = new Terreno(x, y, sueloImg);
-                        jugador = new Jugador(jugadorImg,x, y, TILE);
+                        jugador = new Jugador(jugadorImg, x, y, TILE);
                         break;
                 }
             }
@@ -116,6 +119,9 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         if (jugador != null) {
             motorMovimiento = new Motor(mapa, layout, jugador, filas, columnas,
                     cajaImg, metaImg, sueloImg, TILE);
+
+            motorMovimiento.setCajaEnObjetivoTexture(cajaEnObjetivoImg);
+
             motorMovimiento.setListener(this);
             gameUI.iniciarNivel(nivelId, getMovimientosObjetivo(), getTiempoObjetivo());
         }
@@ -151,49 +157,79 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     }
 
     public void verificarTeclas() {
-    if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)
-            || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-        if (gestorPausa.estaPausado()) {
-            gestorPausa.reanudar();
-        } else {
-            gestorPausa.pausar();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)
+                || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            if (gestorPausa.estaPausado()) {
+                gestorPausa.reanudar();
+            } else {
+                gestorPausa.pausar();
+            }
+            return;
         }
-        return;
-    }
 
-    if (motorMovimiento == null || nivelCompletado
-            || mostrandoResultados || gestorPausa.estaPausado()) {
-        return;
-    }
+        if (motorMovimiento == null || nivelCompletado
+                || mostrandoResultados || gestorPausa.estaPausado()) {
+            return;
+        }
 
-    boolean seMovio = false;
+        if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
+            if (motorMovimiento.estaEjecutandoUndo()) {
+                return;
+            }
 
-    if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-        jugador.cambiarDireccion(Jugador.DireccionMovimiento.ARRIBA);
-        seMovio = motorMovimiento.moverJugador(0, 1);
-    } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-        jugador.cambiarDireccion(Jugador.DireccionMovimiento.ABAJO);
-        seMovio = motorMovimiento.moverJugador(0, -1);
-    } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-        jugador.cambiarDireccion(Jugador.DireccionMovimiento.IZQUIERDA);
-        seMovio = motorMovimiento.moverJugador(-1, 0);
-    } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-        jugador.cambiarDireccion(Jugador.DireccionMovimiento.DERECHA);
-        seMovio = motorMovimiento.moverJugador(1, 0);
-    }
+            if (motorMovimiento.puedeHacerUndo()) {
+                boolean regresarSolicitado = motorMovimiento.realizarUndo(
+                        gameUI.getMovimientosRealizados(),
+                        gameUI.getScoreActual()
+                );
+                if (regresarSolicitado) {
+                    System.out.println("Regresar solicitado - procesando en hilo separado");
+                } else {
+                    System.out.println("No se pudo solicitar Regresar");
+                }
+            } else {
+                
+            }
+            return;
+        }
 
-    if (seMovio && gameUI != null) {
-        gameUI.incrementarMovimientos();
-    }
+        if (motorMovimiento.estaEjecutandoUndo()) {
+            
+            return;
+        }
 
-    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-        reiniciarNivel();
-    }
+        boolean seMovio = false;
 
-    if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
-        gestorProgreso.mostrarEstadisticas();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            jugador.cambiarDireccion(Jugador.DireccionMovimiento.ARRIBA);
+            seMovio = motorMovimiento.moverJugador(0, 1,
+                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            jugador.cambiarDireccion(Jugador.DireccionMovimiento.ABAJO);
+            seMovio = motorMovimiento.moverJugador(0, -1,
+                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+            jugador.cambiarDireccion(Jugador.DireccionMovimiento.IZQUIERDA);
+            seMovio = motorMovimiento.moverJugador(-1, 0,
+                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            jugador.cambiarDireccion(Jugador.DireccionMovimiento.DERECHA);
+            seMovio = motorMovimiento.moverJugador(1, 0,
+                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+        }
+
+        if (seMovio && gameUI != null) {
+            gameUI.incrementarMovimientos();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            reiniciarNivel();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+            gestorProgreso.mostrarEstadisticas();
+        }
     }
-}
 
     @Override
     public void onMovimientoRealizado() {
@@ -208,6 +244,18 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     public void onMovimientoInvalido() {
     }
 
+    @Override
+    public void onUndoRealizado() {
+        if (gameUI != null) {
+            gameUI.decrementarMovimientos();
+            gameUI.actualizarScoreSinTiempo();
+        }
+    }
+
+    @Override
+    public void onUndoIniciado() {
+    }
+
     protected void onNivelCompletadoInterno() {
         nivelCompletado = true;
         mostrandoResultados = true;
@@ -218,9 +266,6 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
         gestorProgreso.completarNivel(nivelId, movimientos, tiempoReal);
 
-        System.out.println("¡Nivel " + nivelId + " completado!");
-        System.out.println("Estrellas obtenidas: " + gameUI.calcularEstrellas());
-        System.out.println("Score: " + gameUI.getScoreActual());
 
         onNivelCompletadoCustom();
     }
@@ -234,16 +279,19 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         gestorPausa.cambiarEstado(EstadoJuego.JUGANDO);
         gestorPausa.reiniciarTiempoPausa();
 
+        if (motorMovimiento != null) {
+            motorMovimiento.finalizarSistemaUndo();
+        }
+
         mapa = new Elemento[filas][columnas];
         jugador = null;
         motorMovimiento = null;
 
         cargarMapa();
-        System.out.println("Nivel reiniciado");
+
     }
 
     private void finalizarNivel() {
-        System.out.println("Finalizando nivel " + nivelId);
         onFinalizarNivelCustom();
     }
 
@@ -312,13 +360,13 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             float jugadorScreenY = offsetY + (filas - 1 - jugador.getY()) * TILE;
 
             if (jugador.estaMoviendose()) {
-                float progreso = (jugador.getPosX() % TILE) / TILE; 
+                float progreso = (jugador.getPosX() % TILE) / TILE;
 
                 float deltaX = (jugador.getPosX() - jugador.getX() * TILE);
                 float deltaY = (jugador.getPosY() - jugador.getY() * TILE);
 
                 jugadorScreenX += deltaX;
-                jugadorScreenY -= deltaY; 
+                jugadorScreenY -= deltaY;
             }
 
             TextureRegion frameJugador = jugador.getTextureRegionActual();
@@ -360,6 +408,10 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     }
 
     public void dispose() {
+        if (motorMovimiento != null) {
+            motorMovimiento.finalizarSistemaUndo();
+        }
+
         if (gameUI != null) {
             gameUI.dispose();
         }

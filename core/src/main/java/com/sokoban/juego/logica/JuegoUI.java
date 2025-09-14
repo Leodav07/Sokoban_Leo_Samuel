@@ -59,7 +59,6 @@ public class JuegoUI {
             titleFont = generator.generateFont(parameter);
             generator.dispose();
         } catch (Exception e) {
-            System.out.println("Error cargando fuente personalizada, usando fuente por defecto");
             font = new BitmapFont();
             titleFont = new BitmapFont();
             font.getData().setScale(1.2f);
@@ -95,8 +94,8 @@ public class JuegoUI {
     }
 
     public void dibujar(SpriteBatch batch, int gameWorldWidth, int gameWorldHeight, long tiempoPausado) {
-        int panelY = 0; 
-        
+        int panelY = 0;
+
         batch.end();
 
         Gdx.gl.glEnable(Gdx.gl.GL_BLEND);
@@ -115,9 +114,9 @@ public class JuegoUI {
         dibujarInformacionJuego(batch, panelY, gameWorldWidth, tiempoPausado);
     }
 
-    private void dibujarInformacionJuego(SpriteBatch batch, int panelY, int gameWorldWidth, long tiempoPausado) {
+   private void dibujarInformacionJuego(SpriteBatch batch, int panelY, int gameWorldWidth, long tiempoPausado) {
         int x = MARGIN;
-        int y = panelY + PANEL_HEIGHT - 30; 
+        int y = panelY + PANEL_HEIGHT - 30;
 
         titleFont.setColor(COLOR_TITULO);
         titleFont.draw(batch, "Nivel " + nivelActual, x, y);
@@ -144,7 +143,7 @@ public class JuegoUI {
         }
 
         x = MARGIN;
-        y -= 40; 
+        y -= 40;
 
         int estrellasPredichas = calcularEstrellas(tiempoPausado);
         font.setColor(COLOR_TEXTO_NORMAL);
@@ -153,7 +152,7 @@ public class JuegoUI {
         y -= 25;
         font.setColor(Color.LIGHT_GRAY);
         font.getData().setScale(0.7f);
-        font.draw(batch, "ESC/P: Pausa | R: Reiniciar | TAB: Estadísticas", x, y);
+        font.draw(batch, "ESC/P: Pausa | R: Reiniciar | BACKSPACE: Deshacer | TAB: Estadísticas", x, y);
         font.getData().setScale(1.0f);
 
         font.setColor(COLOR_TEXTO_NORMAL);
@@ -303,6 +302,25 @@ public class JuegoUI {
     public int getScoreActual() {
         return scoreActual;
     }
+
+    public void decrementarMovimientos() {
+        if (movimientosRealizados > 0) {
+            movimientosRealizados--;
+        }
+    }
+
+    
+    public void actualizarScoreSinTiempo() {
+        int scoreMovimientos = Math.max(0, 1000 - ((movimientosRealizados - movimientosObjetivo) * 20));
+
+        long tiempoTranscurrido = System.currentTimeMillis() - tiempoInicio;
+        int scoreTiempo = Math.max(0, (int) (1000 - ((tiempoTranscurrido - tiempoObjetivo) / 1000) * 10));
+
+        scoreActual = scoreMovimientos + scoreTiempo;
+
+    }
+
+    
 
     public void dispose() {
         if (font != null) {

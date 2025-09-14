@@ -59,8 +59,6 @@ public class Jugador {
         float DURACION_FRAME = 0.3f;
         float DURACION_IDLE = 2.0f;
 
-        System.out.println("=== CONFIGURANDO ANIMACIONES ===");
-        System.out.println("Spritesheet dimensiones: " + spritesheet.getWidth() + "x" + spritesheet.getHeight());
 
         try {
             TextureRegion[] sprites = new TextureRegion[14];
@@ -83,10 +81,8 @@ public class Jugador {
             empujarDerecha = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[7], sprites[5], sprites[7], sprites[5]);
             empujarAbajo = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[10], sprites[11], sprites[13]);
 
-            System.out.println("*** ANIMACIONES CREADAS EXITOSAMENTE ***");
 
         } catch (Exception e) {
-            System.out.println("*** ERROR configurando animaciones: " + e.getMessage());
             e.printStackTrace();
             crearAnimacionesFallback(spritesheet, FRAME_WIDTH, FRAME_HEIGHT);
         }
@@ -143,7 +139,6 @@ public class Jugador {
                 estadoActual = EstadoAnimacion.IDLE;
                 tiempoAnimacion = 0f;
 
-                System.out.println("Movimiento completado, cambiando a IDLE");
             } else {
                 posX += maxMovimiento * dx / distancia;
                 posY += maxMovimiento * dy / distancia;
@@ -233,7 +228,6 @@ public class Jugador {
             moviendose = true;
             estadoActual = EstadoAnimacion.CAMINANDO;
             tiempoAnimacion = 0f;
-            System.out.println(">>> INICIANDO MOVIMIENTO NORMAL a (" + nuevoX + ", " + nuevoY + ") dirección: " + direccionActual);
         }
     }
 
@@ -254,7 +248,6 @@ public class Jugador {
             moviendose = true;
             estadoActual = EstadoAnimacion.EMPUJANDO;
             tiempoAnimacion = 0f;
-            System.out.println(">>> INICIANDO MOVIMIENTO EMPUJANDO a (" + nuevoX + ", " + nuevoY + ") dirección: " + direccionActual);
         }
     }
 
@@ -263,13 +256,11 @@ public class Jugador {
         if (!moviendose) {
             estadoActual = EstadoAnimacion.IDLE;
         }
-        System.out.println("Dirección cambiada a: " + nuevaDireccion);
     }
 
     public void establecerEstadoEmpujando(boolean empujando) {
         if (moviendose) {
             estadoActual = empujando ? EstadoAnimacion.EMPUJANDO : EstadoAnimacion.CAMINANDO;
-            System.out.println(">>> CAMBIO DE ESTADO: " + (empujando ? "EMPUJANDO" : "CAMINANDO"));
         }
     }
 

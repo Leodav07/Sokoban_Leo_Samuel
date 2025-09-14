@@ -1,14 +1,12 @@
 package com.sokoban.juego.logica;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.sokoban.juego.logica.historial.GestorEstado;
+import com.sokoban.juego.logica.historial.ProcesoRegresar;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author hnleo
- */
-public class Motor {
+public class Motor implements ProcesoRegresar.UndoListener {
 
     private Elemento[][] mapa;
     private int[][] layout;
@@ -16,17 +14,22 @@ public class Motor {
     private int filas, columnas;
     private int tileSize;
     private Texture cajaImg, metaImg, sueloImg;
+    private Texture cajaEnObjetivoImg;
+    
+    private GestorEstado gestorHistorial;
+    private ProcesoRegresar procesadorUndo;
+    private Thread hiloUndo;
 
     public interface MotorListener {
-
         void onMovimientoRealizado();
-
         void onNivelCompletado();
-
         void onMovimientoInvalido();
+        void onUndoRealizado();
+        void onUndoIniciado(); 
     }
 
     private MotorListener listener;
+    private volatile boolean undoEnProceso = false;
 
     public Motor(Elemento[][] mapa, int[][] layout, Jugador jugador,
             int filas, int columnas, Texture cajaImg, Texture metaImg, Texture sueloImg, int tileSize) {
@@ -39,13 +42,77 @@ public class Motor {
         this.metaImg = metaImg;
         this.sueloImg = sueloImg;
         this.tileSize = tileSize;
+        this.cajaEnObjetivoImg = cajaImg;
+        
+        inicializarSistemaUndo();
+    }
+    
+    private void inicializarSistemaUndo() {
+        this.gestorHistorial = new GestorEstado();
+        
+        this.procesadorUndo = new ProcesoRegresar(
+            gestorHistorial, mapa, layout, jugador, filas, columnas, tileSize,
+            cajaImg, cajaEnObjetivoImg, metaImg, sueloImg
+        );
+        
+        this.procesadorUndo.setListener(this);
+        
+        this.hiloUndo = new Thread(procesadorUndo, "UndoProcessor");
+        this.hiloUndo.setDaemon(true); 
+        this.hiloUndo.start();
+        
+    }
+
+    public void setCajaEnObjetivoTexture(Texture cajaEnObjetivoImg) {
+        this.cajaEnObjetivoImg = cajaEnObjetivoImg;
     }
 
     public void setListener(MotorListener listener) {
         this.listener = listener;
     }
+    
+    
+    private void guardarEstadoActual(int movimientosActuales, int scoreActual, 
+                                   Jugador.DireccionMovimiento direccion, boolean fueEmpuje) {
+        gestorHistorial.guardarEstado(mapa, layout, jugador, filas, columnas, 
+                                     movimientosActuales, scoreActual, direccion, fueEmpuje);
+    }
+    
+    public boolean realizarUndo(int movimientosActuales, int scoreActual) {
+        if (undoEnProceso) {
+            return false;
+        }
+        
+        if (jugador.estaMoviendose()) {
+            return false;
+        }
+        
+        return procesadorUndo.solicitarUndo(movimientosActuales, scoreActual);
+    }
+    
+    @Override
+    public void onUndoIniciado() {
+        undoEnProceso = true;
+        
+        if (listener != null) {
+            listener.onUndoIniciado();
+        }
+    }
+    
+    @Override
+    public void onUndoCompletado(boolean exitoso) {
+        undoEnProceso = false;
+        
+        if (exitoso && listener != null) {
+            listener.onUndoRealizado();
+        }
+    }
 
-    public boolean moverJugador(int dx, int dy) {
+    public boolean moverJugador(int dx, int dy, int movimientosActuales, int scoreActual) {
+        if (undoEnProceso) {
+            return false;
+        }
+        
         if (jugador == null || jugador.estaMoviendose()) {
             return false;
         }
@@ -58,6 +125,12 @@ public class Motor {
             return false;
         }
 
+        Jugador.DireccionMovimiento direccion;
+        if (dx > 0) direccion = Jugador.DireccionMovimiento.DERECHA;
+        else if (dx < 0) direccion = Jugador.DireccionMovimiento.IZQUIERDA;
+        else if (dy > 0) direccion = Jugador.DireccionMovimiento.ARRIBA;
+        else direccion = Jugador.DireccionMovimiento.ABAJO;
+
         Elemento obj = mapa[nuevoY][nuevoX];
 
         if (obj instanceof Muro) {
@@ -65,10 +138,12 @@ public class Motor {
             return false;
         }
 
-        if (obj instanceof Caja) {
-            // El jugador va a empujar una caja
+        boolean fueEmpuje = obj instanceof Caja;
+        
+        guardarEstadoActual(movimientosActuales, scoreActual, direccion, fueEmpuje);
+
+        if (fueEmpuje) {
             if (empujarCajas(nuevoX, nuevoY, dx, dy)) {
-                // Usar la animación de empuje
                 jugador.moverEmpujandoA(nuevoX, nuevoY);
                 notificarMovimientoRealizado();
 
@@ -82,11 +157,14 @@ public class Motor {
                 return false;
             }
         } else {
-            // Movimiento normal (sin empujar)
             jugador.moverA(nuevoX, nuevoY);
             notificarMovimientoRealizado();
             return true;
         }
+    }
+    
+    public boolean moverJugador(int dx, int dy) {
+        return moverJugador(dx, dy, 0, 0);
     }
 
     private boolean empujarCajas(int inicialX, int inicialY, int dx, int dy) {
@@ -142,19 +220,75 @@ public class Motor {
             int nuevaX = cajaPos.x + dx;
             int nuevaY = cajaPos.y + dy;
 
-            Caja cajaNueva = new Caja(nuevaX, nuevaY, cajaImg, tileSize);
+            Caja cajaNueva;
+            if (cajaEnObjetivoImg != null && !cajaEnObjetivoImg.equals(cajaImg)) {
+                cajaNueva = new Caja(nuevaX, nuevaY, cajaImg, cajaEnObjetivoImg, tileSize);
+            } else {
+                cajaNueva = new Caja(nuevaX, nuevaY, cajaImg, tileSize);
+            }
+            
+            boolean nuevaPosEsObjetivo = layout[nuevaY][nuevaX] == 3;
+            cajaNueva.setEstaEnObjetivo(nuevaPosEsObjetivo);
+            
             mapa[nuevaY][nuevaX] = cajaNueva;
 
             restaurarElementoOriginal(cajaPos.x, cajaPos.y);
         }
+        
+        actualizarEstadoCajas();
+    }
+
+    private void actualizarEstadoCajas() {
+        synchronized (mapa) {
+            for (int y = 0; y < filas; y++) {
+                for (int x = 0; x < columnas; x++) {
+                    if (mapa[y][x] instanceof Caja) {
+                        Caja caja = (Caja) mapa[y][x];
+                        boolean estaEnObjetivo = layout[y][x] == 3;
+                        caja.setEstaEnObjetivo(estaEnObjetivo);
+                    }
+                }
+            }
+        }
     }
 
     private void restaurarElementoOriginal(int x, int y) {
-        if (layout[y][x] == 3) { // Era un objetivo
+        if (layout[y][x] == 3) {
             mapa[y][x] = new Objetivo(x, y, metaImg);
         } else {
             mapa[y][x] = new Terreno(x, y, sueloImg);
         }
+    }
+    
+   
+    public void limpiarHistorial() {
+        gestorHistorial.limpiarHistorial();
+    }
+    
+   
+    public boolean puedeHacerUndo() {
+        return gestorHistorial.tieneEstadosAnteriores() && !undoEnProceso;
+    }
+    
+    
+    public boolean estaEjecutandoUndo() {
+        return undoEnProceso;
+    }
+    
+   
+    public void finalizarSistemaUndo() {
+        if (procesadorUndo != null) {
+            procesadorUndo.detener();
+        }
+        
+        if (hiloUndo != null) {
+            try {
+                hiloUndo.join(1000); // Esperar máximo 1 segundo
+            } catch (InterruptedException e) {
+                System.err.println("Error esperando finalización del hilo regresar: " + e.getMessage());
+            }
+        }
+        
     }
 
     public boolean nivelCompletado() {
@@ -165,7 +299,6 @@ public class Motor {
             for (int x = 0; x < columnas; x++) {
                 if (layout[y][x] == 3) {
                     objetivosTotales++;
-
                     if (mapa[y][x] instanceof Caja) {
                         cajasEnObjetivo++;
                     }
@@ -226,7 +359,6 @@ public class Motor {
     }
 
     public static class Posicion {
-
         public final int x, y;
 
         public Posicion(int x, int y) {
@@ -236,12 +368,8 @@ public class Motor {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
             Posicion posicion = (Posicion) obj;
             return x == posicion.x && y == posicion.y;
         }
