@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.sokoban.juego.logica.Caja;
 import com.sokoban.juego.logica.Colisiones;
 import com.sokoban.juego.logica.Elemento;
+import com.sokoban.juego.logica.Fondo;
 import com.sokoban.juego.logica.GestorUsuarios;
 import com.sokoban.juego.logica.JuegoUI;
 import com.sokoban.juego.logica.Jugador;
@@ -24,7 +25,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     protected Elemento[][] mapa;
     protected int filas, columnas;
-    protected Texture muroImg, cajaImg, metaImg, sueloImg, jugadorImg;
+    protected Texture muroImg, cajaImg, metaImg, sueloImg, jugadorImg, fondoImg;
     protected Jugador jugador;
     protected Motor motorMovimiento;
     protected Thread hiloColisionador;
@@ -61,7 +62,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     protected abstract long getTiempoObjetivo();
 
     public MapaBase(int filas, int columnas, Texture muroImg, Texture cajaImg,
-            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaEnObjetivoImg, int nivelId) {
+            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaEnObjetivoImg, Texture fondoImg, int nivelId) {
         this.filas = filas;
         this.columnas = columnas;
         this.muroImg = muroImg;
@@ -71,6 +72,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         this.jugadorImg = jugadorImg;
         this.nivelId = nivelId;
         this.cajaEnObjetivoImg = cajaEnObjetivoImg;
+        this.fondoImg = fondoImg;
 
         int availableHeight = GAME_WORLD_HEIGHT - UI_PANEL_HEIGHT;
         int maxTileWidth = GAME_WORLD_WIDTH / columnas;
@@ -111,6 +113,10 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
                     case 4:
                         mapa[y][x] = new Terreno(x, y, sueloImg);
                         jugador = new Jugador(jugadorImg, x, y, TILE);
+                        break;
+                        
+                    case 5:
+                        mapa[y][x] = new Fondo(x, y, fondoImg);
                         break;
                 }
             }
