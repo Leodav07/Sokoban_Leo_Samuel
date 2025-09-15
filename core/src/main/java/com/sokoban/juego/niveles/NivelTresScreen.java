@@ -10,15 +10,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Mapas.MapaBase;
-import com.sokoban.juego.logica.Mapas.MapaDos;
-import com.sokoban.juego.logica.Mapas.MapaUno;
+import com.sokoban.juego.logica.Mapas.MapaTres;
 import com.sokoban.juego.screen.MenuScreen;
 
-public class NivelDosScreen implements Screen, MapaBase.MapaBaseListener {
+public class NivelTresScreen implements Screen, MapaBase.MapaBaseListener {
 
     private SpriteBatch batch;
     private Main game;
-    private MapaDos mapa;
+    private MapaTres mapa;
     private Texture muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo;
 
     private OrthographicCamera gameCamera;
@@ -26,7 +25,7 @@ public class NivelDosScreen implements Screen, MapaBase.MapaBaseListener {
     private final int GAME_WORLD_WIDTH = 800;
     private final int GAME_WORLD_HEIGHT = 480;
 
-    public NivelDosScreen(Main game) {
+    public NivelTresScreen(Main game) {
         this.game = game;
         batch = new SpriteBatch();
         inicializarCamara();
@@ -61,7 +60,7 @@ public class NivelDosScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaDos(14, 13, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
+        mapa = new MapaTres(13, 27, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();
