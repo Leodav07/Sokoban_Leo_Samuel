@@ -2,8 +2,7 @@
  
   "com.badlogic.gdx.graphics.g2d.BitmapFont": {
     "default-font": { "file": "skin/mario_font.fnt" },
-   "subtitle-font": { "file": "skin/mario_font_subtitle.fnt"
-  },
+   "subtitle-font": { "file": "skin/mario_font_subtitle.fnt"},
      "title-font": { "file": "skin/mario_font_title.fnt" }
   },
 
@@ -41,6 +40,18 @@
    
       "downFontColor": "white"
   
+    }
+  },
+
+   "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+    "default": {
+      "font": "default-font",
+  
+      "fontColor": "white"
+  
+    }, "title": {
+      "font": "title-font",
+      "fontColor": "white"
     }
   },
 

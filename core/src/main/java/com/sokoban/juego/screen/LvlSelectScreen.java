@@ -290,7 +290,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
     }
 
     private void renderizarNormal() {
-        Gdx.gl.glClearColor(0.1f, 0.3f, 0.6f, 1);
+         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -316,7 +316,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         // --- FASE 1: RENDERIZAR ESCENA EN FRAMEBUFFER ---
         fbo.begin();
         
-        Gdx.gl.glClearColor(0.1f, 0.3f, 0.6f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
