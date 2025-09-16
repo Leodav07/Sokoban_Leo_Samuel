@@ -14,29 +14,32 @@ import java.awt.Image;
  *
  * @author hnleo
  */
-public class MapaDos extends MapaBase {
+public class MapaCuatro extends MapaBase {
 
     private final int[][] layout = {
-        {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5},
-        {1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 5, 5, 5},
-        {1, 0, 0, 2, 0, 0, 0, 2, 1, 5, 5, 5, 5},
-        {1, 1, 1, 1, 0, 0, 0, 0, 1, 5, 5, 5, 5},
-        {5, 5, 5, 1, 0, 2, 0, 0, 1, 1, 5, 5, 5},
-        {1, 1, 1, 1, 0, 0, 0, 2, 0, 1, 5, 5, 5},
-        {1, 3, 3, 0, 2, 0, 1, 1, 0, 1, 1, 1, 1},
-        {1, 3, 3, 0, 0, 2, 1, 1, 0, 0, 0, 0, 1},
-        {1, 3, 3, 0, 0, 0, 0, 2, 0, 4, 0, 0, 1},
-        {1, 3, 1, 1, 1, 2, 1, 1, 1, 0, 1, 0, 1},
-        {1, 3, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5},
-        {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5}
+        {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
+        {1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 1, 1, 1, 1 ,1, 1, 1},
+        {1, 0, 0, 3, 3, 1, 5, 5, 5, 5, 1, 0, 0, 1, 0, 0, 1},
+        {1, 0, 0, 3, 3, 1, 1, 1, 1, 1, 1, 0, 2, 1, 0, 0, 1},
+        {1, 1, 0, 1, 3, 0, 0, 2, 0, 1, 1, 0, 0, 2, 0, 0, 1},
+        {5, 1, 0, 0, 2, 2, 2, 0, 0, 0, 1, 0, 1, 1, 2, 1, 1},
+        {5, 1, 3, 1, 3, 0, 1, 2, 0, 2, 0, 0, 1, 0, 0, 1, 5},
+        {5, 1, 3, 1, 3, 1, 1, 0, 1, 1, 0, 0, 2, 0, 0, 1, 5},
+        {5, 1, 3, 1, 0, 0, 0, 2, 0, 0, 1, 0, 1, 0, 0, 1, 5},
+        {5, 1, 3, 0, 1, 1, 0, 0, 0, 4, 1, 0, 1, 1, 2, 1, 5},
+        {5, 1, 3, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 5},
+        {5, 1, 3, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 1, 0, 1, 5},
+        {5, 1, 3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 5},
+        {5, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 5},
+        {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5}
+
+
     };
 
-    private static final int MOVIMIENTOS_OBJETIVO = 300; // Movimientos para 3 estrellas
-    private static final long TIEMPO_OBJETIVO = 180000; // 2 minutos en milisegundos
+    private static final int MOVIMIENTOS_OBJETIVO = 500; // Movimientos para 3 estrellas
+    private static final long TIEMPO_OBJETIVO = 300000; // 5 minutos en milisegundos
 
-    public MapaDos(int filas, int columnas, Texture muroImg, Texture cajaImg,
+    public MapaCuatro(int filas, int columnas, Texture muroImg, Texture cajaImg,
             Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo, Texture Fondo) {
         super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, cajaObjetivo, Fondo, 1); // Nivel ID = 1
     }

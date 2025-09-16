@@ -60,7 +60,7 @@ public class NivelUnoScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaUno(10, 12, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
+        mapa = new MapaUno(12, 12, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();
