@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -33,6 +34,7 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Nivel;
@@ -55,6 +57,20 @@ public class LvlSelectScreen implements Screen, InputProcessor {
     private ShapeRenderer shapeRenderer;
     private OrthographicCamera camera;
     private BitmapFont font;
+
+    private boolean mostrandoDialog = false;
+    private String mensajeDialog = "";
+    private float tiempoDialog = 0f;
+    private final float DURACION_DIALOG = 3f;
+    private BitmapFont dialogFont;
+    private GestorProgreso gestorProgreso;
+    private SpriteBatch dialogBatch;
+    private Texture cuadroTexture;
+    private GlyphLayout dialogLayout;
+    private OrthographicCamera dialogCamera;
+    private ScreenViewport dialogViewport;
+    private float dialogAlpha;
+    private float dialogScale;
 
     private enum PlayerState {
         IDLE, MOVING, ENTERING_LEVEL
@@ -85,7 +101,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
     private ShaderProgram wipeShader;
 
     private boolean moverArriba, moverAbajo, moverIzquierda, moverDerecha;
-    
+
     // --- VARIABLES PARA LA ANIMACIÓN DEL MOVIMIENTO ---
     // Posición VISUAL del jugador en píxeles (para el movimiento suave)
     private Vector2 playerVisualPosition = new Vector2();
@@ -96,11 +112,11 @@ public class LvlSelectScreen implements Screen, InputProcessor {
     private float moveTimer = 0f;
     // Duración de la animación en segundos (ajústalo a tu gusto)
     private final float MOVE_DURATION = 0.2f;
-    
+
     // Progreso del jugador
     private boolean[] nivelesCompletados;
     private Main game;
-    
+
     private Music backgroundMusic;
     private Sound moveSound;
     private Sound selectSound;
@@ -123,6 +139,12 @@ public class LvlSelectScreen implements Screen, InputProcessor {
 
     private void inicializar() {
 
+        gestorProgreso = GestorProgreso.getInstancia();
+
+        dialogFont = new BitmapFont();
+        dialogFont.setColor(Color.RED);
+        dialogFont.getData().setScale(1.5f);
+
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -130,6 +152,21 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 
         camera.update();
+
+        dialogBatch = new SpriteBatch();
+        cuadroTexture = new Texture("skin/cuadro.png");
+        cuadroTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        // Dialog font (reuse existing font or create new one)
+        dialogFont = new BitmapFont();
+        dialogFont.setColor(Color.BLACK);
+        dialogFont.getData().setScale(1.0f);
+
+        dialogLayout = new GlyphLayout();
+
+        // Dialog viewport for proper scaling
+        dialogCamera = new OrthographicCamera();
+        dialogViewport = new ScreenViewport(dialogCamera);
 
         font = new BitmapFont();
         font.setColor(Color.WHITE);
@@ -199,21 +236,21 @@ public class LvlSelectScreen implements Screen, InputProcessor {
 
         // Crear FrameBuffer con las dimensiones correctas
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888, 320, 192, false);
-        
+
         // Carga el shader. El vertex shader puede ser el por defecto de LibGDX.
         wipeShader = new ShaderProgram(Gdx.files.internal("default.vert"), Gdx.files.internal("wipe.frag"));
         if (!wipeShader.isCompiled()) {
             Gdx.app.error("Shader Error", wipeShader.getLog());
         }
-        
+
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("musica/mapaTema.ogg"));
         // Carga los efectos de sonido
         moveSound = Gdx.audio.newSound(Gdx.files.internal("musica/smb3_map_travel.wav"));
         selectSound = Gdx.audio.newSound(Gdx.files.internal("musica/smb3_enter_level.wav"));
-        
+
         backgroundMusic.setLooping(true); // Para que se repita
         backgroundMusic.setVolume(0.5f);  // Ajusta el volumen (0.0 a 1.0)
-        backgroundMusic.play();    
+        backgroundMusic.play();
     }
 
     private void crearMapa() {
@@ -264,43 +301,27 @@ public class LvlSelectScreen implements Screen, InputProcessor {
     public void render(float delta) {
         // Actualizar lógica del juego
         actualizarJuego(delta);
-        
+
         // Si estamos en transición, renderizar con shader
         if (pS == PlayerState.ENTERING_LEVEL) {
             renderizarConTransicion(delta);
         } else {
             renderizarNormal();
         }
-    }
 
-    private void actualizarJuego(float delta) {
-        manejarInput();
-        stateTime += delta;
-        
-        // Actualizar animación de movimiento
-        if (pS == PlayerState.MOVING) {
-            moveTimer += delta;
-            float progress = Math.min(moveTimer / MOVE_DURATION, 1.0f);
-            
-            // Interpolación suave del movimiento
-            playerVisualPosition.x = Interpolation.smooth.apply(moveFrom.x, moveTo.x, progress);
-            playerVisualPosition.y = Interpolation.smooth.apply(moveFrom.y, moveTo.y, progress);
-            
-            // Si la animación terminó
-            if (progress >= 1.0f) {
-                pS = PlayerState.IDLE;
-                playerVisualPosition.set(moveTo);
-            }
+        // Renderizar dialog después del contenido principal
+        if (mostrandoDialog) {
+            renderDialog();
         }
     }
 
     private void renderizarNormal() {
-         Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
         vp.apply();
-        
+
         // Renderizar mapa
         mapRenderer.setView(camera);
         mapRenderer.render();
@@ -308,19 +329,89 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         // Renderizar jugador
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        
+
         TextureRegion frameParaDibujar = playerAnimation.getKeyFrame(stateTime, true);
         batch.draw(frameParaDibujar, playerVisualPosition.x, playerVisualPosition.y);
-        
+
         batch.end();
+    }
+
+    private void renderDialog() {
+        dialogViewport.apply();
+
+        // Usar las dimensiones del viewport del diálogo para cálculos
+        float screenWidth = dialogViewport.getScreenWidth();
+        float screenHeight = dialogViewport.getScreenHeight();
+
+        // Preparar texto primero para medir sus dimensiones
+        dialogFont.getData().setScale(dialogScale * 0.8f);
+        dialogLayout.setText(dialogFont, mensajeDialog);
+
+        // Calcular tamaño del diálogo basado en el texto + padding
+        float textWidth = dialogLayout.width;
+        float textHeight = dialogLayout.height;
+
+        // Padding alrededor del texto
+        float paddingX = 40 * dialogScale;
+        float paddingY = 30 * dialogScale;
+
+        // Tamaño mínimo y máximo para el diálogo
+        float minWidth = 200 * dialogScale;
+        float maxWidth = Math.min(screenWidth * 0.8f, 600 * dialogScale);
+        float minHeight = 80 * dialogScale;
+        float maxHeight = Math.min(screenHeight * 0.6f, 300 * dialogScale);
+
+        // Calcular dimensiones finales del diálogo
+        float dialogWidth = Math.max(minWidth, Math.min(maxWidth, textWidth + paddingX * 2));
+        float dialogHeight = Math.max(minHeight, Math.min(maxHeight, textHeight + paddingY * 2));
+
+        // Si el texto es muy largo, ajustar para texto multi-línea
+        if (textWidth + paddingX * 2 > maxWidth) {
+            // Recalcular el texto con wrap para que quepa en el ancho máximo
+            float wrapWidth = maxWidth - paddingX * 2;
+            dialogLayout.setText(dialogFont, mensajeDialog, Color.BLACK, wrapWidth, 1, true);
+            dialogHeight = Math.max(minHeight, dialogLayout.height + paddingY * 2);
+        }
+
+        float dialogX = (screenWidth - dialogWidth) / 2;
+        float dialogY = (screenHeight - dialogHeight) / 2;
+
+        dialogCamera.update();
+        dialogBatch.setProjectionMatrix(dialogCamera.combined);
+        dialogBatch.begin();
+
+        // Aplicar transparencia
+        dialogBatch.setColor(1, 1, 1, dialogAlpha);
+
+        // Dibujar el cuadro de fondo con el tamaño ajustado
+        dialogBatch.draw(cuadroTexture, dialogX, dialogY, dialogWidth, dialogHeight);
+
+        // Calcular posición del texto centrada
+        float textX = dialogX + (dialogWidth - dialogLayout.width) / 2;
+        float textY = dialogY + (dialogHeight + dialogLayout.height) / 2;
+
+        // Configurar fuente con transparencia
+        dialogFont.setColor(0.1f, 0.1f, 0.1f, dialogAlpha); // Texto negro semi-transparente
+
+        // Dibujar el texto (ya tiene el wrap aplicado si es necesario)
+        dialogFont.draw(dialogBatch, dialogLayout, textX, textY);
+
+        // Restaurar configuración de la fuente
+        dialogFont.getData().setScale(1f);
+        dialogFont.setColor(Color.BLACK);
+
+        // Restaurar color del batch
+        dialogBatch.setColor(Color.WHITE);
+
+        dialogBatch.end();
     }
 
     private void renderizarConTransicion(float delta) {
         transitionTimer += delta;
-        
+
         // --- FASE 1: RENDERIZAR ESCENA EN FRAMEBUFFER ---
         fbo.begin();
-        
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -330,10 +421,10 @@ public class LvlSelectScreen implements Screen, InputProcessor {
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        
+
         TextureRegion frameParaDibujar = playerAnimation.getKeyFrame(stateTime, true);
         batch.draw(frameParaDibujar, playerVisualPosition.x, playerVisualPosition.y);
-        
+
         batch.end();
         fbo.end();
 
@@ -350,7 +441,9 @@ public class LvlSelectScreen implements Screen, InputProcessor {
 
         // Calcular progreso del wipe (0.0 a 1.0)
         float progress = Math.min((transitionTimer - 0.5f) / 1.0f, 1.0f);
-        if (progress < 0) progress = 0;
+        if (progress < 0) {
+            progress = 0;
+        }
 
         // Pasar parámetros al shader
         wipeShader.setUniformf("u_progress", progress);
@@ -360,7 +453,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         Texture fboTexture = fbo.getColorBufferTexture();
         TextureRegion fboRegion = new TextureRegion(fboTexture);
         fboRegion.flip(false, true); // Solo voltear Y para corregir el FrameBuffer
-        
+
         batch.draw(fboRegion, 0, 0, camera.viewportWidth, camera.viewportHeight);
 
         batch.end();
@@ -369,7 +462,33 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         // Cambiar de pantalla cuando termine la transición
         if (transitionTimer > 1.5f) {
             System.out.println("CAMBIANDO DE PANTALLA A NIVEL " + nivelParaCargar);
-            game.setScreen(new NivelSieteScreen(game));
+            switch (nivelParaCargar) {
+                case 1:
+                    game.setScreen(new NivelUnoScreen(game));
+                    break;
+                case 2:
+                    game.setScreen(new NivelDosScreen(game));
+                    break;
+                case 3:
+                    game.setScreen(new NivelTresScreen(game));
+                    break;
+                case 4:
+                    game.setScreen(new NivelCuatroScreen(game));
+                    break;
+                case 5:
+                    game.setScreen(new NivelCincoScreen(game));
+                    break;
+
+                case 6:
+                    game.setScreen(new NivelSeisScreen(game));
+                    break;
+
+                case 7:
+
+                    game.setScreen(new NivelSieteScreen(game));
+                    break;
+
+            }
         }
     }
 
@@ -409,194 +528,16 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         // Actualizar la posición lógica final del jugador
         playerGridX = targetX;
         playerGridY = targetY;
-        
+
         // Iniciar la animación
         moveTimer = 0f;
         pS = PlayerState.MOVING;
         moveSound.play(1.0f);
     }
 
-    private void moverSeleccion(int direccion) {
-        int nuevoIndex = nivelSeleccionadoIndex;
-
-        do {
-            nuevoIndex += direccion;
-            if (nuevoIndex < 0) {
-                nuevoIndex = niveles.length - 1;
-            }
-            if (nuevoIndex >= niveles.length) {
-                nuevoIndex = 0;
-            }
-        } while (!niveles[nuevoIndex].puedeJugar() && nuevoIndex != nivelSeleccionadoIndex);
-
-        if (niveles[nuevoIndex].puedeJugar()) {
-            seleccionarNivel(nuevoIndex);
-        }
-    }
-
-    private void buscarNivelEnDireccion(float deltaX, float deltaY) {
-        if (nivelSeleccionadoIndex >= niveles.length) {
-            return;
-        }
-        
-        
-        Nivel nivelActual = niveles[nivelSeleccionadoIndex];
-        int mejorIndex = -1;
-        float menorDistancia = Float.MAX_VALUE;
-
-        for (int i = 0; i < niveles.length; i++) {
-            if (i == nivelSeleccionadoIndex || !niveles[i].puedeJugar()) {
-                continue;
-            }
-
-            Nivel nivel = niveles[i];
-            float dx = nivel.getX() - nivelActual.getX();
-            float dy = nivel.getY() - nivelActual.getY();
-
-            // Verificar si está en la dirección correcta
-            if (deltaX > 0 && dx <= 0) {
-                continue; // Buscando derecha pero nivel está a la izquierda
-            }
-            if (deltaX < 0 && dx >= 0) {
-                continue; // Buscando izquierda pero nivel está a la derecha
-            }
-            if (deltaY > 0 && dy <= 0) {
-                continue; // Buscando arriba pero nivel está abajo
-            }
-            if (deltaY < 0 && dy >= 0) {
-                continue; // Buscando abajo pero nivel está arriba
-            }
-            float distancia = calcularDistancia(nivelActual.getX(), nivelActual.getY(),
-                    nivel.getX(), nivel.getY());
-
-            if (distancia < menorDistancia) {
-                menorDistancia = distancia;
-                mejorIndex = i;
-            }
-        }
-
-        if (mejorIndex != -1) {
-            seleccionarNivel(mejorIndex);
-        }
-    }
-
-    private void seleccionarNivel(int index) {
-        // Restaurar estado del nivel previamente seleccionado
-        if (nivelSeleccionadoIndex < niveles.length) {
-            Nivel nivelAnterior = niveles[nivelSeleccionadoIndex];
-            if (nivelAnterior.getEstado() == Nivel.SELECCIONADO) {
-                int nuevoEstado = nivelesCompletados[nivelAnterior.getId()]
-                        ? Nivel.COMPLETADO : Nivel.DISPONIBLE;
-                nivelAnterior.setEstado(nuevoEstado);
-            }
-        }
-
-        // Seleccionar nuevo nivel
-        nivelSeleccionadoIndex = index;
-        niveles[index].setEstado(Nivel.SELECCIONADO);
-    }
-
-    private void iniciarNivel(int nivelId) {
-        System.out.println("Iniciando nivel: " + nivelId);
-
-        if (pS == PlayerState.ENTERING_LEVEL) {
-            return;
-        }
-
-        pS = PlayerState.ENTERING_LEVEL; // Cambiamos al nuevo estado
-        transitionTimer = 0f;             // Reiniciamos el temporizador
-        nivelParaCargar = nivelId;
-        selectSound.play(1.0f);
-        backgroundMusic.stop();
-    }
-
-    public void marcarNivelCompletado(int nivelId) {
-        nivelesCompletados[nivelId] = true;
-
-        // Actualizar estado del nivel
-        for (int i = 0; i < niveles.length; i++) {
-            if (niveles[i].getId() == nivelId) {
-                niveles[i].completar();
-
-                // Desbloquear siguiente nivel
-                if (i + 1 < niveles.length
-                        && niveles[i + 1].getEstado() == Nivel.BLOQUEADO) {
-                    niveles[i + 1].setEstado(Nivel.DISPONIBLE);
-                }
-                break;
-            }
-        }
-
-        // Guardar progreso
-        guardarProgreso();
-    }
-
-    private void guardarProgreso() {
-        // Aquí guardarías en archivo o base de datos
-        System.out.println("Progreso guardado");
-    }
-
-    private float calcularDistancia(float x1, float y1, float x2, float y2) {
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        return (float) Math.sqrt(dx * dx + dy * dy);
-    }
-
-    @Override
-    public void show() {
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        vp.update(width, height, true);
-        
-        // Recrear FrameBuffer con las nuevas dimensiones si es necesario
-        if (fbo != null) {
-            fbo.dispose();
-            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, 320, 192, false);
-            // Configurar filtrado NEAREST para evitar blur
-            fbo.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        }
-    }
-
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void hide() {
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        switch (keycode) {
-            case Input.Keys.UP:
-                moverArriba = true;
-                break;
-            case Input.Keys.DOWN:
-                moverAbajo = true;
-                break;
-            case Input.Keys.LEFT:
-                moverIzquierda = true;
-                break;
-            case Input.Keys.RIGHT:
-                moverDerecha = true;
-                break;
-        }
-
-        if (keycode == Input.Keys.ENTER) {
-            seleccionarNivelActual();
-        }
-        return true;
-    }
-
     private void seleccionarNivelActual() {
-        // Solo podemos seleccionar un nivel si no nos estamos moviendo
-        if (pS != PlayerState.IDLE) {
+        // Solo podemos seleccionar un nivel si no nos estamos moviendo y no hay dialog activo
+        if (pS != PlayerState.IDLE || mostrandoDialog) {
             return;
         }
 
@@ -625,8 +566,14 @@ public class LvlSelectScreen implements Screen, InputProcessor {
                         String numeroNivelStr = objectName.substring("nivel_".length());
                         int nivelId = Integer.parseInt(numeroNivelStr);
 
-                        // ¡Encontramos el nivel! Lo iniciamos y salimos del bucle.
-                        iniciarNivel(nivelId);
+                        // Verificar si el nivel está desbloqueado
+                        if (nivelId == 1 || gestorProgreso.isNivelDesbloqueado(nivelId)) {
+                            // Nivel desbloqueado, permitir entrada
+                            iniciarNivel(nivelId);
+                        } else {
+                            // Nivel bloqueado, mostrar dialog
+                            mostrarDialogNivelBloqueado(nivelId);
+                        }
                         return;
 
                     } catch (NumberFormatException e) {
@@ -636,6 +583,198 @@ public class LvlSelectScreen implements Screen, InputProcessor {
                 }
             }
         }
+    }
+
+// Add this new method to show the blocked level dialog
+    private void mostrarDialogNivelBloqueado(int nivelId) {
+        mensajeDialog = "¡Nivel " + nivelId + " bloqueado!\nCompleta el nivel anterior para desbloquearlo";
+        mostrarDialog(mensajeDialog);
+    }
+
+    private void mostrarDialog(String mensaje) {
+        this.mensajeDialog = mensaje;
+        this.mostrandoDialog = true;
+        this.dialogAlpha = 0f;
+        this.dialogScale = 0.5f;
+
+        animateDialog(true);
+    }
+
+    private void ocultarDialog() {
+        animateDialog(false);
+    }
+
+    private void animateDialog(boolean show) {
+        if (show) {
+            com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+                float time = 0f;
+
+                @Override
+                public void run() {
+                    time += 0.02f;
+                    if (time >= 0.3f) {
+                        dialogAlpha = 1f;
+                        dialogScale = 1f;
+                        this.cancel();
+                        return;
+                    }
+
+                    dialogAlpha = Interpolation.pow2Out.apply(time / 0.3f);
+                    dialogScale = 0.5f + (0.5f * Interpolation.bounceOut.apply(time / 0.3f));
+                }
+            }, 0f, 0.02f);
+        } else {
+            com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+                float time = 0f;
+
+                @Override
+                public void run() {
+                    time += 0.02f;
+                    if (time >= 0.2f) {
+                        mostrandoDialog = false;
+                        mensajeDialog = "";
+                        this.cancel();
+                        return;
+                    }
+
+                    dialogAlpha = 1f - (time / 0.2f);
+                    dialogScale = 1f - (0.3f * (time / 0.2f));
+                }
+            }, 0f, 0.02f);
+        }
+    }
+
+// Add this to your actualizarJuego() method, after the existing movement animation code
+    private void actualizarJuego(float delta) {
+        manejarInput();
+        stateTime += delta;
+
+        // No need for manual dialog timer - it's handled by user input now
+        // Actualizar animación de movimiento
+        if (pS == PlayerState.MOVING) {
+            moveTimer += delta;
+            float progress = Math.min(moveTimer / MOVE_DURATION, 1.0f);
+
+            // Interpolación suave del movimiento
+            playerVisualPosition.x = Interpolation.smooth.apply(moveFrom.x, moveTo.x, progress);
+            playerVisualPosition.y = Interpolation.smooth.apply(moveFrom.y, moveTo.y, progress);
+
+            // Si la animación terminó
+            if (progress >= 1.0f) {
+                pS = PlayerState.IDLE;
+                playerVisualPosition.set(moveTo);
+            }
+        }
+    }
+
+// Add this method to render the dialog in your renderizarNormal() method
+// Add this new method to render the dialog
+// Add this to your keyDown method to allow dismissing the dialog with ENTER or ESCAPE
+    public boolean keyDown(int keycode) {
+        // Si hay un dialog activo, permitir cerrarlo con ENTER o ESCAPE
+        if (mostrandoDialog) {
+            if (keycode == Input.Keys.ENTER || keycode == Input.Keys.ESCAPE) {
+                ocultarDialog();
+                return true;
+            }
+            return true; // Consume all input while dialog is active
+        }
+
+        // Existing movement code...
+        switch (keycode) {
+            case Input.Keys.UP:
+                moverArriba = true;
+                break;
+            case Input.Keys.DOWN:
+                moverAbajo = true;
+                break;
+            case Input.Keys.LEFT:
+                moverIzquierda = true;
+                break;
+            case Input.Keys.RIGHT:
+                moverDerecha = true;
+                break;
+        }
+
+        if (keycode == Input.Keys.ENTER) {
+            seleccionarNivelActual();
+        }
+        return true;
+    }
+
+    private void iniciarNivel(int nivelId) {
+        System.out.println("Iniciando nivel: " + nivelId);
+
+        if (pS == PlayerState.ENTERING_LEVEL) {
+            return;
+        }
+
+        pS = PlayerState.ENTERING_LEVEL; // Cambiamos al nuevo estado
+        transitionTimer = 0f;             // Reiniciamos el temporizador
+        nivelParaCargar = nivelId;
+        selectSound.play(1.0f);
+        backgroundMusic.stop();
+
+    }
+
+    public void marcarNivelCompletado(int nivelId) {
+        nivelesCompletados[nivelId] = true;
+
+        // Actualizar estado del nivel
+        for (int i = 0; i < niveles.length; i++) {
+            if (niveles[i].getId() == nivelId) {
+                niveles[i].completar();
+
+                // Desbloquear siguiente nivel
+                if (i + 1 < niveles.length
+                        && niveles[i + 1].getEstado() == Nivel.BLOQUEADO) {
+                    niveles[i + 1].setEstado(Nivel.DISPONIBLE);
+                }
+                break;
+            }
+        }
+
+        // Guardar progreso
+        guardarProgreso();
+    }
+
+    private void guardarProgreso() {
+        // Aquí guardarías en archivo o base de datos
+        System.out.println("Progreso guardado");
+    }
+
+
+    @Override
+    public void show() {
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        vp.update(width, height, true);
+
+        // Update dialog viewport
+        if (dialogViewport != null) {
+            dialogViewport.update(width, height, true);
+        }
+
+        // Recrear FrameBuffer with new dimensions if necessary
+        if (fbo != null) {
+            fbo.dispose();
+            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, 320, 192, false);
+            fbo.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        }
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
     }
 
     @Override
@@ -702,19 +841,41 @@ public class LvlSelectScreen implements Screen, InputProcessor {
     public boolean scrolled(float amountX, float amountY) {
         return false;
     }
-    
+
     @Override
     public void dispose() {
-        if (batch != null) batch.dispose();
-        if (shapeRenderer != null) shapeRenderer.dispose();
-        if (font != null) font.dispose();
-        if (tiledMap != null) tiledMap.dispose();
-        if (mapRenderer != null) mapRenderer.dispose();
-        if (playerTexture != null) playerTexture.dispose();
-        if (fbo != null) fbo.dispose();
-        if (wipeShader != null) wipeShader.dispose();
-        if (fondoMapa != null) fondoMapa.dispose();
-        if (iconoCaja != null) iconoCaja.dispose();
-        if (iconoMeta != null) iconoMeta.dispose();
+        if (batch != null) {
+            batch.dispose();
+        }
+        if (shapeRenderer != null) {
+            shapeRenderer.dispose();
+        }
+        if (font != null) {
+            font.dispose();
+        }
+        if (tiledMap != null) {
+            tiledMap.dispose();
+        }
+        if (mapRenderer != null) {
+            mapRenderer.dispose();
+        }
+        if (playerTexture != null) {
+            playerTexture.dispose();
+        }
+        if (fbo != null) {
+            fbo.dispose();
+        }
+        if (wipeShader != null) {
+            wipeShader.dispose();
+        }
+        if (fondoMapa != null) {
+            fondoMapa.dispose();
+        }
+        if (iconoCaja != null) {
+            iconoCaja.dispose();
+        }
+        if (iconoMeta != null) {
+            iconoMeta.dispose();
+        }
     }
 }

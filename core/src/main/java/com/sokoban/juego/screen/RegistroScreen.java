@@ -27,6 +27,7 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.logica.accounts.GestorProgreso;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -57,12 +58,12 @@ public class RegistroScreen implements Screen {
     private TextField nombreField;
     private TextButton registerButton;
     private Table bottomRight;
-    
+
     // Viewport y cámara para el fondo
     private OrthographicCamera backgroundCamera;
     private FitViewport backgroundViewport;
     private SpriteBatch backgroundBatch;
-    
+
     // Viewport específico para diálogos
     private OrthographicCamera dialogCamera;
     private ScreenViewport dialogViewport;
@@ -78,11 +79,11 @@ public class RegistroScreen implements Screen {
         backgroundCamera = new OrthographicCamera();
         backgroundViewport = new FitViewport(384, 224, backgroundCamera);
         backgroundBatch = new SpriteBatch();
-        
+
         // Configurar cámara y viewport para diálogos (escalado suave)
         dialogCamera = new OrthographicCamera();
         dialogViewport = new ScreenViewport(dialogCamera);
-        
+
         // Stage usa ScreenViewport para UI responsive
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -99,7 +100,7 @@ public class RegistroScreen implements Screen {
 
         // Fuentes: una básica y una mejorada para diálogos
         font = new BitmapFont();
-        
+
         // Intentar usar una fuente del skin para diálogos, si no existe usar la básica
         try {
             dialogFont = skin.getFont("default-font");
@@ -109,7 +110,7 @@ public class RegistroScreen implements Screen {
         } catch (Exception e) {
             dialogFont = font;
         }
-        
+
         layout = new GlyphLayout();
 
         createUI();
@@ -170,15 +171,18 @@ public class RegistroScreen implements Screen {
 
                 new Thread(() -> {
                     try {
-                        boolean resultado = gestor.registrarUsuarios(usernameField.getText(), 
-                                                                   passwordField.getText(), 
-                                                                   nombreField.getText());
+                        boolean resultado = gestor.registrarUsuarios(usernameField.getText(),
+                                passwordField.getText(),
+                                nombreField.getText());
 
                         Gdx.app.postRunnable(() -> {
                             com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
                                 @Override
                                 public void run() {
                                     if (resultado) {
+
+                                        GestorProgreso.getInstancia().inicializarNuevoUsuario();
+
                                         mostrarDialog("¡Usuario registrado exitosamente!");
 
                                         com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
@@ -252,7 +256,7 @@ public class RegistroScreen implements Screen {
         mainContent.add(registerButton).colspan(2).padTop(30).width(200).height(50);
 
         root.add(mainContent).expand().center();
-        
+
         // Barra de login movida arriba - justo después del contenido principal
         Label loginLabel = new Label("¿Ya tienes una cuenta?", skin);
         loginLabel.setColor(Color.LIGHT_GRAY);
@@ -392,7 +396,7 @@ public class RegistroScreen implements Screen {
         backgroundViewport.apply();
         backgroundCamera.update();
         backgroundBatch.setProjectionMatrix(backgroundCamera.combined);
-        
+
         backgroundBatch.begin();
         // El fondo se dibuja en el espacio del mundo (384x224)
         backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
@@ -418,25 +422,25 @@ public class RegistroScreen implements Screen {
         // Preparar texto primero para medir sus dimensiones
         dialogFont.getData().setScale(dialogScale * 0.8f);
         layout.setText(dialogFont, mensajeDialog);
-        
+
         // Calcular tamaño del diálogo basado en el texto + padding
         float textWidth = layout.width;
         float textHeight = layout.height;
-        
+
         // Padding alrededor del texto
         float paddingX = 40 * dialogScale;
         float paddingY = 30 * dialogScale;
-        
+
         // Tamaño mínimo y máximo para el diálogo
         float minWidth = 200 * dialogScale;
         float maxWidth = Math.min(screenWidth * 0.8f, 600 * dialogScale);
         float minHeight = 80 * dialogScale;
         float maxHeight = Math.min(screenHeight * 0.6f, 300 * dialogScale);
-        
+
         // Calcular dimensiones finales del diálogo
         float dialogWidth = Math.max(minWidth, Math.min(maxWidth, textWidth + paddingX * 2));
         float dialogHeight = Math.max(minHeight, Math.min(maxHeight, textHeight + paddingY * 2));
-        
+
         // Si el texto es muy largo, ajustar para texto multi-línea
         if (textWidth + paddingX * 2 > maxWidth) {
             // Recalcular el texto con wrap para que quepa en el ancho máximo
@@ -502,7 +506,7 @@ public class RegistroScreen implements Screen {
     public void dispose() {
         stage.dispose();
         skin.dispose();
-        
+
         if (backgroundBatch != null) {
             backgroundBatch.dispose();
         }

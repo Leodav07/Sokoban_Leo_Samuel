@@ -104,7 +104,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
                         break;
                     case 2:
                         Caja caja = new Caja(x, y, cajaImg, cajaEnObjetivoImg, TILE);
-                        caja.setEstaEnObjetivo(false); 
+                        caja.setEstaEnObjetivo(false);
                         mapa[y][x] = caja;
                         break;
                     case 3:
@@ -114,7 +114,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
                         mapa[y][x] = new Terreno(x, y, sueloImg);
                         jugador = new Jugador(jugadorImg, x, y, TILE);
                         break;
-                        
+
                     case 5:
                         mapa[y][x] = new Fondo(x, y, fondoImg);
                         break;
@@ -194,13 +194,13 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
                     System.out.println("No se pudo solicitar Regresar");
                 }
             } else {
-                
+
             }
             return;
         }
 
         if (motorMovimiento.estaEjecutandoUndo()) {
-            
+
             return;
         }
 
@@ -270,8 +270,15 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         int movimientos = gameUI.getMovimientosRealizados();
         long tiempoReal = gameUI.getTiempoTranscurrido() - gestorPausa.getTiempoTotalPausado();
 
+        // Completar el nivel actual (esto desbloqueará el siguiente automáticamente)
         gestorProgreso.completarNivel(nivelId, movimientos, tiempoReal);
 
+        // Log para debug
+        System.out.println("Nivel " + nivelId + " completado. Verificando desbloqueos...");
+        if (nivelId < 7) {
+            boolean siguienteDesbloqueado = gestorProgreso.isNivelDesbloqueado(nivelId + 1);
+            System.out.println("Nivel " + (nivelId + 1) + " desbloqueado: " + siguienteDesbloqueado);
+        }
 
         onNivelCompletadoCustom();
     }
