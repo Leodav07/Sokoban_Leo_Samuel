@@ -283,7 +283,7 @@ public class Motor implements ProcesoRegresar.UndoListener {
         
         if (hiloUndo != null) {
             try {
-                hiloUndo.join(1000); // Esperar máximo 1 segundo
+                hiloUndo.join(1000); 
             } catch (InterruptedException e) {
                 System.err.println("Error esperando finalización del hilo regresar: " + e.getMessage());
             }

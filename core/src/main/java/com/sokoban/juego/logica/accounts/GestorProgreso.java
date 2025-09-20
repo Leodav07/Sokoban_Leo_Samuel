@@ -4,10 +4,10 @@
  */
 package com.sokoban.juego.logica.accounts;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.sokoban.juego.logica.GestorUsuarios;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,18 +17,20 @@ import java.util.Map;
  */
 public class GestorProgreso {
 
+    private static final int TOTAL_NIVELES = 7;
+    private static final String ARCHIVO_PROGRESO = "progreso.dat";
+    private static final String USERS_BASE_DIR = "users";
+
     private static GestorProgreso instancia;
-    private Map<Integer, ProgresoPorNivel> progresoPorNivel;
+    private final Map<Integer, ProgresoPorNivel> progresoPorNivel;
+    
     private int puntajeTotalAcumulado;
     private int totalMovimientosRealizados;
     private long tiempoTotalJugado;
 
     private GestorProgreso() {
-        progresoPorNivel = new HashMap<>();
+        this.progresoPorNivel = new HashMap<>();
         inicializarNiveles();
-        puntajeTotalAcumulado = 0;
-        totalMovimientosRealizados = 0;
-        tiempoTotalJugado = 0;
     }
 
     public static GestorProgreso getInstancia() {
@@ -38,10 +40,12 @@ public class GestorProgreso {
         return instancia;
     }
 
-    private void inicializarNiveles() {
-        for (int i = 1; i <= 7; i++) {
+     private void inicializarNiveles() {
+        progresoPorNivel.clear();
+        for (int i = 1; i <= TOTAL_NIVELES; i++) {
             progresoPorNivel.put(i, new ProgresoPorNivel(i));
         }
+        progresoPorNivel.get(1).setDesbloqueado(true);
     }
 
     public void completarNivel(int nivelId, int movimientos, long tiempoEnMs) {
@@ -106,98 +110,72 @@ public class GestorProgreso {
     }
 
     public void guardarProgreso() {
-        Usuario usuario = GestorUsuarios.usuarioActual;
-        if (usuario == null) {
-            System.err.println("No hay usuario logueado para guardar progreso");
+        File archivo = obtenerArchivoProgreso();
+        if (archivo == null) {
+            System.err.println("No hay un usuario logueado para guardar el progreso.");
             return;
         }
 
-        try {
-            FileHandle carpetaUsuario = Gdx.files.local("users/" + usuario.getUsername());
-            if (!carpetaUsuario.exists()) {
-                carpetaUsuario.mkdirs();
-            }
+        try (RandomAccessFile raf = new RandomAccessFile(archivo, "rw")) {
+            raf.writeInt(puntajeTotalAcumulado);
+            raf.writeInt(totalMovimientosRealizados);
+            raf.writeLong(tiempoTotalJugado);
 
-            FileHandle archivoProgreso = carpetaUsuario.child("progreso.dat");
-            File file = archivoProgreso.file();
-
-            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-                // Escribir datos globales
-                raf.writeInt(puntajeTotalAcumulado);
-                raf.writeInt(totalMovimientosRealizados);
-                raf.writeLong(tiempoTotalJugado);
-
-                // Escribir progreso de cada nivel
-                for (int i = 1; i <= 7; i++) {
-                    ProgresoPorNivel progreso = progresoPorNivel.get(i);
-                    if (progreso != null) {
-                        raf.writeInt(progreso.getNivelId());
-                        raf.writeBoolean(progreso.isCompletado());
-                        raf.writeBoolean(progreso.isDesbloqueado());
-                        raf.writeInt(progreso.getMejorPuntaje());
-                        raf.writeInt(progreso.getMenorCantidadMovimientos());
-                        raf.writeInt(progreso.getVecesCompletado());
-                        raf.writeLong(progreso.getTiempoMejorRecord());
-                    }
+            for (int i = 1; i <= TOTAL_NIVELES; i++) {
+                ProgresoPorNivel progreso = progresoPorNivel.get(i);
+                if (progreso != null) {
+                    raf.writeInt(progreso.getNivelId());
+                    raf.writeBoolean(progreso.isCompletado());
+                    raf.writeBoolean(progreso.isDesbloqueado());
+                    raf.writeInt(progreso.getMejorPuntaje());
+                    raf.writeInt(progreso.getMenorCantidadMovimientos());
+                    raf.writeInt(progreso.getVecesCompletado());
+                    raf.writeLong(progreso.getTiempoMejorRecord());
                 }
             }
-
-            System.out.println("Progreso guardado para " + usuario.getUsername());
-
+            System.out.println("Progreso guardado para " + GestorUsuarios.usuarioActual.getUsername());
         } catch (IOException e) {
-            System.err.println("Error guardando progreso: " + e.getMessage());
+            System.err.println("Error al guardar el progreso: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public void cargarProgreso() {
+     private File obtenerArchivoProgreso() {
         Usuario usuario = GestorUsuarios.usuarioActual;
         if (usuario == null) {
-            System.err.println("No hay usuario logueado para cargar progreso");
+            return null;
+        }
+        return new File(USERS_BASE_DIR + "/" + usuario.getUsername(), ARCHIVO_PROGRESO);
+    }
+     
+    public void cargarProgreso() {
+        File archivo = obtenerArchivoProgreso();
+        if (archivo == null || !archivo.exists()) {
+            System.out.println("No se encontró progreso previo, inicializando valores por defecto.");
+            resetearProgreso(); 
             return;
         }
 
-        FileHandle archivoProgreso = Gdx.files.local("users/" + usuario.getUsername() + "/progreso.dat");
-        if (!archivoProgreso.exists()) {
-            System.out.println("No existe progreso previo para " + usuario.getUsername());
-            return;
-        }
+        try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
+            puntajeTotalAcumulado = raf.readInt();
+            totalMovimientosRealizados = raf.readInt();
+            tiempoTotalJugado = raf.readLong();
 
-        try {
-            File file = archivoProgreso.file();
-            try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-                // Leer datos globales
-                puntajeTotalAcumulado = raf.readInt();
-                totalMovimientosRealizados = raf.readInt();
-                tiempoTotalJugado = raf.readLong();
-
-                
-                // Leer progreso de cada nivel
-                for (int i = 1; i <= 7; i++) {
-                    int nivelId = raf.readInt();
-                    boolean completado = raf.readBoolean();
-                    boolean desbloqueado = raf.readBoolean();
-                    int mejorPuntaje = raf.readInt();
-                    int menorMovimientos = raf.readInt();
-                    int vecesCompletado = raf.readInt();
-                    long mejorTiempo = raf.readLong();
-
-                    ProgresoPorNivel progreso = progresoPorNivel.get(nivelId);
-                    if (progreso != null) {
-                        progreso.setCompletado(completado);
-                        progreso.setDesbloqueado(desbloqueado);
-                        progreso.setMejorPuntaje(mejorPuntaje);
-                        progreso.setMenorCantidadMovimientos(menorMovimientos);
-                        progreso.setVecesCompletado(vecesCompletado);
-                        progreso.setTiempoMejorRecord(mejorTiempo);
-                    }
+            for (int i = 1; i <= TOTAL_NIVELES; i++) {
+                int nivelId = raf.readInt();
+                ProgresoPorNivel progreso = progresoPorNivel.get(nivelId);
+                if (progreso != null) {
+                    progreso.setCompletado(raf.readBoolean());
+                    progreso.setDesbloqueado(raf.readBoolean());
+                    progreso.setMejorPuntaje(raf.readInt());
+                    progreso.setMenorCantidadMovimientos(raf.readInt());
+                    progreso.setVecesCompletado(raf.readInt());
+                    progreso.setTiempoMejorRecord(raf.readLong());
                 }
             }
-
-            System.out.println("Progreso cargado para " + usuario.getUsername());
-
+            System.out.println("Progreso cargado para " + GestorUsuarios.usuarioActual.getUsername());
         } catch (IOException e) {
-            System.err.println("Error cargando progreso: " + e.getMessage());
+            System.err.println("Error al cargar el progreso: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -262,20 +240,17 @@ public class GestorProgreso {
     }
 
     public void resetearProgreso() {
-        progresoPorNivel.clear();
-        inicializarNiveles();
         puntajeTotalAcumulado = 0;
         totalMovimientosRealizados = 0;
         tiempoTotalJugado = 0;
+        inicializarNiveles();
 
-        Usuario usuario = GestorUsuarios.usuarioActual;
-        if (usuario != null) {
-            FileHandle archivoProgreso = Gdx.files.local("users/" + usuario.getUsername() + "/progreso.dat");
-            if (archivoProgreso.exists()) {
-                archivoProgreso.delete();
-            }
-            System.out.println("Progreso reseteado para " + usuario.getUsername());
+        File archivo = obtenerArchivoProgreso();
+        if (archivo != null && archivo.exists()) {
+            archivo.delete();
         }
+        System.out.println("El progreso ha sido reseteado.");
+        guardarProgreso();
     }
 
     private String formatearTiempo(long tiempoMs) {
@@ -328,23 +303,9 @@ public class GestorProgreso {
     
     
     
-    public void inicializarNuevoUsuario() {
-      
-        progresoPorNivel.clear();
-        inicializarNiveles();
-        puntajeTotalAcumulado = 0;
-        totalMovimientosRealizados = 0;
-        tiempoTotalJugado = 0;
-
-     
-        ProgresoPorNivel nivel1 = progresoPorNivel.get(1);
-        if (nivel1 != null) {
-            nivel1.setDesbloqueado(true);
-        }
-
-        guardarProgreso();
-
-        System.out.println("Progreso inicializado para nuevo usuario - Solo nivel 1 disponible");
+     public void inicializarNuevoUsuario(String username) {
+        resetearProgreso();
+        System.out.println("Progreso inicializado para el nuevo usuario: " + username);
     }
 
 }

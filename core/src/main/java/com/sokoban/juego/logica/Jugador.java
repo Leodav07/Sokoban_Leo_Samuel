@@ -54,8 +54,8 @@ public class Jugador {
     }
 
     private void configurarAnimaciones(Texture spritesheet) {
-        int FRAME_WIDTH = 16;
-        int FRAME_HEIGHT = 16;
+        int FRAME_WIDTH = 32;
+        int FRAME_HEIGHT = 32;
         float DURACION_FRAME = 0.3f;
         float DURACION_IDLE = 2.0f;
 
@@ -71,15 +71,15 @@ public class Jugador {
             idleDerecha = new Animation<TextureRegion>(DURACION_IDLE, sprites[1]);
             idleArriba = new Animation<TextureRegion>(DURACION_IDLE, sprites[12]);
 
-            caminarArriba = new Animation<TextureRegion>(DURACION_FRAME, sprites[9], sprites[8], sprites[12]);
-            caminarIzquierda = new Animation<TextureRegion>(DURACION_FRAME, sprites[2], sprites[0], sprites[2], sprites[0]);
-            caminarDerecha = new Animation<TextureRegion>(DURACION_FRAME, sprites[3], sprites[1], sprites[3], sprites[1]);
-            caminarAbajo = new Animation<TextureRegion>(DURACION_FRAME, sprites[10], sprites[11], sprites[13]);
+            caminarArriba = new Animation<TextureRegion>(DURACION_FRAME, sprites[9], sprites[8],sprites[9], sprites[8], sprites[12]);
+            caminarIzquierda = new Animation<TextureRegion>(DURACION_FRAME, sprites[2], sprites[0], sprites[2], sprites[2], sprites[0], sprites[2], sprites[0]);
+            caminarDerecha = new Animation<TextureRegion>(DURACION_FRAME, sprites[3], sprites[1], sprites[3], sprites[3], sprites[1], sprites[3],sprites[1]);
+            caminarAbajo = new Animation<TextureRegion>(DURACION_FRAME, sprites[10], sprites[11],sprites[10], sprites[11], sprites[13]);
 
-            empujarArriba = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[9], sprites[8], sprites[12]);
-            empujarIzquierda = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[6], sprites[4], sprites[6], sprites[4]);
-            empujarDerecha = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[7], sprites[5], sprites[7], sprites[5]);
-            empujarAbajo = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[10], sprites[11], sprites[13]);
+            empujarArriba = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[9], sprites[8], sprites[9], sprites[8], sprites[12]);
+            empujarIzquierda = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[6], sprites[4],sprites[6], sprites[4], sprites[6], sprites[4]);
+            empujarDerecha = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[7], sprites[5],sprites[7], sprites[5],  sprites[7], sprites[5]);
+            empujarAbajo = new Animation<TextureRegion>(DURACION_FRAME * 1.2f, sprites[10], sprites[11],sprites[10], sprites[11], sprites[13]);
 
 
         } catch (Exception e) {

@@ -1,2 +1,0 @@
-volumen=0.089999996
-idioma=en
