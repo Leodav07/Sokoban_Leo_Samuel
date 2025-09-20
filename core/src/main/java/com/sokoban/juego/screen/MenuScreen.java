@@ -38,7 +38,7 @@ public class MenuScreen implements Screen {
 
     // Elementos de la UI para animaciones
     private TextButton jugarButton;
-    private TextButton configButton;
+    private TextButton miPerfilButton;
     private TextButton salirButton;
     private Table bottomRight;
 
@@ -78,11 +78,11 @@ public class MenuScreen implements Screen {
         stage.addActor(root);
 
         jugarButton = new TextButton(game.bundle.get("menu.jugar"), skin);
-        configButton = new TextButton(game.bundle.get("menu.miperfil"), skin);
+        miPerfilButton = new TextButton(game.bundle.get("menu.miperfil"), skin);
         salirButton = new TextButton(game.bundle.get("menu.salir"), skin);
 
         addButtonEffects(jugarButton, Color.GREEN);
-        addButtonEffects(configButton, Color.CYAN);
+        addButtonEffects(miPerfilButton, Color.CYAN);
         addButtonEffects(salirButton, Color.RED);
 
         jugarButton.addListener(new ChangeListener() {
@@ -93,10 +93,11 @@ public class MenuScreen implements Screen {
             }
         });
 
-        configButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new ConfiguracionScreen(game));
+        miPerfilButton.addListener(new ChangeListener() {
+             @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                Screen newScreen = new MiPerfilScreen(game);
+                game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
             }
         });
 
@@ -116,24 +117,23 @@ public class MenuScreen implements Screen {
         Table mainContent = new Table();
         mainContent.add(jugarButton).width(250).height(50).pad(10);
         mainContent.row();
-        mainContent.add(configButton).width(250).height(50).pad(10);
+        mainContent.add(miPerfilButton).width(250).height(50).pad(10);
         mainContent.row();
         mainContent.add(salirButton).width(200).height(45).padTop(20);
 
         root.add(mainContent).expand().center();
         root.row();
 
-        TextButton gameConfigButton = new TextButton("MI PERFIL", skin);
+        TextButton gameConfigButton = new TextButton("Configuracion", skin);
         addButtonEffects(gameConfigButton, Color.ORANGE);
         
         bottomRight = new Table();
-        bottomRight.add(new Label("Configuracion", skin)).padRight(15);
         bottomRight.add(gameConfigButton).width(120).height(30);
         
         gameConfigButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                //game.setScreen(new ConfiguracionScreen(game));
+               //game.setScreen(new ConfiguracionScreen(game));
             }
         });
 
@@ -165,9 +165,9 @@ public class MenuScreen implements Screen {
             Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
 
-        configButton.setColor(1, 1, 1, 0);
-        configButton.setScale(0.8f);
-        configButton.addAction(Actions.delay(0.4f, Actions.parallel(
+        miPerfilButton.setColor(1, 1, 1, 0);
+        miPerfilButton.setScale(0.8f);
+        miPerfilButton.addAction(Actions.delay(0.4f, Actions.parallel(
             Actions.fadeIn(0.6f, Interpolation.pow2Out),
             Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
@@ -190,7 +190,7 @@ public class MenuScreen implements Screen {
         ))));
 
         // Animación de pulsación para los botones
-        addPulseAnimation(configButton, 1.5f);
+        addPulseAnimation(miPerfilButton, 1.5f);
         addPulseAnimation(salirButton, 1.8f);
     }
 

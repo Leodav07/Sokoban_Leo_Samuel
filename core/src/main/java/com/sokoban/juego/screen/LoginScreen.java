@@ -49,7 +49,6 @@ public class LoginScreen implements Screen {
     // UI Elements
     private Label titleLabel;
     private Table bottomRight;
-    // <<--- AQUÍ ESTÁ EL CAMBIO PRINCIPAL: Declaramos los elementos como miembros de la clase --->>
     private TextField usernameField;
     private TextField passwordField;
     private TextButton loginButton;

@@ -9,12 +9,14 @@ import com.sokoban.juego.logica.Caja;
 import com.sokoban.juego.logica.Colisiones;
 import com.sokoban.juego.logica.Elemento;
 import com.sokoban.juego.logica.Fondo;
+import com.sokoban.juego.logica.GestorDatosPerfil;
 import com.sokoban.juego.logica.GestorUsuarios;
 import com.sokoban.juego.logica.JuegoUI;
 import com.sokoban.juego.logica.Jugador;
 import com.sokoban.juego.logica.Motor;
 import com.sokoban.juego.logica.Muro;
 import com.sokoban.juego.logica.Objetivo;
+import com.sokoban.juego.logica.Partida;
 import com.sokoban.juego.logica.Pausa.EstadoJuego;
 import com.sokoban.juego.logica.Pausa.GestorDePausa;
 import com.sokoban.juego.logica.Terreno;
@@ -269,18 +271,14 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
         int movimientos = gameUI.getMovimientosRealizados();
         long tiempoReal = gameUI.getTiempoTranscurrido() - gestorPausa.getTiempoTotalPausado();
-
+        int puntaje = gameUI.getScoreActual();
         // Completar el nivel actual (esto desbloqueará el siguiente automáticamente)
         gestorProgreso.completarNivel(nivelId, movimientos, tiempoReal);
 
         // Log para debug
-        System.out.println("Nivel " + nivelId + " completado. Verificando desbloqueos...");
-        if (nivelId < 7) {
-            boolean siguienteDesbloqueado = gestorProgreso.isNivelDesbloqueado(nivelId + 1);
-            System.out.println("Nivel " + (nivelId + 1) + " desbloqueado: " + siguienteDesbloqueado);
-        }
-
-        onNivelCompletadoCustom();
+         GestorDatosPerfil.getInstancia().agregarHistorialPartida(new Partida(nivelId, puntaje, movimientos, tiempoReal));
+    
+    onNivelCompletadoCustom();
     }
 
     protected void onNivelCompletadoCustom() {

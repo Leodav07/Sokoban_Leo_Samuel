@@ -1,0 +1,179 @@
+package com.sokoban.juego.screen;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.sokoban.juego.Main;
+import com.sokoban.juego.logica.GestorDatosPerfil;
+import com.sokoban.juego.logica.Partida;
+import java.util.List;
+
+public class HistorialPartidasScreen implements Screen {
+
+    private final Main game;
+    private Stage stage;
+    private Skin skin;
+    private Texture backgroundTexture;
+    private SpriteBatch backgroundBatch;
+    private OrthographicCamera backgroundCamera;
+    private FitViewport backgroundViewport;
+    
+    private List<Partida> historial;
+    private int paginaActual = 0;
+    private final int PARTIDAS_POR_PAGINA = 5;
+    private Table historialTable;
+    private Label paginacionLabel;
+
+    public HistorialPartidasScreen(Main game) {
+        this.game = game;
+    }
+
+    @Override
+    public void show() {
+        stage = new Stage(new FitViewport(800, 480));
+        Gdx.input.setInputProcessor(stage);
+        
+        try {
+            skin = new Skin(Gdx.files.internal("skin/mario_skin.json"));
+            backgroundTexture = new Texture("menu/fondo.png");
+            backgroundBatch = new SpriteBatch();
+            backgroundCamera = new OrthographicCamera();
+            backgroundViewport = new FitViewport(384, 224, backgroundCamera);
+        } catch (Exception e) {
+            Gdx.app.error("HistorialScreen", "Error cargando assets", e);
+            skin = new Skin();
+        }
+        
+        historial = GestorDatosPerfil.getInstancia().cargarDatosPerfil().historial;
+       
+
+        Table root = new Table();
+        root.setFillParent(true);
+        stage.addActor(root);
+
+        root.add(new Label("HISTORIAL DE PARTIDAS", skin, "title")).padBottom(10).row();
+
+        historialTable = new Table(skin);
+        actualizarTablaHistorial();
+        root.add(historialTable).expand().fill().row();
+
+        Table navTable = new Table();
+        TextButton anteriorBtn = new TextButton("< Anterior", skin);
+        TextButton siguienteBtn = new TextButton("Siguiente >", skin);
+        paginacionLabel = new Label("", skin);
+        
+        navTable.add(anteriorBtn).pad(10);
+        navTable.add(paginacionLabel).pad(10);
+        navTable.add(siguienteBtn).pad(10);
+        
+        anteriorBtn.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (paginaActual > 0) {
+                    paginaActual--;
+                    actualizarTablaHistorial();
+                }
+            }
+        });
+        
+        siguienteBtn.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if ((paginaActual + 1) * PARTIDAS_POR_PAGINA < historial.size()) {
+                    paginaActual++;
+                    actualizarTablaHistorial();
+                }
+            }
+        });
+        
+        root.add(navTable).pad(5).row();
+
+        TextButton regresarBtn = new TextButton("Regresar", skin);
+        regresarBtn.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new MiPerfilScreen(game));
+                dispose();
+            }
+        });
+        root.add(regresarBtn).padTop(10);
+       }
+    
+
+    
+    private void actualizarTablaHistorial() {
+        historialTable.clear();
+        historialTable.top();
+        historialTable.defaults().left().pad(5);
+
+        // Cabeceras
+        historialTable.add(new Label("Nivel", skin, "subtitle-font")).expandX();
+        historialTable.add(new Label("Puntaje", skin, "subtitle-font")).expandX();
+        historialTable.add(new Label("Mov.", skin, "subtitle-font")).width(80);
+        historialTable.add(new Label("Tiempo", skin, "subtitle-font")).width(100);
+        historialTable.add(new Label("Fecha", skin, "subtitle-font")).expandX().row();
+        historialTable.add("").height(2).colspan(5).growX().row();
+
+        if (historial.isEmpty()) {
+            historialTable.add(new Label("Aun no has jugado ninguna partida.", skin)).colspan(5).pad(20);
+        } else {
+            int inicio = paginaActual * PARTIDAS_POR_PAGINA;
+            int fin = Math.min(inicio + PARTIDAS_POR_PAGINA, historial.size());
+            for (int i = inicio; i < fin; i++) {
+                Partida p = historial.get(i);
+                historialTable.add(String.valueOf(p.nivelId));
+                historialTable.add(String.valueOf(p.puntaje));
+                historialTable.add(String.valueOf(p.movimientos));
+                historialTable.add(p.getTiempoFormateado());
+                historialTable.add(p.getFechaFormateada()).row();
+            }
+        }
+        
+        int totalPaginas = (int) Math.ceil((double) historial.size() / PARTIDAS_POR_PAGINA);
+        if (totalPaginas == 0) totalPaginas = 1;
+        paginacionLabel.setText("Pag " + (paginaActual + 1) + " de " + totalPaginas);
+    }
+
+    @Override
+    public void render(float delta) {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        backgroundViewport.apply();
+        backgroundCamera.update();
+        backgroundBatch.setProjectionMatrix(backgroundCamera.combined);
+        backgroundBatch.begin();
+        backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
+        backgroundBatch.end();
+        stage.getViewport().apply();
+        stage.act(delta);
+        stage.draw();
+    }
+    
+    @Override
+    public void resize(int width, int height) {
+        if (stage != null) stage.getViewport().update(width, height, true);
+        if (backgroundViewport != null) backgroundViewport.update(width, height, true);
+    }
+
+    @Override
+    public void dispose() {
+        if (stage != null) stage.dispose();
+        if (skin != null) skin.dispose();
+        if (backgroundTexture != null) backgroundTexture.dispose();
+        if (backgroundBatch != null) backgroundBatch.dispose();
+    }
+    
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
+}

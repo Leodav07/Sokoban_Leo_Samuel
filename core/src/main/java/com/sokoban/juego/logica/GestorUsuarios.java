@@ -92,6 +92,7 @@ private static final Pattern VALID_PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-
             System.out.println("Inicio de sesión exitoso para: " + username);
             
             GestorProgreso.getInstancia().cargarProgreso();
+            GestorDatosPerfil.getInstancia().guardarUltimoLogin();
             return true;
         }
     }
