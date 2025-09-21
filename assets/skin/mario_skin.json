@@ -1,21 +1,67 @@
 {
- 
   "com.badlogic.gdx.graphics.g2d.BitmapFont": {
-    "default-font": { "file": "skin/mario_font.fnt" },
-   "subtitle-font": { "file": "skin/mario_font_subtitle.fnt"},
-     "title-font": { "file": "skin/mario_font_title.fnt" }
+    "default-font": {
+      "file": "skin/mario_font.fnt"
+    },
+    "subtitle-font": {
+      "file": "skin/mario_font_subtitle.fnt"
+    },
+    "title-font": {
+      "file": "skin/mario_font_title.fnt"
+    }
   },
-
-
   "com.badlogic.gdx.graphics.Color": {
-    "white": { "r": 1, "g": 1, "b": 1, "a": 1 },
-    "gray": { "r": 0.6, "g": 0.6, "b": 0.6, "a": 1 },
-    "hover-white": { "r": 0.9, "g": 0.9, "b": 0.9, "a": 1 }
+    "white": {
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1
+    },
+    "black": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 1
+    },
+    "gray": {
+      "r": 0.6,
+      "g": 0.6,
+      "b": 0.6,
+      "a": 1
+    },
+    "dark-gray": {
+      "r": 0.3,
+      "g": 0.3,
+      "b": 0.3,
+      "a": 1
+    },
+    "hover-white": {
+      "r": 0.9,
+      "g": 0.9,
+      "b": 0.9,
+      "a": 1
+    },
+    "light-blue": {
+      "r": 0.7,
+      "g": 0.8,
+      "b": 1,
+      "a": 1
+    },
+    "mario-red": {
+      "r": 0.8,
+      "g": 0.2,
+      "b": 0.2,
+      "a": 1
+    },
+    "mario-green": {
+      "r": 0.2,
+      "g": 0.8,
+      "b": 0.2,
+      "a": 1
+    }
   },
-
-
   "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
-     "default": {
+    "default": {
       "font": "default-font",
       "fontColor": "white"
     },
@@ -23,54 +69,138 @@
       "font": "title-font",
       "fontColor": "white"
     },
-     "subtitle-font": {
+    "subtitle": {
       "font": "subtitle-font",
-      "fontColor": "white"
+      "fontColor": "light-blue"
     }
-
   },
-
   "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
     "default": {
       "font": "default-font",
-  
-      "fontColor": "gray",
-    
+      "fontColor": "white",
       "overFontColor": "hover-white",
-   
-      "downFontColor": "white"
-  
+      "downFontColor": "gray"
     }
   },
-  
-
-
-   "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+  "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
     "default": {
       "font": "default-font",
-  
-      "fontColor": "white"
-  
-    }, "title": {
+      "fontColor": "white",
+      "background": "table_bg",
+      "cursor": "textfield_cursor",
+      "selection": "textfield_selection"
+    },
+    "title": {
       "font": "title-font",
       "fontColor": "white"
     }
   },
-
-
-  "com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle": 
-  {
-    "default": {
-     
-    },
+  "com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle": {
+    "default": {},
     "invisible": {
-        "up": null,
-        "down": null,
-        "over": null
+      "up": null,
+      "down": null,
+      "over": null
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle": {
+    "default": {
+      "background": "slider",
+      "knob": "slider_knob",
+      "knobOver": "slider_knob_hover",
+      "knobDown": "slider_knob_down"
+    },
+    "default-horizontal": {
+      "background": "slider",
+      "knob": "slider_knob",
+      "knobOver": "slider_knob_hover",
+      "knobDown": "slider_knob_down"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
+    "default": {
+      "background": "scroll_bg",
+      "vScroll": "scroll_vertical",
+      "vScrollKnob": "scroll_vertical_knob"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle": {
+    "default": {
+      "font": "default-font",
+      "fontColor": "white",
+      "overFontColor": "hover-white",
+      "disabledFontColor": "gray",
+      "background": "select_bg",
+      "backgroundOver": "select_bg_over",
+      "backgroundOpen": "selectbox_bg_open",
+      "scrollStyle": "default",
+      "listStyle": {
+        "font": "default-font",
+        "fontColorUnselected": "white",
+        "fontColorSelected": "mario-green",
+        "selection": "select_selection",
+        "background": "selectbox_list_bg"
+      }
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
+    "default": {
+      "titleFont": "subtitle-font",
+      "titleFontColor": "white",
+      "background": "dialog_bg"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable": {
+    "table_bg": {
+      "region": "table_bg"
+    },
+    "textfield_cursor": {
+      "region": "textfield_cursor"
+    },
+    "textfield_selection": {
+      "region": "textfield_selection"
+    },
+    "slider": {
+      "region": "slider"
+    },
+    "slider_knob": {
+      "region": "slider_knob"
+    },
+    "slider_knob_hover": {
+      "region": "slider_knob_hover"
+    },
+    "slider_knob_down": {
+      "region": "slider_knob_down"
+    },
+    "scroll_bg": {
+      "region": "scroll_bg"
+    },
+    "scroll_vertical": {
+      "region": "scroll_vertical"
+    },
+    "scroll_vertical_knob": {
+      "region": "scroll_vertical_knob"
+    },
+    "select_bg": {
+      "region": "select_bg"
+    },
+    "select_bg_over": {
+      "region": "select_bg_over"
+    },
+    "selectbox_bg_open": {
+      "region": "selectbox_bg_open"
+    },
+    "selectbox_list_bg": {
+      "region": "selectbox_list_bg"
+    },
+    "select_selection": {
+      "region": "select_selection"
+    },
+    "dialog_bg": {
+      "region": "dialog_bg"
+    },
+    "dialog_dim": {
+      "region": "dialog_dim"
     }
   }
-
-
-
-
 }

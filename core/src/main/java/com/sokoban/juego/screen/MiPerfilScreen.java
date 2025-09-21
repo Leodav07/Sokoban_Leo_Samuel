@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -45,7 +46,8 @@ public class MiPerfilScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         
         try {
-            skin = new Skin(Gdx.files.internal("skin/mario_skin.json"));
+               TextureAtlas atlas = new TextureAtlas("mario.atlas");
+            skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
             backgroundTexture = new Texture("menu/fondo.png");
             backgroundBatch = new SpriteBatch();
             backgroundCamera = new OrthographicCamera();
