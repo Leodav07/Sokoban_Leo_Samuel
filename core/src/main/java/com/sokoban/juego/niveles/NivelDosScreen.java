@@ -12,6 +12,8 @@ import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Mapas.MapaBase;
 import com.sokoban.juego.logica.Mapas.MapaDos;
 import com.sokoban.juego.logica.Mapas.MapaUno;
+import com.sokoban.juego.screen.CortinaTransicion;
+import com.sokoban.juego.screen.LvlSelectScreen;
 import com.sokoban.juego.screen.MenuScreen;
 
 public class NivelDosScreen implements Screen, MapaBase.MapaBaseListener {
@@ -146,6 +148,12 @@ public class NivelDosScreen implements Screen, MapaBase.MapaBaseListener {
     @Override
     public void hide() {
         // No hacer nada específico al ocultar
+    }
+    @Override
+    public void onNivelFinalizado(){
+        Gdx.app.postRunnable(()->{
+           game.setScreen(new CortinaTransicion(game, this, new LvlSelectScreen(game))) ;
+        });
     }
 
     @Override

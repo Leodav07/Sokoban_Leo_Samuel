@@ -26,7 +26,7 @@ public class ConfigNiveles {
     
     private static final ConfigNivel[] CONFIGURACIONES = {
         null,
-        new ConfigNivel("Introducción", "Aprende los conceptos básicos", 40, 120),
+        new ConfigNivel("Introducción", "Aprende los conceptos básicos", 250, 300),
         new ConfigNivel("Primeros Pasos", "Manejo básico de cajas", 60, 150),
         new ConfigNivel("Obstáculos", "Navega alrededor de obstáculos", 85, 180),
         new ConfigNivel("Estrategia", "Planifica tus movimientos", 110, 210),

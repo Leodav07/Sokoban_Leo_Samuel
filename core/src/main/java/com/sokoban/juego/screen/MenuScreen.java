@@ -40,6 +40,7 @@ public class MenuScreen implements Screen {
     private TextButton jugarButton;
     private TextButton miPerfilButton;
     private TextButton salirButton;
+    private TextButton rankingButton;
     private Table bottomRight;
 
     public MenuScreen(Main game) {
@@ -79,6 +80,7 @@ public class MenuScreen implements Screen {
 
         jugarButton = new TextButton(game.bundle.get("menu.jugar"), skin);
         miPerfilButton = new TextButton(game.bundle.get("menu.miperfil"), skin);
+        rankingButton = new TextButton("Ranking Global", skin);
         salirButton = new TextButton(game.bundle.get("menu.salir"), skin);
 
         addButtonEffects(jugarButton, Color.GREEN);
@@ -100,6 +102,14 @@ public class MenuScreen implements Screen {
                 game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
             }
         });
+        
+         rankingButton.addListener(new ChangeListener() {
+             @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                Screen newScreen = new RankingScreen(game);
+                game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
+            }
+        });
 
         salirButton.addListener(new ChangeListener() {
             @Override
@@ -118,6 +128,8 @@ public class MenuScreen implements Screen {
         mainContent.add(jugarButton).width(250).height(50).pad(10);
         mainContent.row();
         mainContent.add(miPerfilButton).width(250).height(50).pad(10);
+        mainContent.row();
+        mainContent.add(rankingButton).width(250).height(50).pad(10);
         mainContent.row();
         mainContent.add(salirButton).width(200).height(45).padTop(20);
 

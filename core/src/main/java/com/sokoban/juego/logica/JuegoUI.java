@@ -18,8 +18,10 @@ public class JuegoUI {
     private int movimientosRealizados;
     private int movimientosPar;
     private long tiempoInicio;
+
     private int puntajeFinal, movimientosFinal;
     private long tiempoFinal;
+
     private final Color COLOR_TITULO = new Color(1f, 0.84f, 0f, 1f);
     private final Color COLOR_FONDO_UI = new Color(0.1f, 0.1f, 0.1f, 0.8f);
     private final Color COLOR_TEXTO_NORMAL = Color.WHITE;
@@ -49,7 +51,7 @@ public class JuegoUI {
         }
     }
 
-    public void iniciarNivel(int nivel) {
+     public void iniciarNivel(int nivel) {
         this.nivelActual = nivel;
         this.movimientosRealizados = 0;
         this.movimientosPar = ConfigNiveles.getMovimientosObjetivo(nivel);
@@ -60,18 +62,19 @@ public class JuegoUI {
         movimientosRealizados++;
     }
 
-    public void setResultadoFinal(int puntaje, int movimientos, long tiempo) {
+  public void setResultadoFinal(int puntaje, int movimientos, long tiempo) {
         this.puntajeFinal = puntaje;
         this.movimientosFinal = movimientos;
         this.tiempoFinal = tiempo;
     }
 
-    public void dibujar(SpriteBatch batch, int gameWorldWidth, int gameWorldHeight, long tiempoPausado) {
+   public void dibujar(SpriteBatch batch, int gameWorldWidth, int gameWorldHeight, long tiempoPausado) {
         batch.end();
 
         Gdx.gl.glEnable(Gdx.gl.GL_BLEND);
         Gdx.gl.glBlendFunc(Gdx.gl.GL_SRC_ALPHA, Gdx.gl.GL_ONE_MINUS_SRC_ALPHA);
-
+        
+        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(COLOR_FONDO_UI);
         shapeRenderer.rect(0, 0, gameWorldWidth, PANEL_HEIGHT);
@@ -83,7 +86,7 @@ public class JuegoUI {
         dibujarInformacionJuego(batch, tiempoPausado);
     }
 
-    private void dibujarInformacionJuego(SpriteBatch batch, long tiempoPausado) {
+     private void dibujarInformacionJuego(SpriteBatch batch, long tiempoPausado) {
         int x = MARGIN;
         int y = PANEL_HEIGHT - 30;
 
@@ -98,7 +101,7 @@ public class JuegoUI {
         long tiempoTranscurrido = System.currentTimeMillis() - tiempoInicio - tiempoPausado;
         String tiempoStr = formatearTiempo(tiempoTranscurrido);
         font.draw(batch, "Tiempo: " + tiempoStr, x, y);
-
+        
         y -= 40;
         font.setColor(Color.LIGHT_GRAY);
         font.getData().setScale(0.8f);
@@ -106,20 +109,22 @@ public class JuegoUI {
         font.getData().setScale(1.0f);
     }
 
-    public void mostrarResultadoNivel(SpriteBatch batch) {
+     public void mostrarResultadoNivel(SpriteBatch batch) {
         int screenWidth = Gdx.graphics.getWidth();
         int screenHeight = Gdx.graphics.getHeight();
+    
+        batch.end(); 
 
-        batch.end();
         Gdx.gl.glEnable(Gdx.gl.GL_BLEND);
         Gdx.gl.glBlendFunc(Gdx.gl.GL_SRC_ALPHA, Gdx.gl.GL_ONE_MINUS_SRC_ALPHA);
-
+        
+        shapeRenderer.getProjectionMatrix().setToOrtho2D(0, 0, screenWidth, screenHeight);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0, 0, 0, 0.7f);
         shapeRenderer.rect(0, 0, screenWidth, screenHeight);
 
         int panelWidth = 400;
-        int panelHeight = 300; 
+        int panelHeight = 300;
         int panelX = (screenWidth - panelWidth) / 2;
         int panelY = (screenHeight - panelHeight) / 2;
 
@@ -128,18 +133,20 @@ public class JuegoUI {
         shapeRenderer.end();
 
         Gdx.gl.glDisable(Gdx.gl.GL_BLEND);
-        batch.begin();
+        
+        batch.getProjectionMatrix().setToOrtho2D(0, 0, screenWidth, screenHeight);
+        batch.begin(); 
 
         int textY = panelY + panelHeight - 40;
 
         titleFont.setColor(COLOR_TITULO);
         titleFont.draw(batch, "¡NIVEL COMPLETADO!", panelX + 50, textY);
         textY -= 50;
-
+        
         int estrellasGanadas = calcularEstrellasPartida(movimientosFinal, tiempoFinal);
         String estrellasStr = generarStringEstrellas(estrellasGanadas);
-
-        titleFont.setColor(Color.YELLOW); // Usamos la fuente grande para las estrellas
+        
+        titleFont.setColor(Color.YELLOW);
         titleFont.draw(batch, estrellasStr, panelX + 140, textY);
         textY -= 40;
 
@@ -149,16 +156,19 @@ public class JuegoUI {
 
         font.draw(batch, "Tiempo: " + formatearTiempo(tiempoFinal), panelX + 50, textY);
         textY -= 30;
-
+        
         font.setColor(Color.YELLOW);
         font.draw(batch, "Puntaje Final: " + puntajeFinal, panelX + 50, textY);
         textY -= 50;
 
         font.setColor(Color.WHITE);
         font.draw(batch, "Presiona ENTER para continuar", panelX + 50, textY);
-    }
+        
+        batch.end();
+        batch.begin();
+     }
 
-    private int calcularEstrellasPartida(int movimientos, long tiempo) {
+     private int calcularEstrellasPartida(int movimientos, long tiempo) {
         int estrellas = 1;
 
         int movimientosPar = ConfigNiveles.getMovimientosObjetivo(nivelActual);

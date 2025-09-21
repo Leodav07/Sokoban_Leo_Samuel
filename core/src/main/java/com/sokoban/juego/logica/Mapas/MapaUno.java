@@ -67,6 +67,7 @@ public class MapaUno extends MapaBase {
     protected void onFinalizarNivelCustom() {
         // Comportamiento al finalizar el nivel 1
         System.out.println("Saliendo del nivel 1...");
+        
     }
     
 

@@ -97,7 +97,7 @@ public class CortinaTransicion implements Screen {
     private void finalizarTransicion() {
         // Ocultar la pantalla antigua
         if (oldScreen != null) {
-            oldScreen.hide();
+            oldScreen.dispose();
         }
         
         // Cambiar a la nueva pantalla

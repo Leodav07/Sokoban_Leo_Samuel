@@ -22,6 +22,7 @@ import com.sokoban.juego.logica.Pausa.GestorDePausa;
 import com.sokoban.juego.logica.Terreno;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
 import com.sokoban.juego.logica.Pausa.MenuPausaListener;
+import com.sokoban.juego.logica.accounts.ProgresoPorNivel;
 
 public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener {
 
@@ -55,6 +56,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         void onSalirJuego();
 
         void onReiniciarNivel();
+        void onNivelFinalizado();
     }
 
     protected abstract int[][] getLayout();
@@ -263,22 +265,25 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     public void onUndoIniciado() {
     }
 
-    protected void onNivelCompletadoInterno() {
-        nivelCompletado = true;
-        mostrandoResultados = true;
-        tiempoMostrandoResultados = System.currentTimeMillis();
+   protected void onNivelCompletadoInterno() {
+    nivelCompletado = true;
+    mostrandoResultados = true;
+    tiempoMostrandoResultados = System.currentTimeMillis();
 
-        int movimientos = gameUI.getMovimientosRealizados();
-        long tiempoReal = gameUI.getTiempoTranscurrido() - gestorPausa.getTiempoTotalPausado();
-        int puntaje = gameUI.getScoreActual();
-        // Completar el nivel actual (esto desbloqueará el siguiente automáticamente)
-        gestorProgreso.completarNivel(nivelId, movimientos, tiempoReal);
-
-        // Log para debug
-         GestorDatosPerfil.getInstancia().agregarHistorialPartida(new Partida(nivelId, puntaje, movimientos, tiempoReal, "Completado"));
+    int movimientos = gameUI.getMovimientosRealizados();
+    long tiempoReal = gameUI.getTiempoTranscurridoReal(gestorPausa.getTiempoTotalPausado());
     
+    ProgresoPorNivel progreso = gestorProgreso.getProgresoPorNivel(nivelId);
+    int puntajeFinal = progreso.calcularPuntaje(movimientos);
+
+    gestorProgreso.completarNivel(nivelId, movimientos, tiempoReal);
+    
+    GestorDatosPerfil.getInstancia().agregarHistorialPartida(new Partida(nivelId, puntajeFinal, movimientos, tiempoReal, "Completada"));
+    
+    gameUI.setResultadoFinal(puntajeFinal, movimientos, tiempoReal);
+
     onNivelCompletadoCustom();
-    }
+}
 
     protected void onNivelCompletadoCustom() {
     }
@@ -320,7 +325,9 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     }
 
     private void finalizarNivel() {
-        onFinalizarNivelCustom();
+      if(mapaListener!=null){
+          mapaListener.onNivelFinalizado();
+      }
     }
 
     protected void onFinalizarNivelCustom() {

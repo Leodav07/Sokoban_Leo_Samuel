@@ -4,6 +4,7 @@
  */
 package com.sokoban.juego.logica.accounts;
 
+import com.sokoban.juego.logica.GestorRanking;
 import com.sokoban.juego.logica.GestorUsuarios;
 import java.io.File;
 import java.io.IOException;
@@ -134,6 +135,9 @@ public class GestorProgreso {
                 }
             }
             System.out.println("Progreso guardado para " + GestorUsuarios.usuarioActual.getUsername());
+            if(GestorUsuarios.usuarioActual!=null){
+                GestorRanking.getInstancia().actualizarOrdenamiento(GestorUsuarios.usuarioActual.getUsername(), this.puntajeTotalAcumulado);
+            }
         } catch (IOException e) {
             System.err.println("Error al guardar el progreso: " + e.getMessage());
             e.printStackTrace();
