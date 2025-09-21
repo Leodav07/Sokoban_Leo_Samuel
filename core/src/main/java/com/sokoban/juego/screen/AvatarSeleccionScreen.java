@@ -79,7 +79,6 @@ public class AvatarSeleccionScreen implements Screen {
             backgroundCamera = new OrthographicCamera();
             backgroundViewport = new FitViewport(384, 224, backgroundCamera);
             
-            // <<--- Inicializar recursos del diálogo personalizado --->>
             dialogBatch = new SpriteBatch();
             cuadroTexture = new Texture("skin/cuadro.png");
             dialogFont = skin.getFont("default-font");
@@ -107,7 +106,6 @@ public class AvatarSeleccionScreen implements Screen {
                 avatarImage.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        // <<--- Ya no usamos Dialog, llamamos a nuestro método --->>
                         if (!esperandoConfirmacion) {
                             confirmarSeleccion(avatarName);
                         }
@@ -120,7 +118,6 @@ public class AvatarSeleccionScreen implements Screen {
                     colCount = 0;
                 }
             } catch (Exception e) {
-                // Silencioso si un avatar no se encuentra
             }
         }
 
@@ -137,12 +134,10 @@ public class AvatarSeleccionScreen implements Screen {
         root.add(regresarBtn).padTop(20);
     }
     
-    // <<--- MÉTODO MODIFICADO: Ahora usa tu sistema de diálogo --->>
     private void confirmarSeleccion(final String avatarName) {
         esperandoConfirmacion = true;
         avatarSeleccionado = avatarName;
         
-        // Creamos la tabla de confirmación con los botones "Si" y "No"
         tablaConfirmacion = new Table();
         tablaConfirmacion.setFillParent(true);
         
@@ -153,7 +148,6 @@ public class AvatarSeleccionScreen implements Screen {
         buttonTable.add(siButton).pad(20);
         buttonTable.add(noButton).pad(20);
 
-        // La tabla principal es invisible, solo para posicionar los botones
         tablaConfirmacion.add(buttonTable).expand().bottom().padBottom(50);
         stage.addActor(tablaConfirmacion);
         
@@ -169,12 +163,11 @@ public class AvatarSeleccionScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 esperandoConfirmacion = false;
-                tablaConfirmacion.remove(); // Quitamos los botones
-                ocultarDialog(); // Ocultamos el cuadro de texto
+                tablaConfirmacion.remove(); 
+                ocultarDialog(); 
             }
         });
 
-        // Mostramos el diálogo de texto
         mostrarDialog("¿Quieres seleccionar este avatar?");
     }
 
@@ -191,14 +184,12 @@ public class AvatarSeleccionScreen implements Screen {
         stage.act(delta);
         stage.draw();
 
-        // <<--- Añadido: renderizar el diálogo personalizado si está activo --->>
         if (mostrarDialog) {
             dialogViewport.apply();
             renderDialog();
         }
     }
     
-    // <<--- AÑADIDO: Método para renderizar tu diálogo (copiado de LoginScreen) --->>
     private void renderDialog() {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
@@ -209,7 +200,7 @@ public class AvatarSeleccionScreen implements Screen {
         float dialogWidth = layout.width + 80 * dialogScale;
         float dialogHeight = layout.height + 60 * dialogScale;
         if (esperandoConfirmacion) {
-            dialogHeight += 50; // Hacemos más espacio para los botones de abajo
+            dialogHeight += 50; 
         }
 
         float dialogX = (screenWidth - dialogWidth) / 2;
@@ -230,7 +221,6 @@ public class AvatarSeleccionScreen implements Screen {
         dialogBatch.end();
     }
     
-    // <<--- AÑADIDO: Todos los métodos de tu sistema de diálogo --->>
     private void mostrarDialog(String mensaje) {
         this.mensajeDialog = mensaje;
         this.mostrarDialog = true;

@@ -81,7 +81,7 @@ public class GestorProgreso {
             System.out.println("\n¡NIVEL " + nivelId + " COMPLETADO!");
             System.out.println("Movimientos realizados: " + movimientos);
             System.out.println("Tiempo: " + formatearTiempo(tiempoMs));
-            System.out.println("Puntaje obtenido: " + progreso.calcularPuntaje(movimientos, tiempoMs));
+            System.out.println("Puntaje obtenido: " + progreso.calcularPuntaje(movimientos));
             System.out.println("Mejor puntaje: " + progreso.getMejorPuntaje());
             System.out.println("Clasificación: " + progreso.getClasificacion());
 
@@ -265,6 +265,15 @@ public class GestorProgreso {
         return String.format("%02d:%02d", minutos, segundos);
     }
 
+    
+    public void registrarTiempoYMovimientos(long tiempoMs, int movimientos){
+        if(GestorUsuarios.usuarioActual == null) return;
+        this.tiempoTotalJugado += tiempoMs;
+        this.totalMovimientosRealizados += movimientos;
+        
+        guardarProgreso();
+        System.out.println("Partida incompleta guardada.");
+    }
     public int getPuntajeTotalAcumulado() {
         return puntajeTotalAcumulado;
     }

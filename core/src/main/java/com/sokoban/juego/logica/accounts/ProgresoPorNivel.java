@@ -4,6 +4,8 @@
  */
 package com.sokoban.juego.logica.accounts;
 
+import com.sokoban.juego.niveles.ConfigNiveles;
+
 /**
  *
  * @author unwir
@@ -16,7 +18,7 @@ public class ProgresoPorNivel {
     private int mejorPuntaje;
     private int menorCantidadMovimientos;
     private int vecesCompletado;
-    private long tiempoMejorRecord; 
+    private long tiempoMejorRecord;
 
     public ProgresoPorNivel(int nivelId) {
         this.nivelId = nivelId;
@@ -28,17 +30,23 @@ public class ProgresoPorNivel {
         this.tiempoMejorRecord = Long.MAX_VALUE;
     }
 
-    public int calcularPuntaje(int movimientos, long tiempoEnMs) {
-        // Sistema de puntaje basado en eficiencia
-        int puntajeBase = 1000;
-        int puntajeMovimientos = Math.max(0, puntajeBase - (movimientos * 10));
-        int puntajeTiempo = Math.max(0, (int) (puntajeBase - (tiempoEnMs / 1000))); // -1 punto por segundo
+    public int calcularPuntaje(int movimientos) {
+        int puntajeBase = 10000;
+        // <<--- CORRECCIÓN: Usamos tu método existente --->>
+        int movimientosPar = ConfigNiveles.getMovimientosObjetivo(this.nivelId);
 
-        return puntajeMovimientos + puntajeTiempo;
+        if (movimientos > movimientosPar) {
+            return puntajeBase;
+        }
+
+        int movimientosAhorrados = movimientosPar - movimientos;
+        int bonificacion = movimientosAhorrados * 150;
+
+        return puntajeBase + bonificacion;
     }
 
     public void actualizarRecord(int movimientos, long tiempoEnMs) {
-        int nuevoPuntaje = calcularPuntaje(movimientos, tiempoEnMs);
+        int nuevoPuntaje = calcularPuntaje(movimientos);
 
         if (!completado) {
             completado = true;
@@ -58,6 +66,27 @@ public class ProgresoPorNivel {
         }
 
         vecesCompletado++;
+    }
+
+    public int getEstrellasGanadas() {
+        if (!completado) {
+            return 0;
+        }
+
+        int estrellas = 1;
+
+        int movimientosPar = ConfigNiveles.getMovimientosObjetivo(this.nivelId);
+        long tiempoObjetivo = ConfigNiveles.getTiempoObjetivo(this.nivelId);
+
+        if (menorCantidadMovimientos <= movimientosPar) {
+            estrellas++;
+        }
+
+        if (tiempoMejorRecord <= tiempoObjetivo) {
+            estrellas++;
+        }
+
+        return estrellas;
     }
 
     public String getClasificacion() {

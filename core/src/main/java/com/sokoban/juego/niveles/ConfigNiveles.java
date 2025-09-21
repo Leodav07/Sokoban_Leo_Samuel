@@ -26,13 +26,13 @@ public class ConfigNiveles {
     
     private static final ConfigNivel[] CONFIGURACIONES = {
         null,
-        new ConfigNivel("Introducción", "Aprende los conceptos básicos", 25, 120),
-        new ConfigNivel("Primeros Pasos", "Manejo básico de cajas", 30, 150),
-        new ConfigNivel("Obstáculos", "Navega alrededor de obstáculos", 35, 180),
-        new ConfigNivel("Estrategia", "Planifica tus movimientos", 40, 210),
-        new ConfigNivel("Precisión", "Cada movimiento cuenta", 45, 240),
-        new ConfigNivel("Laberinto", "Encuentra el camino correcto", 50, 300),
-        new ConfigNivel("Maestría", "El desafío final", 60, 360)
+        new ConfigNivel("Introducción", "Aprende los conceptos básicos", 40, 120),
+        new ConfigNivel("Primeros Pasos", "Manejo básico de cajas", 60, 150),
+        new ConfigNivel("Obstáculos", "Navega alrededor de obstáculos", 85, 180),
+        new ConfigNivel("Estrategia", "Planifica tus movimientos", 110, 210),
+        new ConfigNivel("Precisión", "Cada movimiento cuenta", 90, 240),
+        new ConfigNivel("Laberinto", "Encuentra el camino correcto", 150, 300),
+        new ConfigNivel("Maestría", "El desafío final", 180, 360)
     };
     
     public static ConfigNivel getConfig(int nivelId) {

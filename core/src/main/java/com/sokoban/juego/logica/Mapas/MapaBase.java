@@ -131,7 +131,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             motorMovimiento.setCajaEnObjetivoTexture(cajaEnObjetivoImg);
 
             motorMovimiento.setListener(this);
-            gameUI.iniciarNivel(nivelId, getMovimientosObjetivo(), getTiempoObjetivo());
+            gameUI.iniciarNivel(nivelId);
         }
     }
 
@@ -256,7 +256,6 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     public void onUndoRealizado() {
         if (gameUI != null) {
             gameUI.decrementarMovimientos();
-            gameUI.actualizarScoreSinTiempo();
         }
     }
 
@@ -276,13 +275,31 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         gestorProgreso.completarNivel(nivelId, movimientos, tiempoReal);
 
         // Log para debug
-         GestorDatosPerfil.getInstancia().agregarHistorialPartida(new Partida(nivelId, puntaje, movimientos, tiempoReal));
+         GestorDatosPerfil.getInstancia().agregarHistorialPartida(new Partida(nivelId, puntaje, movimientos, tiempoReal, "Completado"));
     
     onNivelCompletadoCustom();
     }
 
     protected void onNivelCompletadoCustom() {
     }
+    
+    private void guardarPartidaIncompletaYSalir() {
+    if (!nivelCompletado) {
+        int movimientos = gameUI.getMovimientosRealizados();
+        long tiempoReal = gameUI.getTiempoTranscurridoReal(gestorPausa.getTiempoTotalPausado());
+
+        if (movimientos > 0 || tiempoReal > 1000) {
+            gestorProgreso.registrarTiempoYMovimientos(tiempoReal, movimientos);
+
+            Partida partidaAbandonada = new Partida(nivelId, 0, movimientos, tiempoReal, "Abandonada");
+            GestorDatosPerfil.getInstancia().agregarHistorialPartida(partidaAbandonada);
+        }
+    }
+    detenerColisiones();
+    if (motorMovimiento != null) {
+        motorMovimiento.finalizarSistemaUndo();
+    }
+}
 
     private void reiniciarNivel() {
         nivelCompletado = false;
@@ -322,7 +339,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     @Override
     public void onVolverMenuPrincipal() {
-        detenerColisiones();
+        guardarPartidaIncompletaYSalir();
         if (mapaListener != null) {
             mapaListener.onVolverMenuPrincipal();
         }
@@ -330,7 +347,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     @Override
     public void onSalirJuego() {
-        detenerColisiones();
+        guardarPartidaIncompletaYSalir();
         if (mapaListener != null) {
             mapaListener.onSalirJuego();
         } else {

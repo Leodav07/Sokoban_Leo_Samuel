@@ -16,14 +16,16 @@ public class Partida {
     public int puntaje;
     public int movimientos;
     public long tiempoMs;
-    public long timestamp; // Momento en que se jugó
+    public long timestamp;
+    public String estado;
 
-    public Partida(int nivelId, int puntaje, int movimientos, long tiempoMs) {
+    public Partida(int nivelId, int puntaje, int movimientos, long tiempoMs, String estado) {
         this.nivelId = nivelId;
         this.puntaje = puntaje;
         this.movimientos = movimientos;
         this.tiempoMs = tiempoMs;
         this.timestamp = System.currentTimeMillis();
+        this.estado = estado;
     }
 
     private Partida() {} // Constructor para la carga desde archivo
@@ -45,6 +47,7 @@ public class Partida {
         raf.writeInt(movimientos);
         raf.writeLong(tiempoMs);
         raf.writeLong(timestamp);
+        raf.writeUTF(estado);
     }
 
     public static Partida leerDeArchivo(RandomAccessFile raf) throws IOException {
@@ -54,6 +57,12 @@ public class Partida {
         p.movimientos = raf.readInt();
         p.tiempoMs = raf.readLong();
         p.timestamp = raf.readLong();
+        try{
+            p.estado = raf.readUTF();
+        }catch(java.io.EOFException e){
+            p.estado = "Completado";
+        }
+                 
         return p;
     }
 }
