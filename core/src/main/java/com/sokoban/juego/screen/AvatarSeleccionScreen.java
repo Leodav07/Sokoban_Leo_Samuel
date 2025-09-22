@@ -59,8 +59,8 @@ public class AvatarSeleccionScreen implements Screen {
     private Table tablaConfirmacion;
 
     private final String[] avatares = {
-        "default_avatar.png", "avatarejemplo.png", "mario.png", "luigi.png", 
-        "peach.png", "toad.png", "yoshi.png", "bowser.png", "wario.png", "goomba.png"
+        "default_avatar.png", "luigi.png", "peach.png", "toad.png", 
+        "bowser.png", "oneup.png", "goomba.png", "chainchomp.png"
     };
 
     public AvatarSeleccionScreen(Main game) {

@@ -63,7 +63,7 @@ public class NivelDosScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaDos(14, 13, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo, game);
+        mapa = new MapaDos(14, 13, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();
