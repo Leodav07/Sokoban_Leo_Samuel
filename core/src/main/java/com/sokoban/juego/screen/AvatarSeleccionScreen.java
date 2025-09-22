@@ -41,7 +41,7 @@ public class AvatarSeleccionScreen implements Screen {
     private FitViewport backgroundViewport;
     private final List<Texture> avatarTextures = new ArrayList<>();
 
-    // <<--- SISTEMA DE DIÁLOGO PERSONALIZADO (copiado de tu LoginScreen) --->>
+    // Sistema de diálogo personalizado
     private SpriteBatch dialogBatch;
     private Texture cuadroTexture;
     private BitmapFont dialogFont;
@@ -53,7 +53,7 @@ public class AvatarSeleccionScreen implements Screen {
     private final OrthographicCamera dialogCamera;
     private final ScreenViewport dialogViewport;
     
-    // <<--- NUEVO: Variables para manejar la confirmación --->>
+    // Variables para manejar la confirmación
     private boolean esperandoConfirmacion = false;
     private String avatarSeleccionado;
     private Table tablaConfirmacion;
@@ -75,8 +75,16 @@ public class AvatarSeleccionScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         
         try {
+            // CORREGIDO: Cargar skin con atlas como en las otras pantallas
             TextureAtlas atlas = new TextureAtlas("mario.atlas");
+            
+            // Configurar filtrado nearest neighbor
+            for (TextureAtlas.AtlasRegion region : atlas.getRegions()) {
+                region.getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            }
+            
             skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
+            
             backgroundTexture = new Texture("menu/fondo.png");
             backgroundBatch = new SpriteBatch();
             backgroundCamera = new OrthographicCamera();
@@ -84,7 +92,7 @@ public class AvatarSeleccionScreen implements Screen {
             
             dialogBatch = new SpriteBatch();
             cuadroTexture = new Texture("skin/cuadro.png");
-            dialogFont = skin.getFont("default");
+            dialogFont = skin.getFont("default-font");
             
         } catch (Exception e) {
             Gdx.app.error("AvatarScreen", "Error cargando assets", e);
@@ -104,7 +112,10 @@ public class AvatarSeleccionScreen implements Screen {
         for (final String avatarName : avatares) {
             try {
                 Texture avatarTex = new Texture(Gdx.files.internal("avatares/" + avatarName));
+                // Aplicar filtrado nearest neighbor a los avatares también
+                avatarTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 avatarTextures.add(avatarTex);
+                
                 Image avatarImage = new Image(avatarTex);
                 avatarImage.addListener(new ClickListener() {
                     @Override
@@ -121,6 +132,7 @@ public class AvatarSeleccionScreen implements Screen {
                     colCount = 0;
                 }
             } catch (Exception e) {
+                // Avatar no encontrado, continuar con el siguiente
             }
         }
 
@@ -130,8 +142,8 @@ public class AvatarSeleccionScreen implements Screen {
         regresarBtn.getLabel().setFontScale(0.7f);
         regresarBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                game.setScreen(new MiPerfilScreen(game));
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new CortinaTransicion(game, AvatarSeleccionScreen.this, new MiPerfilScreen(game)));
             }
         });
         root.add(regresarBtn).padTop(20);
@@ -147,9 +159,13 @@ public class AvatarSeleccionScreen implements Screen {
         TextButton siButton = new TextButton("Si", skin);
         TextButton noButton = new TextButton("No", skin);
         
+        // Aplicar efectos hover como en otras pantallas
+        addButtonEffects(siButton, Color.GREEN);
+        addButtonEffects(noButton, Color.RED);
+        
         Table buttonTable = new Table();
-        buttonTable.add(siButton).pad(20);
-        buttonTable.add(noButton).pad(20);
+        buttonTable.add(siButton).width(100).height(40).pad(20);
+        buttonTable.add(noButton).width(100).height(40).pad(20);
 
         tablaConfirmacion.add(buttonTable).expand().bottom().padBottom(50);
         stage.addActor(tablaConfirmacion);
@@ -175,20 +191,44 @@ public class AvatarSeleccionScreen implements Screen {
 
         mostrarDialog("¿Quieres seleccionar este avatar?");
     }
+    
+    // Método para efectos de botones (copiado de MenuScreen)
+    private void addButtonEffects(TextButton button, Color hoverColor) {
+        button.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                button.addAction(com.badlogic.gdx.scenes.scene2d.actions.Actions.scaleTo(1.05f, 1.05f, 0.1f, Interpolation.pow2Out));
+                button.setColor(hoverColor);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                button.addAction(com.badlogic.gdx.scenes.scene2d.actions.Actions.scaleTo(1f, 1f, 0.1f, Interpolation.pow2Out));
+                button.setColor(Color.WHITE);
+            }
+        });
+    }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        backgroundViewport.apply();
-        backgroundCamera.update();
-        backgroundBatch.setProjectionMatrix(backgroundCamera.combined);
-        backgroundBatch.begin();
-        backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
-        backgroundBatch.end();
+        
+        // Dibujar fondo
+        if (backgroundTexture != null && backgroundBatch != null) {
+            backgroundViewport.apply();
+            backgroundCamera.update();
+            backgroundBatch.setProjectionMatrix(backgroundCamera.combined);
+            backgroundBatch.begin();
+            backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
+            backgroundBatch.end();
+        }
+        
+        // Dibujar UI
         stage.getViewport().apply();
         stage.act(delta);
         stage.draw();
 
+        // Dibujar diálogo si es necesario
         if (mostrarDialog) {
             dialogViewport.apply();
             renderDialog();
@@ -292,7 +332,7 @@ public class AvatarSeleccionScreen implements Screen {
         if (dialogBatch != null) dialogBatch.dispose();
         if (cuadroTexture != null) cuadroTexture.dispose();
         for (Texture tex : avatarTextures) {
-            tex.dispose();
+            if (tex != null) tex.dispose();
         }
     }
     
