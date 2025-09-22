@@ -135,7 +135,8 @@ public class MenuScreen implements Screen {
         gameConfigButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-               //game.setScreen(new ConfiguracionScreen(game));
+               Screen newScreen = new ConfiguracionScreen(game);
+                game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
             }
         });
 

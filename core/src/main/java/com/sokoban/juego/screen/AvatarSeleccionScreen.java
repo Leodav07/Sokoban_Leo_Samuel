@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorDatosPerfil;
+import com.sokoban.juego.logica.SoundManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,6 +157,7 @@ public class AvatarSeleccionScreen implements Screen {
         siButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 GestorDatosPerfil.getInstancia().guardarAvatar(avatarSeleccionado);
                 game.setScreen(new CortinaTransicion(game, AvatarSeleccionScreen.this, new MiPerfilScreen(game)));
             }
@@ -164,6 +166,7 @@ public class AvatarSeleccionScreen implements Screen {
         noButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 esperandoConfirmacion = false;
                 tablaConfirmacion.remove(); 
                 ocultarDialog(); 
