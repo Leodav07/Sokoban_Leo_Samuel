@@ -74,7 +74,7 @@ public class MiPerfilScreen implements Screen {
         //  Título Principal 
         Label titleLabel = new Label("MI PERFIL", skin, "title");
         titleLabel.setFontScale(0.3f);
-        root.add(titleLabel).padTop(30).padBottom(10).row();
+        root.add(titleLabel).padTop(80).padBottom(10).row();
 
         // Tabla de Información Principal
         Table mainInfoTable = new Table();
@@ -165,7 +165,7 @@ public class MiPerfilScreen implements Screen {
         buttonTable.add(historialBtn).width(160).height(40).pad(15);
         
         root.add(buttonTable).row();
-        root.add(regresarBtn).width(160).height(40).padTop(8);
+        root.add(regresarBtn).width(160).height(40).padTop(10);
 
         cambiarAvatarBtn.addListener(new ChangeListener() {
             @Override

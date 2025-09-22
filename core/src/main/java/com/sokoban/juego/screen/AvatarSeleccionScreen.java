@@ -85,7 +85,7 @@ public class AvatarSeleccionScreen implements Screen {
             
             skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
             
-            backgroundTexture = new Texture("menu/fondo.png");
+            backgroundTexture = new Texture("menu/fondoTabla.png");
             backgroundBatch = new SpriteBatch();
             backgroundCamera = new OrthographicCamera();
             backgroundViewport = new FitViewport(384, 224, backgroundCamera);

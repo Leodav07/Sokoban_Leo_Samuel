@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.sokoban.juego.logica;
 
 import com.sokoban.juego.logica.accounts.Usuario;
@@ -11,16 +7,12 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-/**
- *
- * @author hnleo
- */
+
 public class GestorDatosPerfil {
-     private static final String DATOS_PERFIL_ARCHIVO = "perfil_extra.dat";
+    private static final String DATOS_PERFIL_ARCHIVO = "perfil_extra.dat";
     private static final String USERS_BASE_DIR = "users";
     private static GestorDatosPerfil instancia;
 
-    // Clase interna para contener los datos cargados
     public static class DatosPerfil {
         public String avatar;
         public long ultimaSesion;
@@ -33,7 +25,7 @@ public class GestorDatosPerfil {
         }
     }
     
-      private GestorDatosPerfil() {}
+    private GestorDatosPerfil() {}
 
     public static GestorDatosPerfil getInstancia() {
         if (instancia == null) {
@@ -42,15 +34,36 @@ public class GestorDatosPerfil {
         return instancia;
     }
 
+    // <<-- MÉTODO MODIFICADO para aceptar un nombre de usuario -->>
+    private File obtenerArchivoPerfil(String username) {
+        if (username == null || username.isEmpty()) return null;
+        return new File(USERS_BASE_DIR + "/" + username, DATOS_PERFIL_ARCHIVO);
+    }
+    
     private File obtenerArchivoPerfil() {
         Usuario usuario = GestorUsuarios.usuarioActual;
         if (usuario == null) return null;
-        return new File(USERS_BASE_DIR + "/" + usuario.getUsername(), DATOS_PERFIL_ARCHIVO);
+        return obtenerArchivoPerfil(usuario.getUsername());
+    }
+
+    // <<-- NUEVO MÉTODO para cargar solo el avatar de un usuario específico -->>
+    public String cargarAvatarDeUsuario(String username) {
+        File archivo = obtenerArchivoPerfil(username);
+        if (archivo == null || !archivo.exists()) {
+            return "default_avatar.png"; // Avatar por defecto si el usuario no tiene perfil
+        }
+    
+        try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
+            // El primer dato guardado en el archivo es el nombre del avatar
+            return raf.readUTF();
+        } catch (IOException e) {
+            System.err.println("Error al cargar avatar para " + username + ", usando default: " + e.getMessage());
+            return "default_avatar.png";
+        }
     }
 
     public DatosPerfil cargarDatosPerfil() {
         File archivo = obtenerArchivoPerfil();
-        // Valores por defecto si no hay archivo
         if (archivo == null || !archivo.exists()) {
             return new DatosPerfil("default_avatar.png", 0, new ArrayList<>());
         }
@@ -100,8 +113,7 @@ public class GestorDatosPerfil {
 
     public void agregarHistorialPartida(Partida partida) {
         DatosPerfil datos = cargarDatosPerfil();
-        datos.historial.add(0, partida); // Añade al principio para que sea el más reciente
-        // Limitar el historial a, por ejemplo, las últimas 50 partidas
+        datos.historial.add(0, partida);
         while (datos.historial.size() > 50) {
             datos.historial.remove(datos.historial.size() - 1);
         }

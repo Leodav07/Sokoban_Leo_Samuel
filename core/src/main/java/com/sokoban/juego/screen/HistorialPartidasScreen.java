@@ -33,7 +33,7 @@ public class HistorialPartidasScreen implements Screen {
 
     private List<Partida> historial;
     private int paginaActual = 0;
-    private final int PARTIDAS_POR_PAGINA = 5;
+    private final int PARTIDAS_POR_PAGINA = 6;
     private Table historialTable;
     private Label paginacionLabel;
 
@@ -47,7 +47,7 @@ public class HistorialPartidasScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         try {
-              TextureAtlas atlas = new TextureAtlas("mario.atlas");
+            TextureAtlas atlas = new TextureAtlas("mario.atlas");
             skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
             backgroundTexture = new Texture("menu/fondoTabla.png");
             backgroundBatch = new SpriteBatch();
@@ -66,21 +66,41 @@ public class HistorialPartidasScreen implements Screen {
 
         Label titleLabel = new Label(game.bundle.get("historial.historialdepartidas"), skin, "title");
         titleLabel.setFontScale(0.3f);
-        root.add(titleLabel).padBottom(10).row();
+        root.add(titleLabel).padTop(5).padBottom(5).row();
+
+        Table containerTable = new Table();
+        root.add(containerTable).width(580).height(280).pad(15).row();
+        containerTable.add().expandY().row();
 
         historialTable = new Table(skin);
-        root.add(historialTable).expand().fill().row();
+        containerTable.add(historialTable).expandX().left().padLeft(20).row(); // <<-- AJUSTE: Menos padding para moverlo más a la izquierda
+        
+        containerTable.add().expandY().row();
 
         Table navTable = new Table();
-        TextButton anteriorBtn = new TextButton("<"+ game.bundle.get("historial.anterior"), skin);
-        anteriorBtn.getLabel().setFontScale(0.5f);
-        TextButton siguienteBtn = new TextButton(game.bundle.get("historial.siguiente") +">", skin);
-        siguienteBtn.getLabel().setFontScale(0.5f);
+        TextButton anteriorBtn = new TextButton("<" + game.bundle.get("historial.anterior"), skin);
+        anteriorBtn.getLabel().setFontScale(0.4f);
+        TextButton siguienteBtn = new TextButton(game.bundle.get("historial.siguiente") + ">", skin);
+        siguienteBtn.getLabel().setFontScale(0.4f);
         paginacionLabel = new Label("", skin);
 
-        navTable.add(anteriorBtn).pad(10);
-        navTable.add(paginacionLabel).pad(10);
-        navTable.add(siguienteBtn).pad(10);
+        navTable.add(anteriorBtn).pad(5).width(80).height(25);
+        navTable.add(paginacionLabel).pad(5).expandX();
+        navTable.add(siguienteBtn).pad(5).width(80).height(25);
+
+        containerTable.add(navTable).fillX().padTop(5).padBottom(5).row();
+        
+        TextButton regresarBtn = new TextButton(game.bundle.get("historial.regresar"), skin);
+        regresarBtn.getLabel().setFontScale(0.4f);
+        regresarBtn.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                game.setScreen(new MiPerfilScreen(game));
+                dispose();
+            }
+        });
+        containerTable.add(regresarBtn).padTop(5).width(100).height(30);
 
         actualizarTablaHistorial();
 
@@ -100,84 +120,85 @@ public class HistorialPartidasScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 if ((paginaActual + 1) * PARTIDAS_POR_PAGINA < historial.size()) {
                     paginaActual++;
-                       SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                    SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                     actualizarTablaHistorial();
                 }
             }
         });
-
-        root.add(navTable).pad(5).row();
-
-        TextButton regresarBtn = new TextButton(game.bundle.get("historial.regresar"), skin);
-        regresarBtn.getLabel().setFontScale(0.5f);
-        regresarBtn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
-                game.setScreen(new MiPerfilScreen(game));
-                dispose();
-            }
-        });
-        root.add(regresarBtn).padTop(10);
     }
 
     private void actualizarTablaHistorial() {
         historialTable.clear();
         historialTable.top();
-        historialTable.defaults().left().pad(5);
+        historialTable.defaults().left().padTop(4).padBottom(4); 
 
-        Label nivelLabel = new Label(game.bundle.get("historial.nivel"), skin, "subtitle");
-        nivelLabel.setFontScale(0.5f);
-        historialTable.add(nivelLabel).width(60);
+        // --- Headers ---
+        Label nivelLabel = new Label(game.bundle.get("historial.nivel"), skin);
+        nivelLabel.setFontScale(0.35f);
+        historialTable.add(nivelLabel).width(50);
         
-         Label estadoLabel = new Label(game.bundle.get("historial.estado"), skin, "subtitle");
-        estadoLabel.setFontScale(0.5f);
-        historialTable.add(estadoLabel).expandX();
+        Label estadoLabel = new Label(game.bundle.get("historial.estado"), skin);
+        estadoLabel.setFontScale(0.35f);
+        historialTable.add(estadoLabel).width(110).padLeft(20); // <<-- CAMBIO: Más ancho para "Status"
+        
+        Label puntajeLabel = new Label(game.bundle.get("historial.puntaje"), skin);
+        puntajeLabel.setFontScale(0.35f);
+        historialTable.add(puntajeLabel).width(60).padLeft(25); // <<-- CAMBIO: Más padding para separar de "Status"
 
-        Label puntajeLabel = new Label(game.bundle.get("historial.puntaje"), skin, "subtitle");
-        puntajeLabel.setFontScale(0.5f);
-        historialTable.add(puntajeLabel).expandX();
+        Label movimientoLabel = new Label(game.bundle.get("historial.movimiento"), skin);
+        movimientoLabel.setFontScale(0.35f);
+        historialTable.add(movimientoLabel).width(60).padLeft(10);
 
-        Label movimientoLabel = new Label(game.bundle.get("historial.movimiento"), skin, "subtitle");
-        movimientoLabel.setFontScale(0.5f);
-        historialTable.add(movimientoLabel).width(80);
+        Label tiempoLabel = new Label(game.bundle.get("historial.tiempo"), skin);
+        tiempoLabel.setFontScale(0.35f);
+        historialTable.add(tiempoLabel).width(70).padLeft(10);
 
-        Label tiempoLabel = new Label(game.bundle.get("historial.tiempo"), skin, "subtitle");
-        tiempoLabel.setFontScale(0.5f);
-        historialTable.add(tiempoLabel).width(100);
-
-        Label fechaLabel = new Label(game.bundle.get("historial.fecha"), skin, "subtitle");
-        fechaLabel.setFontScale(0.5f);
-        historialTable.add(fechaLabel).expandX().row();
-
-        historialTable.add("").height(2).colspan(6).growX().row();
+        Label fechaLabel = new Label(game.bundle.get("historial.fecha"), skin);
+        fechaLabel.setFontScale(0.35f);
+        historialTable.add(fechaLabel).width(120).padLeft(10).row();
 
         if (historial.isEmpty()) {
             Label emptyLabel = new Label(game.bundle.get("historial.nopartidajugada"), skin);
-            emptyLabel.setFontScale(0.5f);
-            historialTable.add(emptyLabel).colspan(6).pad(20);
-
+            emptyLabel.setFontScale(0.4f);
+            historialTable.add(emptyLabel).colspan(6).pad(15).center();
         } else {
             int inicio = paginaActual * PARTIDAS_POR_PAGINA;
             int fin = Math.min(inicio + PARTIDAS_POR_PAGINA, historial.size());
+            
             for (int i = inicio; i < fin; i++) {
                 Partida p = historial.get(i);
                 
-                historialTable.add(String.valueOf(p.nivelId));
-                historialTable.add(estadoLabel);
-                historialTable.add(String.valueOf(p.puntaje));
-                historialTable.add(String.valueOf(p.movimientos));
-                historialTable.add(p.getTiempoFormateado());
-                historialTable.add(p.getFechaFormateada()).row();
+                Label nivelLbl = new Label(String.valueOf(p.nivelId), skin);
+                nivelLbl.setFontScale(0.35f);
+                historialTable.add(nivelLbl);
+                
+                Label estadoLbl = new Label(p.estado, skin);
+                estadoLbl.setFontScale(0.35f);
+                historialTable.add(estadoLbl).padLeft(20); // <<-- CAMBIO: Mismo padding que el header
+                
+                Label puntajeLbl = new Label(String.valueOf(p.puntaje), skin);
+                puntajeLbl.setFontScale(0.35f);
+                historialTable.add(puntajeLbl).padLeft(25); // <<-- CAMBIO: Mismo padding que el header
+                
+                Label movimientosLbl = new Label(String.valueOf(p.movimientos), skin);
+                movimientosLbl.setFontScale(0.35f);
+                historialTable.add(movimientosLbl).padLeft(10);
+                
+                Label tiempoLbl = new Label(p.getTiempoFormateado(), skin);
+                tiempoLbl.setFontScale(0.35f);
+                historialTable.add(tiempoLbl).padLeft(10);
+                
+                Label fechaLbl = new Label(p.getFechaFormateada(), skin);
+                fechaLbl.setFontScale(0.35f);
+                historialTable.add(fechaLbl).padLeft(10).row();
             }
         }
 
         int totalPaginas = (int) Math.ceil((double) historial.size() / PARTIDAS_POR_PAGINA);
-        if (totalPaginas == 0) {
-            totalPaginas = 1;
-        }
-        paginacionLabel.setText(game.bundle.get("historial.pag") + (paginaActual + 1) + game.bundle.get("historial.de") + totalPaginas);
-        paginacionLabel.setFontScale(0.4f);
+        totalPaginas = Math.max(1, totalPaginas);
+        paginacionLabel.setText(String.format("%s %d %s %d", game.bundle.get("historial.pag"), 
+                               (paginaActual + 1), game.bundle.get("historial.de"), totalPaginas));
+        paginacionLabel.setFontScale(0.35f);
     }
 
     @Override
@@ -206,29 +227,18 @@ public class HistorialPartidasScreen implements Screen {
 
     @Override
     public void dispose() {
-        if (stage != null) {
-            stage.dispose();
-        }
-        if (skin != null) {
-            skin.dispose();
-        }
-        if (backgroundTexture != null) {
-            backgroundTexture.dispose();
-        }
-        if (backgroundBatch != null) {
-            backgroundBatch.dispose();
-        }
+        if (stage != null) stage.dispose();
+        if (skin != null) skin.dispose();
+        if (backgroundTexture != null) backgroundTexture.dispose();
+        if (backgroundBatch != null) backgroundBatch.dispose();
     }
 
     @Override
-    public void pause() {
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-    }
+    public void resume() {}
 
     @Override
-    public void hide() {
-    }
+    public void hide() {}
 }
