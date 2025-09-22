@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.sokoban.juego.logica.SoundManager;
+import com.sokoban.juego.screen.InicioScreen;
 import com.sokoban.juego.screen.LoginScreen;
 import java.util.Locale;
 
@@ -37,7 +38,7 @@ public class Main extends Game {
         SoundManager.getInstance().assetManager.finishLoading(); // ¡Esto puede congelar el juego al inicio!
         SoundManager.getInstance().cacheSounds(); // Carga los sonidos en el mapa
         SoundManager.getInstance().playMusic(SoundManager.MusicTrack.MENU_TEMA, true);
-        setScreen(new LoginScreen(this));
+        setScreen(new InicioScreen(this));
     }
     
     public void setVolumen(float v){
