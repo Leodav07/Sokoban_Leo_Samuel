@@ -99,14 +99,16 @@ public class LoginScreen implements Screen {
 
         // <<--- AHORA SOLO LOS INICIALIZAMOS, NO LOS DECLARAMOS DE NUEVO --->>
         usernameField = new TextField("", skin);
-        usernameField.setMessageText("usuario");
+      //  usernameField.setMessageText("usuario");
         usernameField.setAlignment(1);
+        usernameField.setScale(usernameField.getScaleX() * 2f);
 
         passwordField = new TextField("", skin);
-        passwordField.setMessageText("contrasena");
+      //  passwordField.setMessageText("contrasena");
         passwordField.setPasswordMode(true);
-        passwordField.setPasswordCharacter('●');
+        passwordField.setPasswordCharacter('*');
         passwordField.setAlignment(1);
+        passwordField.setScale(passwordField.getScaleX() * 2f);
 
         loginButton = new TextButton("INGRESAR", skin);
         addHoverEffect(loginButton, Color.LIGHT_GRAY);
@@ -122,10 +124,10 @@ public class LoginScreen implements Screen {
         Table mainContent = new Table();
         mainContent.add(titleLabel).colspan(2).padBottom(30);
         mainContent.row();
-        mainContent.add(new Label("USUARIO", skin)).pad(15).left();
+        mainContent.add(new Label("USUARIO", skin)).pad(20).left();
         mainContent.add(usernameField).width(250).height(40).pad(15);
         mainContent.row();
-        mainContent.add(new Label("CONTRASENA", skin)).pad(15).left();
+        mainContent.add(new Label("CONTRASENA", skin)).pad(20).left();
         mainContent.add(passwordField).width(250).height(40).pad(15);
         mainContent.row();
         mainContent.add(loginButton).colspan(2).padTop(30).width(200).height(50);
