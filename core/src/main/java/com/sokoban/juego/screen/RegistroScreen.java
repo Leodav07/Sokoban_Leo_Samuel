@@ -82,8 +82,8 @@ public class RegistroScreen implements Screen {
             cuadroTexture = new Texture(Gdx.files.internal("skin/cuadro.png"));
             cuadroTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-            if (skin.has("default-font", BitmapFont.class)) {
-                dialogFont = skin.getFont("default-font");
+            if (skin.has("default", BitmapFont.class)) {
+                dialogFont = skin.getFont("default");
             } else {
                 Gdx.app.error("RegistroScreen", "La fuente 'default-font' no se encontró en el skin. Usando fuente por defecto.");
                 dialogFont = new BitmapFont();

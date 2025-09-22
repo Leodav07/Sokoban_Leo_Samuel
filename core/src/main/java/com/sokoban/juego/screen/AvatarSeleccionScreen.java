@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -73,7 +74,8 @@ public class AvatarSeleccionScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         
         try {
-            skin = new Skin(Gdx.files.internal("skin/mario_skin.json"));
+            TextureAtlas atlas = new TextureAtlas("mario.atlas");
+            skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
             backgroundTexture = new Texture("menu/fondo.png");
             backgroundBatch = new SpriteBatch();
             backgroundCamera = new OrthographicCamera();
@@ -81,7 +83,7 @@ public class AvatarSeleccionScreen implements Screen {
             
             dialogBatch = new SpriteBatch();
             cuadroTexture = new Texture("skin/cuadro.png");
-            dialogFont = skin.getFont("default-font");
+            dialogFont = skin.getFont("default");
             
         } catch (Exception e) {
             Gdx.app.error("AvatarScreen", "Error cargando assets", e);

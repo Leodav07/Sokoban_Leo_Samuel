@@ -95,7 +95,7 @@ public class JuegoUI {
 
         x += 350;
         font.setColor(COLOR_TEXTO_NORMAL);
-        font.draw(batch, "Movimientos: " + movimientosRealizados + " (Par: " + movimientosPar + ")", x, y);
+        font.draw(batch, "Movimientos: " + movimientosRealizados + " (Objetivo menos de: " + movimientosPar + ")", x, y);
 
         x += 300;
         long tiempoTranscurrido = System.currentTimeMillis() - tiempoInicio - tiempoPausado;
@@ -105,7 +105,7 @@ public class JuegoUI {
         y -= 40;
         font.setColor(Color.LIGHT_GRAY);
         font.getData().setScale(0.8f);
-        font.draw(batch, "ESC/P: Pausa | R: Reiniciar | BACKSPACE: Deshacer", MARGIN, y);
+        font.draw(batch, "ESC/P: Pausa | R: Reiniciar | BACKSPACE: Deshacer", MARGIN, y); 
         font.getData().setScale(1.0f);
     }
 
@@ -151,7 +151,7 @@ public class JuegoUI {
         textY -= 40;
 
         font.setColor(COLOR_TEXTO_NORMAL);
-        font.draw(batch, "Movimientos: " + movimientosFinal + " (Par: " + movimientosPar + ")", panelX + 50, textY);
+        font.draw(batch, "Movimientos: " + movimientosFinal, panelX + 50, textY);
         textY -= 30;
 
         font.draw(batch, "Tiempo: " + formatearTiempo(tiempoFinal), panelX + 50, textY);

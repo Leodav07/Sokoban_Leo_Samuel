@@ -122,27 +122,27 @@ public class HistorialPartidasScreen implements Screen {
         historialTable.top();
         historialTable.defaults().left().pad(5);
 
-        Label nivelLabel = new Label("Nivel", skin, "subtitle-font");
+        Label nivelLabel = new Label("Nivel", skin, "subtitle");
         nivelLabel.setFontScale(0.5f);
         historialTable.add(nivelLabel).width(60);
         
-         Label estadoLabel = new Label("Estado", skin, "subtitle-font");
+         Label estadoLabel = new Label("Estado", skin, "subtitle");
         estadoLabel.setFontScale(0.5f);
         historialTable.add(estadoLabel).expandX();
 
-        Label puntajeLabel = new Label("Puntaje", skin, "subtitle-font");
+        Label puntajeLabel = new Label("Puntaje", skin, "subtitle");
         puntajeLabel.setFontScale(0.5f);
         historialTable.add(puntajeLabel).expandX();
 
-        Label movimientoLabel = new Label("Movimiento", skin, "subtitle-font");
+        Label movimientoLabel = new Label("Movimiento", skin, "subtitle");
         movimientoLabel.setFontScale(0.5f);
         historialTable.add(movimientoLabel).width(80);
 
-        Label tiempoLabel = new Label("Tiempo", skin, "subtitle-font");
+        Label tiempoLabel = new Label("Tiempo", skin, "subtitle");
         tiempoLabel.setFontScale(0.5f);
         historialTable.add(tiempoLabel).width(100);
 
-        Label fechaLabel = new Label("Fecha", skin, "subtitle-font");
+        Label fechaLabel = new Label("Fecha", skin, "subtitle");
         fechaLabel.setFontScale(0.5f);
         historialTable.add(fechaLabel).expandX().row();
 

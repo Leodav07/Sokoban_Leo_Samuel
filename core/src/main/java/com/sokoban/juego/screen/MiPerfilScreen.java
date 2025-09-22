@@ -84,28 +84,28 @@ public class MiPerfilScreen implements Screen {
         Table personalDataTable = new Table();
         personalDataTable.left(); 
         
-        Label userLabel = new Label("Usuario:", skin, "subtitle-font");
+        Label userLabel = new Label("Usuario:", skin, "subtitle");
         userLabel.setFontScale(0.5f);
         Label userData = new Label(GestorUsuarios.usuarioActual.getUsername(), skin, "default");
         userData.setFontScale(0.5f);
         personalDataTable.add(userLabel).padRight(10);
         personalDataTable.add(userData).left().row();
         
-        Label nameLabel = new Label("Nombre:", skin, "subtitle-font");
+        Label nameLabel = new Label("Nombre:", skin, "subtitle");
         nameLabel.setFontScale(0.5f);
         Label nameData = new Label(GestorUsuarios.usuarioActual.getNombreCompleto(), skin, "default");
         nameData.setFontScale(0.5f);
         personalDataTable.add(nameLabel).padRight(10).padTop(4);
         personalDataTable.add(nameData).left().padTop(4).row();
 
-        Label regLabel = new Label("Registro:", skin, "subtitle-font");
+        Label regLabel = new Label("Registro:", skin, "subtitle");
         regLabel.setFontScale(0.5f);
         Label regData = new Label(dateFormat.format(GestorUsuarios.usuarioActual.getFechaRegistro().getTime()), skin, "default");
         regData.setFontScale(0.5f);
         personalDataTable.add(regLabel).padRight(10).padTop(4);
         personalDataTable.add(regData).left().padTop(4).row();
         
-        Label sessionLabel = new Label("Ultima Sesion:", skin, "subtitle-font");
+        Label sessionLabel = new Label("Ultima Sesion:", skin, "subtitle");
         sessionLabel.setFontScale(0.5f);
         Label sessionData = new Label(datosPerfil.ultimaSesion == 0 ? "Nunca" : dateFormat.format(new Date(datosPerfil.ultimaSesion)), skin, "default");
         sessionData.setFontScale(0.5f);
