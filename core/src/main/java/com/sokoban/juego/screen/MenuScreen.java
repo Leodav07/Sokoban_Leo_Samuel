@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.logica.SoundManager;
 
 public class MenuScreen implements Screen {
 
@@ -93,6 +94,7 @@ public class MenuScreen implements Screen {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 Screen newScreen = new LvlSelectScreen(game);
                 game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
+                 SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
             }
         });
 
@@ -101,6 +103,8 @@ public class MenuScreen implements Screen {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 Screen newScreen = new MiPerfilScreen(game);
                 game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
+                  SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                  
             }
         });
         
@@ -115,11 +119,13 @@ public class MenuScreen implements Screen {
         salirButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 stage.addAction(Actions.sequence(
                     Actions.fadeOut(0.3f),
                     Actions.run(() -> {
                         GestorUsuarios.cerrarSesion();
                         game.setScreen(new CortinaTransicion(game, MenuScreen.this, new LoginScreen(game)));
+                        SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);  
                     })
                 ));
             }
@@ -147,7 +153,8 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                Screen newScreen = new ConfiguracionScreen(game);
-                game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
+               game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
+               SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
             }
         });
 

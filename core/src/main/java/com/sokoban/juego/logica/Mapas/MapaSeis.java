@@ -44,8 +44,8 @@ public class MapaSeis extends MapaBase {
     private static final long TIEMPO_OBJETIVO = 300000; // 5 minutos en milisegundos
 
     public MapaSeis(int filas, int columnas, Texture muroImg, Texture cajaImg,
-            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo, Texture Fondo, Main game) {
-        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, cajaObjetivo, Fondo, 6, game); // Nivel ID = 1
+            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo, Texture Fondo) {
+        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, cajaObjetivo, Fondo, 6); // Nivel ID = 1
     }
 
     @Override

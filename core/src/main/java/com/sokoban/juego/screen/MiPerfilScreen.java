@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorDatosPerfil;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.logica.SoundManager;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
 
 import java.text.SimpleDateFormat;
@@ -71,7 +72,7 @@ public class MiPerfilScreen implements Screen {
         stage.addActor(root);
 
         //  Título Principal 
-        Label titleLabel = new Label(game.bundle.get("perfil.miperfil"), skin, "title");
+        Label titleLabel = new Label("MI PERFIL", skin, "title");
         titleLabel.setFontScale(0.3f);
         root.add(titleLabel).padTop(25).padBottom(10).row();
 
@@ -84,28 +85,28 @@ public class MiPerfilScreen implements Screen {
         Table personalDataTable = new Table();
         personalDataTable.left(); 
         
-        Label userLabel = new Label(game.bundle.get("perfil.usuario"), skin, "subtitle");
+        Label userLabel = new Label("Usuario:", skin, "subtitle");
         userLabel.setFontScale(0.5f);
         Label userData = new Label(GestorUsuarios.usuarioActual.getUsername(), skin, "default");
         userData.setFontScale(0.5f);
         personalDataTable.add(userLabel).padRight(10);
         personalDataTable.add(userData).left().row();
         
-        Label nameLabel = new Label(game.bundle.get("perfil.nombre"), skin, "subtitle");
+        Label nameLabel = new Label("Nombre:", skin, "subtitle");
         nameLabel.setFontScale(0.5f);
         Label nameData = new Label(GestorUsuarios.usuarioActual.getNombreCompleto(), skin, "default");
         nameData.setFontScale(0.5f);
         personalDataTable.add(nameLabel).padRight(10).padTop(4);
         personalDataTable.add(nameData).left().padTop(4).row();
 
-        Label regLabel = new Label(game.bundle.get("perfil.registro"), skin, "subtitle");
+        Label regLabel = new Label("Registro:", skin, "subtitle");
         regLabel.setFontScale(0.5f);
         Label regData = new Label(dateFormat.format(GestorUsuarios.usuarioActual.getFechaRegistro().getTime()), skin, "default");
         regData.setFontScale(0.5f);
         personalDataTable.add(regLabel).padRight(10).padTop(4);
         personalDataTable.add(regData).left().padTop(4).row();
         
-        Label sessionLabel = new Label(game.bundle.get("perfil.ultimasesion"), skin, "subtitle");
+        Label sessionLabel = new Label("Ultima Sesion:", skin, "subtitle");
         sessionLabel.setFontScale(0.5f);
         Label sessionData = new Label(datosPerfil.ultimaSesion == 0 ? "Nunca" : dateFormat.format(new Date(datosPerfil.ultimaSesion)), skin, "default");
         sessionData.setFontScale(0.5f);
@@ -119,12 +120,12 @@ public class MiPerfilScreen implements Screen {
         Table statsTable = new Table();
         statsTable.defaults().pad(2).left();
 
-        Label progressTitle = new Label(game.bundle.get("perfil.progreso"), skin, "title");
+        Label progressTitle = new Label("PROGRESO", skin, "title");
         progressTitle.setFontScale(0.3f);
         statsTable.add(progressTitle).colspan(2).padBottom(8).center().row();
         
         //Datos de Progreso 
-        Label levelsLabel = new Label(game.bundle.get("perfil.nivelescompletados"), skin, "default");
+        Label levelsLabel = new Label("Niveles Completados:", skin, "default");
         levelsLabel.setFontScale(0.5f); // <-- Ajuste de tamaño
         statsTable.add(levelsLabel);
 
@@ -132,7 +133,7 @@ public class MiPerfilScreen implements Screen {
         levelsData.setFontScale(0.5f); // <-- Ajuste de tamaño
         statsTable.add(levelsData).padLeft(15).row();
         
-        Label scoreLabel = new Label(game.bundle.get("perfil.puntajetotal"), skin, "default");
+        Label scoreLabel = new Label("Puntaje Total:", skin, "default");
         scoreLabel.setFontScale(0.5f); // <-- Ajuste de tamaño
         statsTable.add(scoreLabel);
 
@@ -140,7 +141,7 @@ public class MiPerfilScreen implements Screen {
         scoreData.setFontScale(0.5f); // <-- Ajuste de tamaño
         statsTable.add(scoreData).padLeft(15).row();
         
-        Label timeLabel = new Label(game.bundle.get("perfil.tiempojugado"), skin, "default");
+        Label timeLabel = new Label("Tiempo Jugado:", skin, "default");
         timeLabel.setFontScale(0.5f); // <-- Ajuste de tamaño
         statsTable.add(timeLabel);
 
@@ -152,9 +153,9 @@ public class MiPerfilScreen implements Screen {
 
         //  Tabla de Botones 
         Table buttonTable = new Table();
-        TextButton cambiarAvatarBtn = new TextButton(game.bundle.get("perfil.cambiaravatar"), skin);
-        TextButton historialBtn = new TextButton(game.bundle.get("perfil.historial"), skin);
-        TextButton regresarBtn = new TextButton(game.bundle.get("perfil.regresar"), skin);
+        TextButton cambiarAvatarBtn = new TextButton("Cambiar Avatar", skin);
+        TextButton historialBtn = new TextButton("Historial", skin);
+        TextButton regresarBtn = new TextButton("Regresar", skin);
 
         cambiarAvatarBtn.getLabel().setFontScale(0.3f);
         historialBtn.getLabel().setFontScale(0.3f);
@@ -168,7 +169,8 @@ public class MiPerfilScreen implements Screen {
 
         cambiarAvatarBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
+                 SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                game.setScreen(new CortinaTransicion(game, MiPerfilScreen.this, new AvatarSeleccionScreen(game)));
                
             }
@@ -176,7 +178,8 @@ public class MiPerfilScreen implements Screen {
         
         historialBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                game.setScreen(new CortinaTransicion(game, MiPerfilScreen.this, new HistorialPartidasScreen(game)));
                 
             }
@@ -184,7 +187,8 @@ public class MiPerfilScreen implements Screen {
 
         regresarBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 game.setScreen(new CortinaTransicion(game, MiPerfilScreen.this, new MenuScreen(game)));
             }
         });

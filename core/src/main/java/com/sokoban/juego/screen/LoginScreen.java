@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.logica.SoundManager;
 import java.io.IOException;
 
 public class LoginScreen implements Screen {
@@ -113,6 +114,7 @@ public class LoginScreen implements Screen {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                   SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 handleLogin(usernameField.getText(), passwordField.getText());
             }
         });
@@ -136,6 +138,7 @@ public class LoginScreen implements Screen {
         registerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                   SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 Screen newScreen = new RegistroScreen(game);
                 game.setScreen(new CortinaTransicion(game, LoginScreen.this, newScreen));
             }
@@ -150,6 +153,7 @@ public class LoginScreen implements Screen {
     }
 
     private void handleLogin(String username, String password) {
+          SoundManager.getInstance().play(SoundManager.SoundEffect.PAUSA);
         mostrarDialog("Verificando credenciales...");
 
         new Thread(() -> {
@@ -162,9 +166,11 @@ public class LoginScreen implements Screen {
                         Timer.schedule(new Timer.Task() {
                             @Override
                             public void run() {
+                                   SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
                                 ocultarDialog();
                                 Screen newScreen = new MenuScreen(game);
                                 game.setScreen(new CortinaTransicion(game, LoginScreen.this, newScreen));
+                                
                             }
                         }, 2f);
                     } else {
@@ -172,6 +178,7 @@ public class LoginScreen implements Screen {
                         Timer.schedule(new Timer.Task() {
                             @Override
                             public void run() {
+                                   SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
                                 ocultarDialog();
                             }
                         }, 3f);
@@ -183,6 +190,7 @@ public class LoginScreen implements Screen {
                     Timer.schedule(new Timer.Task() {
                         @Override
                         public void run() {
+                               SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
                             ocultarDialog();
                         }
                     }, 4f);

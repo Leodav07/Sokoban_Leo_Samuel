@@ -1,28 +1,18 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.sokoban.juego.logica.Pausa;
-import com.sokoban.juego.Main;
+
 import com.sokoban.juego.logica.Pausa.EstadoJuego;
 
-/**
- *
- * @author hnleo
- */
 public class GestorDePausa {
     private EstadoJuego estadoAnterior;
     private EstadoJuego estadoActual;
     private MenuPausa menuPausa;
-    private Main game;
     private long tiempoPausaInicio;
     private long tiempoTotalPausado;
     
-    public GestorDePausa(Main game) {
-        this.game = game;
+    public GestorDePausa() {
         this.estadoActual = EstadoJuego.JUGANDO;
         this.estadoAnterior = EstadoJuego.JUGANDO;
-        this.menuPausa = new MenuPausa(game);
+        this.menuPausa = new MenuPausa();
         this.tiempoTotalPausado = 0;
     }
     
@@ -83,6 +73,11 @@ public class GestorDePausa {
     
     public void manejarInput() {
         menuPausa.manejarInput();
+    }
+    
+    // Método añadido para manejar el resize
+    public void resize(int width, int height) {
+        menuPausa.resize(width, height);
     }
     
     public void dispose() {

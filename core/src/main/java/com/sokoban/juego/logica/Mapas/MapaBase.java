@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Caja;
 import com.sokoban.juego.logica.Colisiones;
 import com.sokoban.juego.logica.Elemento;
@@ -23,12 +22,13 @@ import com.sokoban.juego.logica.Pausa.GestorDePausa;
 import com.sokoban.juego.logica.Terreno;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
 import com.sokoban.juego.logica.Pausa.MenuPausaListener;
+import com.sokoban.juego.logica.SoundManager;
 import com.sokoban.juego.logica.accounts.ProgresoPorNivel;
+import com.sokoban.juego.niveles.NivelSieteScreen;
 
 public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener {
 
     protected Elemento[][] mapa;
-    private Main game;
     protected int filas, columnas;
     protected Texture muroImg, cajaImg, metaImg, sueloImg, jugadorImg, fondoImg;
     protected Jugador jugador;
@@ -68,7 +68,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     protected abstract long getTiempoObjetivo();
 
     public MapaBase(int filas, int columnas, Texture muroImg, Texture cajaImg,
-            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaEnObjetivoImg, Texture fondoImg, int nivelId, Main game) {
+            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaEnObjetivoImg, Texture fondoImg, int nivelId) {
         this.filas = filas;
         this.columnas = columnas;
         this.muroImg = muroImg;
@@ -79,7 +79,6 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         this.nivelId = nivelId;
         this.cajaEnObjetivoImg = cajaEnObjetivoImg;
         this.fondoImg = fondoImg;
-        this.game=game;
 
         int availableHeight = GAME_WORLD_HEIGHT - UI_PANEL_HEIGHT;
         int maxTileWidth = GAME_WORLD_WIDTH / columnas;
@@ -87,10 +86,12 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         this.TILE = Math.min(maxTileWidth, maxTileHeight);
 
         mapa = new Elemento[filas][columnas];
-        gameUI = new JuegoUI(game);
+        gameUI = new JuegoUI();
         gestorProgreso = GestorProgreso.getInstancia();
-        gestorPausa = new GestorDePausa(game);
+        gestorPausa = new GestorDePausa();
         gestorPausa.setMenuPausaListener(this);
+        
+      //  SoundManager.getInstance().playMusic(SoundManager.MusicTrack.NIVEL_TEMA, true);
     }
 
     public void setMapaListener(MapaBaseListener listener) {
@@ -269,6 +270,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     }
 
    protected void onNivelCompletadoInterno() {
+    SoundManager.getInstance().stopMusic();
     nivelCompletado = true;
     mostrandoResultados = true;
     tiempoMostrandoResultados = System.currentTimeMillis();
@@ -329,7 +331,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     private void finalizarNivel() {
       if(mapaListener!=null){
-          mapaListener.onNivelFinalizado();
+         mapaListener.onNivelFinalizado();
       }
     }
 
@@ -338,6 +340,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     @Override
     public void onContinuar() {
+        SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
         gestorPausa.reanudar();
     }
 
@@ -418,10 +421,11 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         // Dibujar resultado del nivel si está completado
         if (mostrandoResultados && gameUI != null) {
             // Primero terminar el batch actual
-            batch.end();
+         
             // Mostrar resultado usando el stage interno
             gameUI.mostrarResultadoNivel(batch);
             // Reiniciar batch para continuar
+            batch.end();
             batch.begin();
         }
 
