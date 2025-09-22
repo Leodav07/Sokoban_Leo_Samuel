@@ -142,7 +142,7 @@ public class AvatarSeleccionScreen implements Screen {
         regresarBtn.getLabel().setFontScale(0.7f);
         regresarBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 game.setScreen(new CortinaTransicion(game, AvatarSeleccionScreen.this, new MiPerfilScreen(game)));
             }
         });
@@ -176,6 +176,7 @@ public class AvatarSeleccionScreen implements Screen {
                 SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 GestorDatosPerfil.getInstancia().guardarAvatar(avatarSeleccionado);
                 game.setScreen(new CortinaTransicion(game, AvatarSeleccionScreen.this, new MiPerfilScreen(game)));
+                
             }
         });
 

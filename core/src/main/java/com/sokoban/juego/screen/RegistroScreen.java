@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.logica.SoundManager;
 import java.io.IOException;
 
 public class RegistroScreen implements Screen {
@@ -131,6 +132,7 @@ public class RegistroScreen implements Screen {
         registerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 handleRegistration(usernameField.getText(), passwordField.getText(), nombreField.getText());
             }
         });
@@ -161,6 +163,7 @@ public class RegistroScreen implements Screen {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 stage.addAction(Actions.sequence(
                         Actions.fadeOut(0.3f),
                         Actions.run(() -> game.setScreen(new LoginScreen(game)))
@@ -174,6 +177,7 @@ public class RegistroScreen implements Screen {
 
     private void handleRegistration(String username, String password, String nombreCompleto) {
         if (username.isEmpty() || password.isEmpty() || nombreCompleto.isEmpty()) {
+            SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
             mostrarDialog("Todos los campos son obligatorios.");
             Timer.schedule(new Timer.Task() { @Override public void run() { ocultarDialog(); }}, 3f);
             return;
@@ -185,7 +189,7 @@ public class RegistroScreen implements Screen {
             Timer.schedule(new Timer.Task() { @Override public void run() { ocultarDialog(); }}, 4f);
             return;
         }
-
+         SoundManager.getInstance().play(SoundManager.SoundEffect.PAUSA);
         mostrarDialog("Creando tu cuenta...");
 
         new Thread(() -> {
@@ -194,6 +198,7 @@ public class RegistroScreen implements Screen {
                 
                 Gdx.app.postRunnable(() -> {
                     if (exito) {
+                        SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
                         mostrarDialog("¡Usuario registrado con éxito!");
                         Timer.schedule(new Timer.Task() {
                             @Override
@@ -204,6 +209,7 @@ public class RegistroScreen implements Screen {
                             }
                         }, 2f);
                     } else {
+                        SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
                         mostrarDialog("El nombre de usuario ya existe.");
                         Timer.schedule(new Timer.Task() {
                             @Override
@@ -215,6 +221,7 @@ public class RegistroScreen implements Screen {
                 });
             } catch (IOException e) {
                 Gdx.app.postRunnable(() -> {
+                    SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
                     mostrarDialog("Error de disco al guardar el usuario.");
                     Timer.schedule(new Timer.Task() { @Override public void run() { ocultarDialog(); }}, 4f);
                 });

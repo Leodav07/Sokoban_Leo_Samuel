@@ -22,12 +22,14 @@ public class SoundManager implements Disposable {
     private final Map<SoundEffect, Sound> soundCache;
     private Music currentMusic; // NUEVO: Para la pista de música actual
 
-    private float soundVolume = 0.5f; // MODIFICADO: Nombre de variable más claro
+    private float soundVolume = 1f; // MODIFICADO: Nombre de variable más claro
     private float musicVolume = 0.5f; // NUEVO: Volumen separado para la música
 
     // --- Enum para identificar los sonidos ---
     public enum SoundEffect {
         BOSS_TERMINADO,
+        GUARDADO,
+        NIVEL_TEMA,
         // MENU_TEMA se movió a su propio Enum de música
         ERROR_MENU,
         MOVER_BLOQUE,
@@ -61,6 +63,7 @@ public class SoundManager implements Disposable {
         // Carga de Sonidos (Sound)
         assetManager.load("sonidos/bossTerminado.wav", Sound.class);
         assetManager.load("sonidos/errorMenu.wav", Sound.class);
+         assetManager.load("sonidos/guardado.wav", Sound.class);
         assetManager.load("sonidos/moverBloque.wav", Sound.class);
         assetManager.load("sonidos/nivelCompletado.wav", Sound.class);
         assetManager.load("sonidos/pausa.wav", Sound.class);
@@ -84,6 +87,7 @@ public class SoundManager implements Disposable {
         // Solo guardamos en caché los efectos de sonido (Sound)
         soundCache.put(SoundEffect.BOSS_TERMINADO, assetManager.get("sonidos/bossTerminado.wav", Sound.class));
         soundCache.put(SoundEffect.ERROR_MENU, assetManager.get("sonidos/errorMenu.wav", Sound.class));
+        soundCache.put(SoundEffect.GUARDADO, assetManager.get("sonidos/guardado.wav", Sound.class));
         soundCache.put(SoundEffect.MOVER_BLOQUE, assetManager.get("sonidos/moverBloque.wav", Sound.class));
         soundCache.put(SoundEffect.NIVEL_COMPLETADO, assetManager.get("sonidos/nivelCompletado.wav", Sound.class));
         soundCache.put(SoundEffect.PAUSA, assetManager.get("sonidos/pausa.wav", Sound.class));

@@ -22,7 +22,9 @@ import com.sokoban.juego.logica.Pausa.GestorDePausa;
 import com.sokoban.juego.logica.Terreno;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
 import com.sokoban.juego.logica.Pausa.MenuPausaListener;
+import com.sokoban.juego.logica.SoundManager;
 import com.sokoban.juego.logica.accounts.ProgresoPorNivel;
+import com.sokoban.juego.niveles.NivelSieteScreen;
 
 public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener {
 
@@ -88,6 +90,8 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         gestorProgreso = GestorProgreso.getInstancia();
         gestorPausa = new GestorDePausa();
         gestorPausa.setMenuPausaListener(this);
+        
+      //  SoundManager.getInstance().playMusic(SoundManager.MusicTrack.NIVEL_TEMA, true);
     }
 
     public void setMapaListener(MapaBaseListener listener) {
@@ -266,6 +270,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     }
 
    protected void onNivelCompletadoInterno() {
+    SoundManager.getInstance().stopMusic();
     nivelCompletado = true;
     mostrandoResultados = true;
     tiempoMostrandoResultados = System.currentTimeMillis();
@@ -326,7 +331,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     private void finalizarNivel() {
       if(mapaListener!=null){
-          mapaListener.onNivelFinalizado();
+         mapaListener.onNivelFinalizado();
       }
     }
 
@@ -335,6 +340,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
 
     @Override
     public void onContinuar() {
+        SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
         gestorPausa.reanudar();
     }
 
@@ -415,10 +421,11 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         // Dibujar resultado del nivel si está completado
         if (mostrandoResultados && gameUI != null) {
             // Primero terminar el batch actual
-            batch.end();
+         
             // Mostrar resultado usando el stage interno
             gameUI.mostrarResultadoNivel(batch);
             // Reiniciar batch para continuar
+            batch.end();
             batch.begin();
         }
 

@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorDatosPerfil;
 import com.sokoban.juego.logica.Partida;
+import com.sokoban.juego.logica.SoundManager;
 import java.util.List;
 
 public class HistorialPartidasScreen implements Screen {
@@ -88,6 +89,7 @@ public class HistorialPartidasScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (paginaActual > 0) {
                     paginaActual--;
+                    SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                     actualizarTablaHistorial();
                 }
             }
@@ -98,6 +100,7 @@ public class HistorialPartidasScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 if ((paginaActual + 1) * PARTIDAS_POR_PAGINA < historial.size()) {
                     paginaActual++;
+                       SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                     actualizarTablaHistorial();
                 }
             }
@@ -110,6 +113,7 @@ public class HistorialPartidasScreen implements Screen {
         regresarBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 game.setScreen(new MiPerfilScreen(game));
                 dispose();
             }

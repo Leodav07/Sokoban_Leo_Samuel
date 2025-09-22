@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorConfiguracion;
 import com.sokoban.juego.logica.GestorUsuarios;
+import com.sokoban.juego.logica.SoundManager;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -141,13 +142,16 @@ public class ConfiguracionScreen implements Screen {
         guardarButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                  SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 handleGuardar();
+                
             }
         });
 
         volverButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                   SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 game.setScreen(new CortinaTransicion(game, ConfiguracionScreen.this, new MenuScreen(game)));
             }
         });
@@ -213,9 +217,11 @@ public class ConfiguracionScreen implements Screen {
                 game.setVolumen(volumenSlider.getValue());
                 
                 Gdx.app.postRunnable(() -> mostrarDialogoEstilizado("¡Éxito!", "¡Cambios guardados correctamente!"));
+                 SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
 
             } catch (IOException e) {
                 Gdx.app.postRunnable(() -> mostrarDialogoEstilizado("Error", "No se pudieron guardar los cambios."));
+                  SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
             }
         }).start();
     }
