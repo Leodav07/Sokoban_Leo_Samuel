@@ -125,9 +125,9 @@ public class RankingScreen implements Screen {
         rankingTable.top();
         rankingTable.defaults().pad(4);
 
-        rankingTable.add(new Label("#", skin, "subtitle-font")).width(50);
-        rankingTable.add(new Label("Usuario", skin, "subtitle-font")).expandX().left();
-        rankingTable.add(new Label("Puntuacion", skin, "subtitle-font")).width(150).right().row();
+        rankingTable.add(new Label("#", skin, "subtitle")).width(50);
+        rankingTable.add(new Label("Usuario", skin, "subtitle")).expandX().left();
+        rankingTable.add(new Label("Puntuacion", skin, "subtitle")).width(150).right().row();
         rankingTable.add("").height(2).colspan(3).growX().row();
 
         if (ranking.isEmpty()) {
