@@ -49,7 +49,7 @@ public class MiPerfilScreen implements Screen {
         try {
                TextureAtlas atlas = new TextureAtlas("mario.atlas");
             skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
-            backgroundTexture = new Texture("menu/fondo.png");
+            backgroundTexture = new Texture("menu/fondoTabla.png");
             backgroundBatch = new SpriteBatch();
             backgroundCamera = new OrthographicCamera();
             backgroundViewport = new FitViewport(384, 224, backgroundCamera);
@@ -74,7 +74,7 @@ public class MiPerfilScreen implements Screen {
         //  Título Principal 
         Label titleLabel = new Label("MI PERFIL", skin, "title");
         titleLabel.setFontScale(0.3f);
-        root.add(titleLabel).padTop(25).padBottom(10).row();
+        root.add(titleLabel).padTop(30).padBottom(10).row();
 
         // Tabla de Información Principal
         Table mainInfoTable = new Table();
@@ -85,28 +85,28 @@ public class MiPerfilScreen implements Screen {
         Table personalDataTable = new Table();
         personalDataTable.left(); 
         
-        Label userLabel = new Label("Usuario:", skin, "subtitle");
+        Label userLabel = new Label("Usuario:", skin);
         userLabel.setFontScale(0.5f);
-        Label userData = new Label(GestorUsuarios.usuarioActual.getUsername(), skin, "default");
+        Label userData = new Label(GestorUsuarios.usuarioActual.getUsername(), skin);
         userData.setFontScale(0.5f);
         personalDataTable.add(userLabel).padRight(10);
         personalDataTable.add(userData).left().row();
         
-        Label nameLabel = new Label("Nombre:", skin, "subtitle");
+        Label nameLabel = new Label("Nombre:", skin);
         nameLabel.setFontScale(0.5f);
         Label nameData = new Label(GestorUsuarios.usuarioActual.getNombreCompleto(), skin, "default");
         nameData.setFontScale(0.5f);
         personalDataTable.add(nameLabel).padRight(10).padTop(4);
         personalDataTable.add(nameData).left().padTop(4).row();
 
-        Label regLabel = new Label("Registro:", skin, "subtitle");
+        Label regLabel = new Label("Registro:", skin);
         regLabel.setFontScale(0.5f);
         Label regData = new Label(dateFormat.format(GestorUsuarios.usuarioActual.getFechaRegistro().getTime()), skin, "default");
         regData.setFontScale(0.5f);
         personalDataTable.add(regLabel).padRight(10).padTop(4);
         personalDataTable.add(regData).left().padTop(4).row();
         
-        Label sessionLabel = new Label("Ultima Sesion:", skin, "subtitle");
+        Label sessionLabel = new Label("Ultima Sesion:", skin);
         sessionLabel.setFontScale(0.5f);
         Label sessionData = new Label(datosPerfil.ultimaSesion == 0 ? "Nunca" : dateFormat.format(new Date(datosPerfil.ultimaSesion)), skin, "default");
         sessionData.setFontScale(0.5f);
@@ -153,19 +153,19 @@ public class MiPerfilScreen implements Screen {
 
         //  Tabla de Botones 
         Table buttonTable = new Table();
-        TextButton cambiarAvatarBtn = new TextButton("Cambiar Avatar", skin);
-        TextButton historialBtn = new TextButton("Historial", skin);
-        TextButton regresarBtn = new TextButton("Regresar", skin);
+        TextButton cambiarAvatarBtn = new TextButton("Cambiar Avatar", skin, "subtitle");
+        TextButton historialBtn = new TextButton("Historial", skin, "subtitle");
+        TextButton regresarBtn = new TextButton("Regresar", skin, "subtitle");
 
         cambiarAvatarBtn.getLabel().setFontScale(0.3f);
         historialBtn.getLabel().setFontScale(0.3f);
         regresarBtn.getLabel().setFontScale(0.3f);
 
-        buttonTable.add(cambiarAvatarBtn).width(160).height(40).pad(5);
-        buttonTable.add(historialBtn).width(160).height(40).pad(5);
+        buttonTable.add(cambiarAvatarBtn).width(160).height(40).pad(15);
+        buttonTable.add(historialBtn).width(160).height(40).pad(15);
         
         root.add(buttonTable).row();
-        root.add(regresarBtn).width(160).height(40).padTop(10);
+        root.add(regresarBtn).width(160).height(40).padTop(8);
 
         cambiarAvatarBtn.addListener(new ChangeListener() {
             @Override
