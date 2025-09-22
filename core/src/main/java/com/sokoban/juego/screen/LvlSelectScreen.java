@@ -38,6 +38,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Nivel;
+import com.sokoban.juego.logica.SoundManager;
 import com.sokoban.juego.logica.accounts.GestorProgreso;
 import com.sokoban.juego.niveles.NivelCincoScreen;
 import com.sokoban.juego.niveles.NivelDosScreen;
@@ -138,7 +139,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
     }
 
     private void inicializar() {
-
+        SoundManager.getInstance().stopMusic();
         gestorProgreso = GestorProgreso.getInstancia();
 
         dialogFont = new BitmapFont();

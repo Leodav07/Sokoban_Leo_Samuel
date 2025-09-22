@@ -6,6 +6,12 @@
     "subtitle-font": {
       "file": "skin/mario_font_subtitle.fnt"
     },
+     "lvl-font": {
+      "file": "skin/mario_font_lvl.fnt"
+    },
+    "lvl-title-font": {
+      "file": "skin/mario_font_lvl_title.fnt"
+    },
     "title-font": {
       "file": "skin/mario_font_title.fnt"
     }
@@ -69,6 +75,15 @@
       "font": "title-font",
       "fontColor": "white"
     },
+     "lvl": {
+      "font": "lvl-font",
+      "fontColor": "white"
+    },
+    "lvltitle": {
+      "font": "lvl-title-font",
+      "fontColor": "white"
+    },
+
     "subtitle": {
       "font": "subtitle-font",
       "fontColor": "light-blue"
@@ -146,6 +161,11 @@
   "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
     "default": {
       "titleFont": "subtitle-font",
+      "titleFontColor": "white",
+      "background": "dialog_bg"
+    },
+      "lvltitle": {
+      "titleFont": "lvl-title-font",
       "titleFontColor": "white",
       "background": "dialog_bg"
     }

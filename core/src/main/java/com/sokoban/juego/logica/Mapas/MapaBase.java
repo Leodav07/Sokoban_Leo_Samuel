@@ -407,13 +407,19 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             TextureRegion frameJugador = jugador.getTextureRegionActual();
             batch.draw(frameJugador, jugadorScreenX, jugadorScreenY, TILE, TILE);
         }
-
+        
         if (gameUI != null && !mostrandoResultados) {
             gameUI.dibujar(batch, GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT, gestorPausa.getTiempoTotalPausado());
         }
 
+        // Dibujar resultado del nivel si está completado
         if (mostrandoResultados && gameUI != null) {
+            // Primero terminar el batch actual
+            batch.end();
+            // Mostrar resultado usando el stage interno
             gameUI.mostrarResultadoNivel(batch);
+            // Reiniciar batch para continuar
+            batch.begin();
         }
 
         if (gestorPausa.estaPausado()) {
@@ -441,6 +447,12 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     public GestorDePausa getGestorPausa() {
         return gestorPausa;
     }
+    
+    public void resize(int width, int height) {
+    if (gameUI != null) {
+        gameUI.resize(width, height);
+    }
+}
 
     public void dispose() {
         if (motorMovimiento != null) {
