@@ -168,7 +168,7 @@ public class MiPerfilScreen implements Screen {
 
         cambiarAvatarBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                game.setScreen(new CortinaTransicion(game, MiPerfilScreen.this, new AvatarSeleccionScreen(game)));
                
             }
@@ -176,7 +176,7 @@ public class MiPerfilScreen implements Screen {
         
         historialBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                game.setScreen(new CortinaTransicion(game, MiPerfilScreen.this, new HistorialPartidasScreen(game)));
                 
             }
@@ -184,7 +184,7 @@ public class MiPerfilScreen implements Screen {
 
         regresarBtn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 game.setScreen(new CortinaTransicion(game, MiPerfilScreen.this, new MenuScreen(game)));
             }
         });

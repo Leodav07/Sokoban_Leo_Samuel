@@ -38,7 +38,7 @@ public class MapaDos extends MapaBase {
 
     public MapaDos(int filas, int columnas, Texture muroImg, Texture cajaImg,
             Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo, Texture Fondo) {
-        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, cajaObjetivo, Fondo, 1); // Nivel ID = 1
+        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, cajaObjetivo, Fondo, 2); // Nivel ID = 1
     }
 
     @Override

@@ -41,7 +41,7 @@ public class MapaCuatro extends MapaBase {
 
     public MapaCuatro(int filas, int columnas, Texture muroImg, Texture cajaImg,
             Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo, Texture Fondo) {
-        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, cajaObjetivo, Fondo, 1); // Nivel ID = 1
+        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg, cajaObjetivo, Fondo, 4); // Nivel ID = 1
     }
 
     @Override
