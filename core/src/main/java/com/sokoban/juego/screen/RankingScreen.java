@@ -71,7 +71,7 @@ public class RankingScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        Label title = new Label("RANKING GLOBAL", skin, "title");
+        Label title = new Label(game.bundle.get("ran.rankingglobal"), skin, "title");
         title.setFontScale(0.8f);
         root.add(title).padBottom(10).row();
 
@@ -79,8 +79,8 @@ public class RankingScreen implements Screen {
         root.add(rankingTable).expand().fillX().padLeft(50).padRight(50).row();
 
         Table navTable = new Table();
-        TextButton anteriorBtn = new TextButton("< Anterior", skin);
-        TextButton siguienteBtn = new TextButton("Siguiente >", skin);
+        TextButton anteriorBtn = new TextButton("<"+ game.bundle.get("ran.anterior"), skin);
+        TextButton siguienteBtn = new TextButton(game.bundle.get("ran.siguiente")+ ">", skin);
         paginacionLabel = new Label("", skin);
         
         navTable.add(anteriorBtn).pad(10);
@@ -111,7 +111,7 @@ public class RankingScreen implements Screen {
         
         root.add(navTable).pad(5).row();
 
-        TextButton regresarBtn = new TextButton("Regresar", skin);
+        TextButton regresarBtn = new TextButton(game.bundle.get("ran.regresar"), skin);
         regresarBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -128,12 +128,12 @@ public class RankingScreen implements Screen {
         rankingTable.defaults().pad(4);
 
         rankingTable.add(new Label("#", skin, "subtitle")).width(50);
-        rankingTable.add(new Label("Usuario", skin, "subtitle")).expandX().left();
-        rankingTable.add(new Label("Puntuacion", skin, "subtitle")).width(150).right().row();
+        rankingTable.add(new Label(game.bundle.get("ran.usuario"), skin, "subtitle")).expandX().left();
+        rankingTable.add(new Label(game.bundle.get("ran.puntuacion"), skin, "subtitle")).width(150).right().row();
         rankingTable.add("").height(2).colspan(3).growX().row();
 
         if (ranking.isEmpty()) {
-            rankingTable.add(new Label("Aun no hay puntuaciones.", skin)).colspan(3).pad(20);
+            rankingTable.add(new Label(game.bundle.get("ran.aunnohaypuntuacion"), skin)).colspan(3).pad(20);
         } else {
             int inicio = paginaActual * ENTRADAS_POR_PAGINA;
             int fin = Math.min(inicio + ENTRADAS_POR_PAGINA, ranking.size());
@@ -157,7 +157,7 @@ public class RankingScreen implements Screen {
         
         int totalPaginas = (int) Math.ceil((double) ranking.size() / ENTRADAS_POR_PAGINA);
         if (totalPaginas == 0) totalPaginas = 1;
-        paginacionLabel.setText("Pag " + (paginaActual + 1) + " de " + totalPaginas);
+        paginacionLabel.setText(game.bundle.get("ran.pag") + (paginaActual + 1) + game.bundle.get("ran.de") + totalPaginas);
     }
 
     @Override

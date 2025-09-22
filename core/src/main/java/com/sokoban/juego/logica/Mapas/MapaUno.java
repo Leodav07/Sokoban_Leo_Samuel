@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.sokoban.juego.Main;
 import java.awt.Image;
 
 /**
@@ -36,8 +37,8 @@ public class MapaUno extends MapaBase {
     private static final long TIEMPO_OBJETIVO = 180000; // 3 minutos en milisegundos
     
     public MapaUno(int filas, int columnas, Texture muroImg, Texture cajaImg, 
-                  Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo, Texture fondo) {
-        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg,cajaObjetivo, fondo, 1); // Nivel ID = 1
+                  Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaObjetivo, Texture fondo, Main game) {
+        super(filas, columnas, muroImg, cajaImg, metaImg, sueloImg, jugadorImg,cajaObjetivo, fondo, 1, game); // Nivel ID = 1
     }
     
     @Override

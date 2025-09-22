@@ -103,7 +103,7 @@ public class AvatarSeleccionScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        Label titulo = new Label("SELECCIONA UN AVATAR", skin, "title");
+        Label titulo = new Label(game.bundle.get("avatar.seleccionaunavatar"), skin, "title");
         titulo.setFontScale(0.5f);
         root.add(titulo).padBottom(20).row();
         
@@ -138,7 +138,7 @@ public class AvatarSeleccionScreen implements Screen {
 
         root.add(avatarGrid).expand().row();
         
-        TextButton regresarBtn = new TextButton("Regresar", skin);
+        TextButton regresarBtn = new TextButton(game.bundle.get("avatar.regresar"), skin);
         regresarBtn.getLabel().setFontScale(0.7f);
         regresarBtn.addListener(new ChangeListener() {
             @Override
@@ -156,8 +156,8 @@ public class AvatarSeleccionScreen implements Screen {
         tablaConfirmacion = new Table();
         tablaConfirmacion.setFillParent(true);
         
-        TextButton siButton = new TextButton("Si", skin);
-        TextButton noButton = new TextButton("No", skin);
+        TextButton siButton = new TextButton(game.bundle.get("avatar.si"), skin);
+        TextButton noButton = new TextButton(game.bundle.get("avatar.no"), skin);
         
         // Aplicar efectos hover como en otras pantallas
         addButtonEffects(siButton, Color.GREEN);
@@ -189,7 +189,7 @@ public class AvatarSeleccionScreen implements Screen {
             }
         });
 
-        mostrarDialog("¿Quieres seleccionar este avatar?");
+        mostrarDialog(game.bundle.get("avatar.quiereseleccionar"));
     }
     
     // Método para efectos de botones (copiado de MenuScreen)

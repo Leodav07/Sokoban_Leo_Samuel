@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.sokoban.juego.Main;
 
 public class MenuPausa {
 
@@ -16,6 +17,7 @@ public class MenuPausa {
     private BitmapFont titleFont;
     private ShapeRenderer shapeRenderer;
     private MenuPausaListener listener;
+    public static Main game;
 
     private int opcionSeleccionada = 0;
     private boolean visible = false;
@@ -31,8 +33,9 @@ public class MenuPausa {
     private final int PANEL_HEIGHT = 300;
     private final int OPCION_HEIGHT = 40;
 
-    public MenuPausa() {
+    public MenuPausa(Main game) {
         shapeRenderer = new ShapeRenderer();
+        this.game = game;
         inicializarFuentes();
     }
 
@@ -78,6 +81,9 @@ public class MenuPausa {
         visible = false;
     }
 
+    public Main getGame(){
+        return game;
+    }
     public boolean isVisible() {
         return visible;
     }
@@ -187,7 +193,7 @@ public class MenuPausa {
     private void dibujarTexto(SpriteBatch batch, int panelX, int panelY) {
         titleFont.setColor(COLOR_TITULO);
         float titleX = panelX + (PANEL_WIDTH - 120) / 2; // Aproximadamente 120px de ancho
-        titleFont.draw(batch, "PAUSA", titleX, panelY + PANEL_HEIGHT - 50);
+        titleFont.draw(batch, game.bundle.get("enu.pausa"), titleX, panelY + PANEL_HEIGHT - 50);
 
         int inicioY = panelY + PANEL_HEIGHT - 120;
 
@@ -209,7 +215,7 @@ public class MenuPausa {
 
         font.setColor(Color.LIGHT_GRAY);
         font.getData().setScale(0.8f);
-        String instrucciones = "↑↓ Navegar | ENTER Seleccionar | ESC Continuar";
+        String instrucciones = game.bundle.get("enu.instrucciones");
         font.draw(batch, instrucciones, panelX + 20, panelY + 30);
         font.getData().setScale(1.0f);
 

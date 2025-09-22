@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.sokoban.juego.logica.Pausa;
+import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Pausa.EstadoJuego;
 
 /**
@@ -13,13 +14,15 @@ public class GestorDePausa {
     private EstadoJuego estadoAnterior;
     private EstadoJuego estadoActual;
     private MenuPausa menuPausa;
+    private Main game;
     private long tiempoPausaInicio;
     private long tiempoTotalPausado;
     
-    public GestorDePausa() {
+    public GestorDePausa(Main game) {
+        this.game = game;
         this.estadoActual = EstadoJuego.JUGANDO;
         this.estadoAnterior = EstadoJuego.JUGANDO;
-        this.menuPausa = new MenuPausa();
+        this.menuPausa = new MenuPausa(game);
         this.tiempoTotalPausado = 0;
     }
     

@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.sokoban.juego.Main;
 import com.sokoban.juego.niveles.ConfigNiveles;
 
 public class JuegoUI {
@@ -18,7 +19,7 @@ public class JuegoUI {
     private Stage uiStage;
     private Skin skin;
     private ShapeRenderer shapeRenderer;
-    
+    private Main game;
     // UI Elements
     private Label nivelLabel;
     private Label movimientosLabel;
@@ -41,8 +42,9 @@ public class JuegoUI {
     private final Color COLOR_FONDO_UI = new Color(0.1f, 0.1f, 0.1f, 0.9f);
     private final int PANEL_HEIGHT = 120;
 
-    public JuegoUI() {
+    public JuegoUI(Main game) {
         shapeRenderer = new ShapeRenderer();
+        this.game = game;
         inicializarUI();
     }
 
@@ -112,8 +114,8 @@ public class JuegoUI {
         this.tiempoInicio = System.currentTimeMillis();
         
         // Actualizar labels
-        nivelLabel.setText("Nivel " + nivelActual + ": " + ConfigNiveles.getNombreNivel(nivelActual));
-        instruccionesLabel.setText("ESC/P: Pausa | R: Reiniciar | BACKSPACE: Deshacer");
+        nivelLabel.setText(game.bundle.get("juego.nivel") + nivelActual + ": " + ConfigNiveles.getNombreNivel(nivelActual));
+        instruccionesLabel.setText(game.bundle.get("juego.funciones"));
         
         actualizarInformacion(0);
         
@@ -149,10 +151,10 @@ public class JuegoUI {
     }
 
     private void actualizarInformacion(long tiempoPausado) {
-        movimientosLabel.setText("Movimientos: " + movimientosRealizados + " (Par: " + movimientosPar + ")");
+        movimientosLabel.setText(game.bundle.get("juego.movimiento") + movimientosRealizados + game.bundle.get("juego.objetivo")+ movimientosPar + ")");
         
         long tiempoTranscurrido = System.currentTimeMillis() - tiempoInicio - tiempoPausado;
-        tiempoLabel.setText("Tiempo: " + formatearTiempo(tiempoTranscurrido));
+        tiempoLabel.setText(game.bundle.get("juego.tiempo") + formatearTiempo(tiempoTranscurrido));
     }
 
     public void setResultadoFinal(int puntaje, int movimientos, long tiempo) {
@@ -199,7 +201,7 @@ public class JuegoUI {
     }
 
     private void crearDialogoResultado() {
-        resultDialog = new Dialog("¡NIVEL COMPLETADO!", skin) {
+        resultDialog = new Dialog(game.bundle.get("juego.nivelcompletado"), skin) {
             @Override
             protected void result(Object object) {
                 // El resultado se maneja en MapaBase
@@ -221,16 +223,16 @@ public class JuegoUI {
         content.row();
         
         // Primera fila de información
-        content.add(new Label("Movimientos:", skin, "lvl")).left().padRight(15);
-        content.add(new Label(movimientosFinal + " (Par: " + movimientosPar + ")", skin, "default")).left();
+        content.add(new Label(game.bundle.get("juego.movimiento"), skin, "lvl")).left().padRight(15);
+        content.add(new Label(movimientosFinal +game.bundle.get("juego.objetivo")+ movimientosPar + ")", skin, "default")).left();
         content.row();
         
-        content.add(new Label("Tiempo:", skin, "lvl")).left().padRight(15).padTop(8);
+        content.add(new Label(game.bundle.get("juego.tiempo"), skin, "lvl")).left().padRight(15).padTop(8);
         content.add(new Label(formatearTiempo(tiempoFinal), skin, "default")).left().padTop(8);
         content.row();
         
         // Segunda fila - Puntaje centrado
-        content.add(new Label("Puntaje Final:", skin, "lvl")).colspan(2).center().padTop(15);
+        content.add(new Label(game.bundle.get("juego.puntajefinal"), skin, "lvl")).colspan(2).center().padTop(15);
         content.row();
         Label puntajeLabel = new Label(String.valueOf(puntajeFinal), skin, "lvl");
         puntajeLabel.setColor(Color.YELLOW);
@@ -239,7 +241,7 @@ public class JuegoUI {
         content.row();
         
         resultDialog.getContentTable().add(content).pad(20);
-        resultDialog.button("CONTINUAR", true);
+        resultDialog.button(game.bundle.get("juego.continuar"), true);
         
         // Configurar tamaño y posición - hacer el diálogo un poco más alto
         resultDialog.setSize(400, 380);

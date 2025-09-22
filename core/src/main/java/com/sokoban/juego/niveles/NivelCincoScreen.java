@@ -65,7 +65,7 @@ public class NivelCincoScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaCinco(19, 27, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
+        mapa = new MapaCinco(19, 27, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo, game);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();

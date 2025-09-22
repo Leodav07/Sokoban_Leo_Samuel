@@ -64,7 +64,7 @@ public class NivelCuatroScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaCuatro(15, 17, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
+        mapa = new MapaCuatro(15, 17, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo, game);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();

@@ -63,7 +63,7 @@ public class HistorialPartidasScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        Label titleLabel = new Label("HISTORIAL DE PARTIDAS", skin, "title");
+        Label titleLabel = new Label(game.bundle.get("historial.historialdepartidas"), skin, "title");
         titleLabel.setFontScale(0.3f);
         root.add(titleLabel).padBottom(10).row();
 
@@ -71,9 +71,9 @@ public class HistorialPartidasScreen implements Screen {
         root.add(historialTable).expand().fill().row();
 
         Table navTable = new Table();
-        TextButton anteriorBtn = new TextButton("< Anterior", skin);
+        TextButton anteriorBtn = new TextButton("<"+ game.bundle.get("historial.anterior"), skin);
         anteriorBtn.getLabel().setFontScale(0.5f);
-        TextButton siguienteBtn = new TextButton("Siguiente >", skin);
+        TextButton siguienteBtn = new TextButton(game.bundle.get("historial.siguiente") +">", skin);
         siguienteBtn.getLabel().setFontScale(0.5f);
         paginacionLabel = new Label("", skin);
 
@@ -105,7 +105,7 @@ public class HistorialPartidasScreen implements Screen {
 
         root.add(navTable).pad(5).row();
 
-        TextButton regresarBtn = new TextButton("Regresar", skin);
+        TextButton regresarBtn = new TextButton(game.bundle.get("historial.regresar"), skin);
         regresarBtn.getLabel().setFontScale(0.5f);
         regresarBtn.addListener(new ChangeListener() {
             @Override
@@ -122,34 +122,34 @@ public class HistorialPartidasScreen implements Screen {
         historialTable.top();
         historialTable.defaults().left().pad(5);
 
-        Label nivelLabel = new Label("Nivel", skin, "subtitle");
+        Label nivelLabel = new Label(game.bundle.get("historial.nivel"), skin, "subtitle");
         nivelLabel.setFontScale(0.5f);
         historialTable.add(nivelLabel).width(60);
         
-         Label estadoLabel = new Label("Estado", skin, "subtitle");
+         Label estadoLabel = new Label(game.bundle.get("historial.estado"), skin, "subtitle");
         estadoLabel.setFontScale(0.5f);
         historialTable.add(estadoLabel).expandX();
 
-        Label puntajeLabel = new Label("Puntaje", skin, "subtitle");
+        Label puntajeLabel = new Label(game.bundle.get("historial.puntaje"), skin, "subtitle");
         puntajeLabel.setFontScale(0.5f);
         historialTable.add(puntajeLabel).expandX();
 
-        Label movimientoLabel = new Label("Movimiento", skin, "subtitle");
+        Label movimientoLabel = new Label(game.bundle.get("historial.movimiento"), skin, "subtitle");
         movimientoLabel.setFontScale(0.5f);
         historialTable.add(movimientoLabel).width(80);
 
-        Label tiempoLabel = new Label("Tiempo", skin, "subtitle");
+        Label tiempoLabel = new Label(game.bundle.get("historial.tiempo"), skin, "subtitle");
         tiempoLabel.setFontScale(0.5f);
         historialTable.add(tiempoLabel).width(100);
 
-        Label fechaLabel = new Label("Fecha", skin, "subtitle");
+        Label fechaLabel = new Label(game.bundle.get("historial.fecha"), skin, "subtitle");
         fechaLabel.setFontScale(0.5f);
         historialTable.add(fechaLabel).expandX().row();
 
         historialTable.add("").height(2).colspan(6).growX().row();
 
         if (historial.isEmpty()) {
-            Label emptyLabel = new Label("Aun no has jugado ninguna partida.", skin);
+            Label emptyLabel = new Label(game.bundle.get("historial.nopartidajugada"), skin);
             emptyLabel.setFontScale(0.5f);
             historialTable.add(emptyLabel).colspan(6).pad(20);
 
@@ -172,7 +172,7 @@ public class HistorialPartidasScreen implements Screen {
         if (totalPaginas == 0) {
             totalPaginas = 1;
         }
-        paginacionLabel.setText("Pag " + (paginaActual + 1) + " de " + totalPaginas);
+        paginacionLabel.setText(game.bundle.get("historial.pag") + (paginaActual + 1) + game.bundle.get("historial.de") + totalPaginas);
         paginacionLabel.setFontScale(0.4f);
     }
 

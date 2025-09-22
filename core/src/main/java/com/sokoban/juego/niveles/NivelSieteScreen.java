@@ -67,7 +67,7 @@ public class NivelSieteScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaSiete(16, 22, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
+        mapa = new MapaSiete(16, 22, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo, game);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();
