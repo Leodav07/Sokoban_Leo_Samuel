@@ -220,7 +220,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
 
         // <<-- CORRECCIÓN: Ahora usa la fuente correcta del skin -->>
         String instructions = "ENTER: Seleccionar | BACKSPACE: Volver";
-        font.getData().setScale(0.5f); // Aplicamos la escala deseada
+        font.getData().setScale(0.1f); // Aplicamos la escala deseada
         font.draw(batch, instructions, 5, 15);
         font.getData().setScale(1.0f); // Restauramos la escala por si se usa en otro lado
 
