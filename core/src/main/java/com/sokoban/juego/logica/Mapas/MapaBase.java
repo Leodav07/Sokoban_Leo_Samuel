@@ -398,42 +398,22 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         }
 
         if (jugador != null) {
-            float jugadorScreenX = offsetX + jugador.getX() * TILE;
-            float jugadorScreenY = offsetY + (filas - 1 - jugador.getY()) * TILE;
+        // Ahora simplemente le pedimos al jugador que se dibuje a sí mismo.
+        // Él ya sabe cómo calcular su posición suavemente.
+        jugador.dibujar(batch, TILE, (int)offsetX, (int)offsetY, filas);
+    }
 
-            if (jugador.estaMoviendose()) {
-                float progreso = (jugador.getPosX() % TILE) / TILE;
+    if (gameUI != null && !mostrandoResultados) {
+        gameUI.dibujar(batch, GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT, gestorPausa.getTiempoTotalPausado());
+    }
 
-                float deltaX = (jugador.getPosX() - jugador.getX() * TILE);
-                float deltaY = (jugador.getPosY() - jugador.getY() * TILE);
+    if (mostrandoResultados && gameUI != null) {
+        gameUI.mostrarResultadoNivel(batch);
+    }
 
-                jugadorScreenX += deltaX;
-                jugadorScreenY -= deltaY;
-            }
-
-            TextureRegion frameJugador = jugador.getTextureRegionActual();
-            batch.draw(frameJugador, jugadorScreenX, jugadorScreenY, TILE, TILE);
-        }
-        
-        if (gameUI != null && !mostrandoResultados) {
-            gameUI.dibujar(batch, GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT, gestorPausa.getTiempoTotalPausado());
-        }
-
-        // Dibujar resultado del nivel si está completado
-        if (mostrandoResultados && gameUI != null) {
-            // Primero terminar el batch actual
-         
-            // Mostrar resultado usando el stage interno
-            gameUI.mostrarResultadoNivel(batch);
-            // Reiniciar batch para continuar
-            batch.end();
-            batch.begin();
-        }
-
-        if (gestorPausa.estaPausado()) {
-            gestorPausa.getMenuPausa().dibujar(batch);
-            batch.getProjectionMatrix().setToOrtho2D(0, 0, GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
-        }
+    if (gestorPausa.estaPausado()) {
+        gestorPausa.getMenuPausa().dibujar(batch);
+    }
     }
 
     public int getNivelId() {
