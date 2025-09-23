@@ -64,39 +64,45 @@ private static final Pattern VALID_PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-
         return true;
     }
     
-    public boolean loginUsuario(String username, String password) throws IOException {
-        File archivoUsuario = new File(USERS_BASE_DIR + "/" + username, username + ".usr");
+    public String loginUsuario(String username, String password) throws IOException {
+    File archivoUsuario = new File(USERS_BASE_DIR + "/" + username, username + ".usr");
 
-        if (!archivoUsuario.exists()) {
-            System.out.println("Intento de login para usuario no existente: " + username);
-            return false;
-        }
-
-        try (RandomAccessFile raf = new RandomAccessFile(archivoUsuario, "r")) {
-            String usuarioAlmacenado = raf.readUTF();
-            String passwordAlmacenado = raf.readUTF();
-            
-            if (!usuarioAlmacenado.equals(username) || !passwordAlmacenado.equals(password)) {
-                System.out.println("Usuario o contraseña incorrectos.");
-                return false;
-            }
-
-            String nombreCompleto = raf.readUTF();
-            long fechaRegistroMillis = raf.readLong();
-            
-            usuarioActual = new Usuario(usuarioAlmacenado, passwordAlmacenado, nombreCompleto);
-            Calendar fechaRegistro = Calendar.getInstance();
-            fechaRegistro.setTimeInMillis(fechaRegistroMillis);
-            usuarioActual.setFechaRegistro(fechaRegistro);
-
-            System.out.println("Inicio de sesión exitoso para: " + username);
-            
-            GestorProgreso.getInstancia().cargarProgreso();
-            GestorDatosPerfil.getInstancia().guardarUltimoLogin();
-            return true;
-        }
+    if (!archivoUsuario.exists()) {
+        System.out.println("Intento de login para usuario no existente: " + username);
+        return null; 
     }
 
+    try (RandomAccessFile raf = new RandomAccessFile(archivoUsuario, "r")) {
+        String usuarioAlmacenado = raf.readUTF();
+        String passwordAlmacenado = raf.readUTF();
+        
+        if (!usuarioAlmacenado.equals(username) || !passwordAlmacenado.equals(password)) {
+            System.out.println("Usuario o contraseña incorrectos.");
+            return null; 
+        }
+
+        String nombreCompleto = raf.readUTF();
+        long fechaRegistroMillis = raf.readLong();
+        
+        usuarioActual = new Usuario(usuarioAlmacenado, passwordAlmacenado, nombreCompleto);
+        Calendar fechaRegistro = Calendar.getInstance();
+        fechaRegistro.setTimeInMillis(fechaRegistroMillis);
+        usuarioActual.setFechaRegistro(fechaRegistro);
+
+        System.out.println("Inicio de sesión exitoso para: " + username);
+        
+        GestorProgreso.getInstancia().cargarProgreso();
+        GestorDatosPerfil.getInstancia().guardarUltimoLogin();
+
+        Object[] config = GestorConfiguracion.getInstancia().cargarConfiguracion();
+        String idiomaGuardado = (String) config[1];
+        
+        return idiomaGuardado; 
+    }
+}
+
+    
+    
     public String obtenerMensajeDeErrorContraseña(String password) {
         if (password.length() < 8) {
             return "La contraseña debe tener al menos 8 caracteres.";

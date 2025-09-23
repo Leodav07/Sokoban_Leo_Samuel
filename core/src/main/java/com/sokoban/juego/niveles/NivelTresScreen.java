@@ -62,7 +62,7 @@ public class NivelTresScreen implements Screen, MapaBase.MapaBaseListener {
             return;
         }
 
-        mapa = new MapaTres(13, 27, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo);
+        mapa = new MapaTres(13, 27, muro, caja, objetivo, suelo, jugador, cajaObjetivo, fondo, game);
         mapa.setMapaListener(this);
         mapa.cargarMapa();
         mapa.iniciarColisiones();

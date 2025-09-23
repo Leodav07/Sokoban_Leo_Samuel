@@ -87,6 +87,7 @@ public class MenuScreen implements Screen {
 
         addButtonEffects(jugarButton, Color.GREEN);
         addButtonEffects(miPerfilButton, Color.CYAN);
+        addButtonEffects(rankingButton, Color.RED);
         addButtonEffects(salirButton, Color.RED);
 
         jugarButton.addListener(new ChangeListener() {
@@ -178,7 +179,6 @@ public class MenuScreen implements Screen {
     }
 
     private void addAnimations() {
-        // Animación de entrada para los botones principales (con delays escalonados)
         jugarButton.setColor(1, 1, 1, 0);
         jugarButton.setScale(0.8f);
         jugarButton.addAction(Actions.delay(0.2f, Actions.parallel(
@@ -192,6 +192,13 @@ public class MenuScreen implements Screen {
             Actions.fadeIn(0.6f, Interpolation.pow2Out),
             Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
+        
+         rankingButton.setColor(1, 1, 1, 0);
+        rankingButton.setScale(0.8f);
+        rankingButton.addAction(Actions.delay(0.4f, Actions.parallel(
+            Actions.fadeIn(0.6f, Interpolation.pow2Out),
+            Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
+        )));
 
         salirButton.setColor(1, 1, 1, 0);
         salirButton.setScale(0.8f);
@@ -200,19 +207,17 @@ public class MenuScreen implements Screen {
             Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
 
-        // Animación para la barra inferior
         bottomRight.setColor(1, 1, 1, 0);
         bottomRight.addAction(Actions.delay(0.8f, Actions.fadeIn(0.5f, Interpolation.pow2Out)));
 
-        // Animación sutil de flotación para el botón principal
         jugarButton.addAction(Actions.delay(1.2f, Actions.forever(Actions.sequence(
             Actions.moveBy(0, 3f, 2f, Interpolation.sine),
             Actions.moveBy(0, -3f, 2f, Interpolation.sine)
         ))));
 
-        // Animación de pulsación para los botones
         addPulseAnimation(miPerfilButton, 1.5f);
         addPulseAnimation(salirButton, 1.8f);
+        addPulseAnimation(rankingButton, 1.8f);
     }
 
     private void addPulseAnimation(TextButton button, float delay) {
@@ -222,17 +227,7 @@ public class MenuScreen implements Screen {
         ))));
     }
 
-    private void ventanaDialog(String mensaje) {
-        Dialog dialog = new Dialog("Aviso", skin) {
-            @Override
-            protected void result(Object object) {
-                Gdx.app.log("Dialog", "Botón presionado: " + object);
-            }
-        };
-        dialog.text(mensaje);
-        dialog.button("Aceptar", true);
-        dialog.show(stage);
-    }
+    
 
     @Override
     public void render(float delta) {

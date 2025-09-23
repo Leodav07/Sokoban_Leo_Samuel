@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.sokoban.juego.Main;
 
 public class MenuPausa {
 
@@ -40,6 +41,7 @@ public class MenuPausa {
     private float[] efectosBoton;
     private float efectoTitulo = 0f;
     private float particleTime = 0f;
+    public static Main game;
     
     // Colores mejorados
     private final Color COLOR_FONDO = new Color(0, 0, 0, 0.85f);
@@ -55,7 +57,8 @@ public class MenuPausa {
     private final int PANEL_WIDTH = 600;  // Más grande
     private final int PANEL_HEIGHT = 450; // Más grande
 
-    public MenuPausa() {
+    public MenuPausa(Main game) {
+        this.game = game;
          efectosBoton = new float[OpcionPausa.getTotalOpciones()];
         inicializarUI();
        
@@ -91,7 +94,7 @@ public class MenuPausa {
         stage.addActor(menuTable);
 
         // Título con efecto
-        titleLabel = new Label("PAUSA", skin, "title");
+        titleLabel = new Label(game.bundle.get("enu.pausa"), skin, "title");
         titleLabel.setColor(COLOR_TITULO);
         titleLabel.setFontScale(1.5f); // Más grande
 
@@ -121,7 +124,9 @@ public class MenuPausa {
         // Construir la tabla del menú
         construirMenu();
     }
-
+  public static Main getGame(){
+      return game;
+  }
     private void construirMenu() {
         menuTable.clear();
         
@@ -136,7 +141,7 @@ public class MenuPausa {
         }
         
         // Instrucciones
-        Label instrucciones = new Label("↑↓ Navegar | ENTER Seleccionar | ESC Continuar", skin);
+        Label instrucciones = new Label(game.bundle.get("enu.instrucciones"), skin);
         instrucciones.setColor(new Color(0.7f, 0.7f, 0.7f, 1f));
         instrucciones.setFontScale(0.9f);
         menuTable.add(instrucciones).padTop(40).padBottom(30);

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Caja;
 import com.sokoban.juego.logica.Colisiones;
 import com.sokoban.juego.logica.Elemento;
@@ -48,7 +49,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     protected boolean mostrandoResultados = false;
     protected long tiempoMostrandoResultados = 0;
     protected final long DURACION_RESULTADOS = 3000;
-
+    private Main game;
     protected MapaBaseListener mapaListener;
 
     public interface MapaBaseListener {
@@ -68,7 +69,7 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     protected abstract long getTiempoObjetivo();
 
     public MapaBase(int filas, int columnas, Texture muroImg, Texture cajaImg,
-            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaEnObjetivoImg, Texture fondoImg, int nivelId) {
+            Texture metaImg, Texture sueloImg, Texture jugadorImg, Texture cajaEnObjetivoImg, Texture fondoImg, int nivelId, Main game) {
         this.filas = filas;
         this.columnas = columnas;
         this.muroImg = muroImg;
@@ -79,16 +80,16 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         this.nivelId = nivelId;
         this.cajaEnObjetivoImg = cajaEnObjetivoImg;
         this.fondoImg = fondoImg;
-
+        this.game = game;
         int availableHeight = GAME_WORLD_HEIGHT - UI_PANEL_HEIGHT;
         int maxTileWidth = GAME_WORLD_WIDTH / columnas;
         int maxTileHeight = availableHeight / filas;
         this.TILE = Math.min(maxTileWidth, maxTileHeight);
 
         mapa = new Elemento[filas][columnas];
-        gameUI = new JuegoUI();
+        gameUI = new JuegoUI(game);
         gestorProgreso = GestorProgreso.getInstancia();
-        gestorPausa = new GestorDePausa();
+        gestorPausa = new GestorDePausa(game);
         gestorPausa.setMenuPausaListener(this);
         
       //  SoundManager.getInstance().playMusic(SoundManager.MusicTrack.NIVEL_TEMA, true);

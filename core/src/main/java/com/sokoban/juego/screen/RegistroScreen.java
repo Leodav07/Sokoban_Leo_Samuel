@@ -111,19 +111,18 @@ public class RegistroScreen implements Screen {
         titleLabel = new Label("REGISTRO", skin, "title");
         titleLabel.setColor(Color.YELLOW);
 
-        // <<--- CAMBIO: Se inicializan los miembros de la clase, no se declaran de nuevo --->>
         usernameField = new TextField("", skin);
-        usernameField.setMessageText("usuario");
+        usernameField.setMessageText("");
         usernameField.setAlignment(1);
 
         passwordField = new TextField("", skin);
-        passwordField.setMessageText("contrasena");
+        passwordField.setMessageText("");
         passwordField.setPasswordMode(true);
-        passwordField.setPasswordCharacter('●');
+        passwordField.setPasswordCharacter('*');
         passwordField.setAlignment(1);
 
         nombreField = new TextField("", skin);
-        nombreField.setMessageText("nombre completo");
+        nombreField.setMessageText("");
         nombreField.setAlignment(1);
 
         registerButton = new TextButton("REGISTRARSE", skin);

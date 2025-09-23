@@ -48,4 +48,16 @@ public class Main extends Game {
     public float getVolumen(){
         return vol;
     }
+    
+    public void setIdioma(String idioma) {
+    try {
+        Locale locale = new Locale(idioma);
+        bundle = I18NBundle.createBundle(Gdx.files.internal("i18n/messages"), locale);
+        System.out.println("Idioma cambiado a: " + idioma);
+    } catch (Exception e) {
+        Gdx.app.error("Main", "No se pudo cargar el paquete de idioma para: " + idioma + ". Usando default.");
+        bundle = I18NBundle.createBundle(Gdx.files.internal("i18n/messages"));
+    }
+}
+    
 }

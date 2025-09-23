@@ -38,7 +38,6 @@ public class LoginScreen implements Screen {
     private Skin skin;
     private Texture backgroundTexture;
 
-    // Diálogo personalizado
     private SpriteBatch dialogBatch;
     private Texture cuadroTexture;
     private BitmapFont dialogFont;
@@ -48,14 +47,12 @@ public class LoginScreen implements Screen {
     private float dialogAlpha = 0f;
     private float dialogScale = 0.5f;
 
-    // UI Elements
     private Label titleLabel;
     private Table bottomRight;
     private TextField usernameField;
     private TextField passwordField;
     private TextButton loginButton;
 
-    // Viewports
     private final OrthographicCamera backgroundCamera;
     private final FitViewport backgroundViewport;
     private final OrthographicCamera dialogCamera;
@@ -97,14 +94,11 @@ public class LoginScreen implements Screen {
         titleLabel = new Label("LOGIN", skin, "title");
         titleLabel.setColor(Color.YELLOW);
 
-        // <<--- AHORA SOLO LOS INICIALIZAMOS, NO LOS DECLARAMOS DE NUEVO --->>
         usernameField = new TextField("", skin);
-      //  usernameField.setMessageText("usuario");
         usernameField.setAlignment(1);
         usernameField.setScale(usernameField.getScaleX() * 2f);
 
         passwordField = new TextField("", skin);
-      //  passwordField.setMessageText("contrasena");
         passwordField.setPasswordMode(true);
         passwordField.setPasswordCharacter('*');
         passwordField.setAlignment(1);
@@ -115,7 +109,7 @@ public class LoginScreen implements Screen {
 
         loginButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                    SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 handleLogin(usernameField.getText(), passwordField.getText());
             }
@@ -139,7 +133,7 @@ public class LoginScreen implements Screen {
 
         registerButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                    SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 Screen newScreen = new RegistroScreen(game);
                 game.setScreen(new CortinaTransicion(game, LoginScreen.this, newScreen));
@@ -154,25 +148,25 @@ public class LoginScreen implements Screen {
         root.add(bottomRight).expandX().center().padTop(20);
     }
 
-    private void handleLogin(String username, String password) {
-          SoundManager.getInstance().play(SoundManager.SoundEffect.PAUSA);
+      private void handleLogin(String username, String password) {
+        SoundManager.getInstance().play(SoundManager.SoundEffect.PAUSA);
         mostrarDialog("Verificando credenciales...");
 
         new Thread(() -> {
             try {
-                boolean exito = gestor.loginUsuario(username, password);
+                String idiomaCargado = gestor.loginUsuario(username, password);
 
                 Gdx.app.postRunnable(() -> {
-                    if (exito) {
+                    if (idiomaCargado != null) {
+                        game.setIdioma(idiomaCargado);
+                        
                         mostrarDialog("¡Inicio de sesión exitoso!");
                         Timer.schedule(new Timer.Task() {
                             @Override
                             public void run() {
-                                   SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
+                                SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
                                 ocultarDialog();
-                                Screen newScreen = new MenuScreen(game);
-                                game.setScreen(new CortinaTransicion(game, LoginScreen.this, newScreen));
-                                
+                                game.setScreen(new CortinaTransicion(game, LoginScreen.this, new MenuScreen(game)));
                             }
                         }, 2f);
                     } else {
@@ -180,7 +174,7 @@ public class LoginScreen implements Screen {
                         Timer.schedule(new Timer.Task() {
                             @Override
                             public void run() {
-                                   SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
+                                SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
                                 ocultarDialog();
                             }
                         }, 3f);
@@ -190,19 +184,13 @@ public class LoginScreen implements Screen {
                 Gdx.app.postRunnable(() -> {
                     mostrarDialog("Error de disco. Intenta de nuevo.");
                     Timer.schedule(new Timer.Task() {
-                        @Override
-                        public void run() {
-                               SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
-                            ocultarDialog();
-                        }
+                        @Override public void run() { ocultarDialog(); }
                     }, 4f);
                 });
             }
         }).start();
     }
-
     private void addAnimations() {
-        // Animación de entrada para el título
         titleLabel.setColor(1, 1, 1, 0);
         titleLabel.setScale(0.5f);
         titleLabel.addAction(Actions.parallel(
@@ -210,7 +198,6 @@ public class LoginScreen implements Screen {
                 Actions.scaleTo(1f, 1f, 1f, Interpolation.bounceOut)
         ));
 
-        // <<--- AHORA ESTO FUNCIONARÁ CORRECTAMENTE --->>
         usernameField.setColor(1, 1, 1, 0);
         usernameField.addAction(Actions.delay(0.3f, Actions.fadeIn(0.5f, Interpolation.pow2Out)));
 
@@ -224,11 +211,9 @@ public class LoginScreen implements Screen {
                 Actions.scaleTo(1f, 1f, 0.5f, Interpolation.bounceOut)
         )));
 
-        // Animación para la barra inferior
         bottomRight.setColor(1, 1, 1, 0);
         bottomRight.addAction(Actions.delay(1f, Actions.fadeIn(0.5f, Interpolation.pow2Out)));
 
-        // Animación sutil de "respiración" para el título
         titleLabel.addAction(Actions.forever(Actions.sequence(
                 Actions.scaleTo(1.02f, 1.02f, 2f, Interpolation.sine),
                 Actions.scaleTo(1f, 1f, 2f, Interpolation.sine)
@@ -305,23 +290,19 @@ public class LoginScreen implements Screen {
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        // 1. RENDERIZAR FONDO CON VIEWPORT PIXELADO
         backgroundViewport.apply();
         backgroundCamera.update();
-        SpriteBatch backgroundBatch = new SpriteBatch(); // Se puede mover a miembro de la clase si se usa mucho
+        SpriteBatch backgroundBatch = new SpriteBatch();
         backgroundBatch.setProjectionMatrix(backgroundCamera.combined);
         backgroundBatch.begin();
         backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
         backgroundBatch.end();
-        backgroundBatch.dispose(); // Importante si se crea en cada render
+        backgroundBatch.dispose(); 
 
-        // 2. RENDERIZAR UI CON VIEWPORT ESCALADO
         stage.getViewport().apply();
         stage.act(delta);
         stage.draw();
 
-        // 3. RENDERIZAR DIÁLOGO CON VIEWPORT DE PANTALLA
         if (mostrarDialog) {
             dialogViewport.apply();
             renderDialog();
@@ -329,7 +310,6 @@ public class LoginScreen implements Screen {
     }
 
     private void renderDialog() {
-        // Usar las dimensiones del viewport del diálogo para cálculos
         float screenWidth = dialogViewport.getScreenWidth();
         float screenHeight = dialogViewport.getScreenHeight();
 

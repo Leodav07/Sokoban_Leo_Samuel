@@ -94,20 +94,20 @@ public class ConfiguracionScreen implements Screen {
         String idioma = (String) config[1];
 
         // Título principal
-        Label titleLabel = new Label("CONFIGURACION", skin, "title");
+        Label titleLabel = new Label(game.bundle.get("config.configuracion"), skin, "title");
         
         // Crear controles con la skin de Mario
-        Label volumenLabel = new Label("Volumen:", skin, "subtitle");
+        Label volumenLabel = new Label(game.bundle.get("config.volumen"), skin, "subtitle");
         volumenSlider = new Slider(0f, 1f, 0.01f, false, skin);
         volumenSlider.setValue(volumen);
 
-        Label idiomaLabel = new Label("Idioma:", skin, "subtitle");
+        Label idiomaLabel = new Label(game.bundle.get("config.idioma"), skin, "subtitle");
         idiomaSelectBox = new SelectBox<>(skin);
         idiomaSelectBox.setItems("es", "en", "fr");
         idiomaSelectBox.setSelected(idioma);
 
-        guardarButton = new TextButton("GUARDAR", skin);
-        volverButton = new TextButton("VOLVER", skin);
+        guardarButton = new TextButton(game.bundle.get("config.guardar"), skin);
+        volverButton = new TextButton(game.bundle.get("config.volver"), skin);
 
         // Aplicar efectos de hover similares al MenuScreen
         addButtonEffects(guardarButton, Color.GREEN);
@@ -202,7 +202,7 @@ public class ConfiguracionScreen implements Screen {
     
     private void handleGuardar() {
         // Mostrar diálogo con estilo Mario
-        mostrarDialogoEstilizado("Guardando", "Guardando cambios...");
+        mostrarDialogoEstilizado(game.bundle.get("config.guardando"),game.bundle.get("config.guardandocambios"));
         
         new Thread(() -> {
             try {
@@ -216,11 +216,11 @@ public class ConfiguracionScreen implements Screen {
                 game.bundle = I18NBundle.createBundle(Gdx.files.internal("i18n/messages"), locale);
                 game.setVolumen(volumenSlider.getValue());
                 
-                Gdx.app.postRunnable(() -> mostrarDialogoEstilizado("¡Éxito!", "¡Cambios guardados correctamente!"));
+                Gdx.app.postRunnable(() -> mostrarDialogoEstilizado(game.bundle.get("config.exito"), game.bundle.get("config.cambiosguardados")));
                  SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
 
             } catch (IOException e) {
-                Gdx.app.postRunnable(() -> mostrarDialogoEstilizado("Error", "No se pudieron guardar los cambios."));
+                Gdx.app.postRunnable(() -> mostrarDialogoEstilizado(game.bundle.get("config.error"), game.bundle.get("config.nocambiosguardados")));
                   SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
             }
         }).start();
@@ -240,7 +240,7 @@ public class ConfiguracionScreen implements Screen {
         };
         
         dialog.text(mensaje);
-        dialog.button("Aceptar", true);
+        dialog.button(game.bundle.get("config.aceptar"), true);
         
         // Animación de entrada para el diálogo
         dialog.setScale(0.8f);

@@ -11,10 +11,10 @@ import static com.sokoban.juego.logica.Pausa.OpcionPausa.values;
  * @author hnleo
  */
 public enum OpcionPausa {
-        CONTINUAR("Continuar", 0),
-    REINICIAR("Reiniciar Nivel", 1),
-    MENU_PRINCIPAL("Menú Principal", 2),
-    SALIR_JUEGO("Salir del Juego", 3);
+        CONTINUAR(MenuPausa.getGame().bundle.get("enu.continuar"), 0),
+    REINICIAR(MenuPausa.getGame().bundle.get("enu.reiniciar"), 1),
+    MENU_PRINCIPAL(MenuPausa.getGame().bundle.get("enu.menu"), 2),
+    SALIR_JUEGO(MenuPausa.getGame().bundle.get("enu.salir"), 3);
     
     private final String texto;
     private final int indice;

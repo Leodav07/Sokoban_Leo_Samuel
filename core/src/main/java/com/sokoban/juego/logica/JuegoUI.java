@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.sokoban.juego.Main;
 import com.sokoban.juego.niveles.ConfigNiveles;
 
 public class JuegoUI {
@@ -44,7 +45,7 @@ public class JuegoUI {
     private float tiempoAnimacion = 0f;
     private float particleTime = 0f;
     private boolean mostrandoVictoria = false;
-
+    private Main game;
     // Colores mejorados
     private final Color COLOR_FONDO_UI = new Color(0.05f, 0.05f, 0.15f, 0.95f);
     private final Color COLOR_PANEL_BORDE = new Color(0.3f, 0.7f, 1f, 0.8f);
@@ -59,7 +60,8 @@ public class JuegoUI {
     private final int DIALOG_WIDTH = 500;
     private final int DIALOG_HEIGHT = 450;
 
-    public JuegoUI() {
+    public JuegoUI(Main game) {
+        this.game = game;
         shapeRenderer = new ShapeRenderer();
         inicializarUI();
     }
@@ -141,8 +143,8 @@ public class JuegoUI {
         this.tiempoInicio = System.currentTimeMillis();
 
         // Actualizar labels con mejor formato
-        nivelLabel.setText("NIVEL " + nivelActual + " - " + ConfigNiveles.getNombreNivel(nivelActual).toUpperCase());
-        instruccionesLabel.setText("ESC/P: PAUSA | R: REINICIAR | BACKSPACE: DESHACER MOVIMIENTO");
+        nivelLabel.setText(game.bundle.get("juego.nivel") + nivelActual + " - " + ConfigNiveles.getNombreNivel(nivelActual).toUpperCase());
+        instruccionesLabel.setText(game.bundle.get("juego.funciones"));
 
         actualizarInformacion(0);
 
@@ -196,16 +198,16 @@ public class JuegoUI {
     }
 
     private void actualizarInformacion(long tiempoPausado) {
-        String movText = "MOVIMIENTOS: " + movimientosRealizados + " / " + movimientosPar;
+        String movText = game.bundle.get("juego.movimiento") + movimientosRealizados + " / " + movimientosPar;
         if (movimientosRealizados <= movimientosPar) {
-            movimientosLabel.setColor(new Color(0.3f, 1f, 0.3f, 1f)); // Verde si está bien
+            movimientosLabel.setColor(new Color(0.3f, 1f, 0.3f, 1f)); 
         } else {
-            movimientosLabel.setColor(new Color(1f, 0.7f, 0.3f, 1f)); // Naranja si se pasó
+            movimientosLabel.setColor(new Color(1f, 0.7f, 0.3f, 1f)); 
         }
         movimientosLabel.setText(movText);
 
         long tiempoTranscurrido = System.currentTimeMillis() - tiempoInicio - tiempoPausado;
-        tiempoLabel.setText("TIEMPO: " + formatearTiempo(tiempoTranscurrido));
+        tiempoLabel.setText(game.bundle.get("juego.tiempo") + formatearTiempo(tiempoTranscurrido));
     }
 
     public void setResultadoFinal(int puntaje, int movimientos, long tiempo) {
@@ -353,7 +355,7 @@ public class JuegoUI {
     }
 
     private void crearDialogoResultado() {
-    resultDialog = new Dialog("¡NIVEL COMPLETADO!", skin) {
+    resultDialog = new Dialog(game.bundle.get("juego.nivelcompletado"), skin) {
         @Override
         protected void result(Object object) {
             mostrandoVictoria = false;
@@ -374,7 +376,7 @@ public class JuegoUI {
     Table content = new Table();
     
     // Título de estrellas con efecto - MÁS GRANDE
-    Label tituloEstrellas = new Label("PUNTUACIÓN", skin, "lvltitle");
+    Label tituloEstrellas = new Label(game.bundle.get("juego.puntajefinal"), skin, "lvltitle");
     tituloEstrellas.setColor(Color.BLACK); // Cambio a negro
     tituloEstrellas.setFontScale(1.0f); // Aumentado de 0.8f a 1.0f
     content.add(tituloEstrellas).colspan(2).padBottom(15).padRight(30 + 50); // Más espacio
@@ -394,7 +396,7 @@ public class JuegoUI {
     content.row();
     
     // Información detallada con mejor formato - MÁS GRANDE
-    Label movTitleLabel = new Label("MOVIMIENTOS:", skin, "lvl");
+    Label movTitleLabel = new Label(game.bundle.get("juego.movimiento"), skin, "lvl");
     movTitleLabel.setColor(Color.BLACK); // Cambio a negro
     movTitleLabel.setFontScale(0.85f); // Aumentado de tamaño por defecto
     content.add(movTitleLabel).left().padRight(25 + 30 + 50); // Más espacio a la derecha
@@ -409,7 +411,7 @@ public class JuegoUI {
     content.add(movLabel).left();
     content.row();
     
-    Label tiempoTitleLabel = new Label("TIEMPO:", skin, "lvl");
+    Label tiempoTitleLabel = new Label(game.bundle.get("juego.tiempo"), skin, "lvl");
     tiempoTitleLabel.setColor(Color.BLACK); // Cambio a negro
     tiempoTitleLabel.setFontScale(0.85f); // Aumentado de tamaño por defecto
     content.add(tiempoTitleLabel).left().padRight(25 + 30 + 50).padTop(15); // Más espacio
@@ -427,7 +429,7 @@ public class JuegoUI {
     content.row();
     
     // Puntaje final con efecto especial - MÁS GRANDE
-    Label puntajeTitleLabel = new Label("PUNTAJE FINAL:", skin, "lvltitle");
+    Label puntajeTitleLabel = new Label(game.bundle.get("juego.puntajefinal"), skin, "lvltitle");
     puntajeTitleLabel.setColor(Color.BLACK); // Cambio a negro
     puntajeTitleLabel.setFontScale(1.0f); // Aumentado
     content.add(puntajeTitleLabel).colspan(2).center().padBottom(10).padRight(30 + 50 );
@@ -441,7 +443,7 @@ public class JuegoUI {
     resultDialog.getContentTable().add(content).pad(35); // Más padding general
     
     // Botón con mejor estilo - DENTRO DE LA CAJA
-    TextButton continuarBtn = new TextButton("CONTINUAR", skin);
+    TextButton continuarBtn = new TextButton(game.bundle.get("juego.continuar"), skin);
     continuarBtn.getLabel().setFontScale(0.85f); // Ligeramente más grande
     continuarBtn.getLabel().setColor(Color.BLACK); // Texto del botón en negro
     

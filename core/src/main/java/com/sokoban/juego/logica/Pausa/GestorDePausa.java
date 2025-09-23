@@ -1,5 +1,6 @@
 package com.sokoban.juego.logica.Pausa;
 
+import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.Pausa.EstadoJuego;
 
 public class GestorDePausa {
@@ -8,11 +9,12 @@ public class GestorDePausa {
     private MenuPausa menuPausa;
     private long tiempoPausaInicio;
     private long tiempoTotalPausado;
+    private Main game;
     
-    public GestorDePausa() {
+    public GestorDePausa(Main game) {
         this.estadoActual = EstadoJuego.JUGANDO;
         this.estadoAnterior = EstadoJuego.JUGANDO;
-        this.menuPausa = new MenuPausa();
+        this.menuPausa = new MenuPausa(game);
         this.tiempoTotalPausado = 0;
     }
     
