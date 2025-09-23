@@ -65,6 +65,8 @@ public class EstadoJuego {
         }
     }
 
+    
+    
     public PosicionElemento getPosicionJugador() {
         return posicionJugador;
     }
