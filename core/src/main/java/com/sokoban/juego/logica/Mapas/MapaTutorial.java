@@ -40,7 +40,7 @@ public class MapaTutorial extends MapaBase{
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
     private GlyphLayout layout = new GlyphLayout();
-
+    private Main game;
     private final int[][] tutorialLayout = {
         {5,5,5,5,5,5,5,5,5,5},
         {5,5,5,5,5,5,5,5,5,5},
@@ -60,41 +60,42 @@ public class MapaTutorial extends MapaBase{
         this.font.setColor(Color.WHITE);
         this.font.getData().setScale(1.5f);
         this.estadoActual = EstadoTutorial.INICIO;
+        this.game = game;
         cambiarEstado(EstadoTutorial.INICIO);
     }
     
     @Override
     protected int[][] getLayout() { return tutorialLayout; }
     @Override
-    protected int getMovimientosObjetivo() { return 100; }
+    protected int getMovimientosObjetivo() { return 0; }
     @Override
-    protected long getTiempoObjetivo() { return 120000; }
+    protected long getTiempoObjetivo() { return 0; }
 
     private void cambiarEstado(EstadoTutorial nuevoEstado) {
         this.estadoActual = nuevoEstado;
         switch (nuevoEstado) {
             case INICIO:
-                mensajeActual = "Bienvenido! Usa (" + Input.Keys.toString(GestorMapeo.ARRIBA) + ") para moverte hacia arriba.";
+                mensajeActual = game.bundle.get("tuto.bienvenido1") + Input.Keys.toString(GestorMapeo.ARRIBA) + game.bundle.get("tuto.bienvenido2");
                 break;
             case ESPERANDO_ARRIBA:
                 break;
             case ESPERANDO_ABAJO:
-                mensajeActual = "Genial! Ahora presiona (" + Input.Keys.toString(GestorMapeo.ABAJO) + ") para ir abajo.";
+                mensajeActual = game.bundle.get("tuto.esperandoabajo") + Input.Keys.toString(GestorMapeo.ABAJO) + game.bundle.get("tuto.esperandoabajo2");
                 break;
             case ESPERANDO_IZQUIERDA:
-                mensajeActual = "Perfecto! Usa (" + Input.Keys.toString(GestorMapeo.IZQUIERDA) + ") para moverte a la izquierda.";
+                mensajeActual = game.bundle.get("tuto.esperandoizquierda") + Input.Keys.toString(GestorMapeo.IZQUIERDA) + game.bundle.get("tuto.esperandoizquierda2");
                 break;
             case ESPERANDO_DERECHA:
-                mensajeActual = "¡Casi lo tienes! Ahora a la derecha con (" + Input.Keys.toString(GestorMapeo.DERECHA) + ").";
+                mensajeActual = game.bundle.get("tuto.casilotienes") + Input.Keys.toString(GestorMapeo.DERECHA) + game.bundle.get("tuto.casilotienes2");
                 break;
             case MOSTRAR_EMPUJAR:
-                mensajeActual = "Tu objetivo es empujar las cajas (como esa de alli). Intenta empujarla!";
+                mensajeActual =game.bundle.get("tuto.objetivo");
                 break;
             case MOSTRAR_OBJETIVO:
-                mensajeActual = "Bien hecho! Ahora lleva la caja hasta el objetivo.";
+                mensajeActual = game.bundle.get("tuto.llevar");
                 break;
             case MOSTRAR_FINAL:
-                mensajeActual = "Tutorial completado! Presiona (ENTER) para comenzar tu aventura.";
+                mensajeActual = game.bundle.get("tuto.completado");
                 break;
         }
     }
@@ -112,24 +113,28 @@ public class MapaTutorial extends MapaBase{
             case INICIO:
             case ESPERANDO_ARRIBA:
                 if (Gdx.input.isKeyJustPressed(GestorMapeo.ARRIBA)) {
+                    jugador.cambiarDireccion(Jugador.DireccionMovimiento.ABAJO);
                     motorMovimiento.moverJugador(0, -1);
                     cambiarEstado(EstadoTutorial.ESPERANDO_ABAJO);
                 }
                 break;
             case ESPERANDO_ABAJO:
                 if (Gdx.input.isKeyJustPressed(GestorMapeo.ABAJO)) {
+                   jugador.cambiarDireccion(Jugador.DireccionMovimiento.ARRIBA);
                     motorMovimiento.moverJugador(0, 1);
                     cambiarEstado(EstadoTutorial.ESPERANDO_IZQUIERDA);
                 }
                 break;
             case ESPERANDO_IZQUIERDA:
                  if (Gdx.input.isKeyJustPressed(GestorMapeo.IZQUIERDA)) {
+                     jugador.cambiarDireccion(Jugador.DireccionMovimiento.IZQUIERDA);
                     motorMovimiento.moverJugador(-1, 0);
                     cambiarEstado(EstadoTutorial.ESPERANDO_DERECHA);
                 }
                 break;
             case ESPERANDO_DERECHA:
                 if (Gdx.input.isKeyJustPressed(GestorMapeo.DERECHA)) {
+                    jugador.cambiarDireccion(Jugador.DireccionMovimiento.DERECHA);
                     motorMovimiento.moverJugador(1, 0);
                     cambiarEstado(EstadoTutorial.MOSTRAR_EMPUJAR);
                 }

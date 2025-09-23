@@ -402,13 +402,14 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             jugador.dibujar(batch, TILE, (int) offsetX, (int) offsetY, filas);
         }
 
-        if (gameUI != null && !mostrandoResultados) {
+      if (gameUI != null && !mostrandoResultados && nivelId > 0) {
             gameUI.dibujar(batch, GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT, gestorPausa.getTiempoTotalPausado());
         }
-
-        if (mostrandoResultados && gameUI != null) {
+        
+       if (mostrandoResultados && gameUI != null && nivelId > 0) {
             gameUI.mostrarResultadoNivel(batch);
         }
+        
 
         if (gestorPausa.estaPausado()) {
             gestorPausa.getMenuPausa().dibujar(batch);
