@@ -181,11 +181,11 @@ public class ConfiguracionScreen implements Screen {
 
         // Botones con mucha más separación
         Table buttonTable = new Table();
-        buttonTable.add(guardarButton).width(160).height(50).padRight(75); // Mucha más separación
-        buttonTable.add(volverButton).width(160).height(50).padLeft(75);
+        buttonTable.add(guardarButton).width(160).height(50).padRight(240); // Mucha más separación
+        buttonTable.add(volverButton).width(160).height(50).padRight(20);
         TextButton keymapButton = new TextButton(game.bundle.get("mapeo.mapeotitulo"), skin);
         addButtonEffects(keymapButton, Color.TEAL);
-        buttonTable.add(keymapButton).width(200).height(50).padLeft(25).padRight(25);
+        buttonTable.add(keymapButton).width(200).height(50).padLeft(320);
 
         keymapButton.addListener(new ChangeListener() {
             @Override
