@@ -34,7 +34,7 @@ bounds:68,62,48,64
 selectbox_selection
 bounds:118,92,48,16
 slider
-bounds:68,22,16,2
+bounds:68,20,16,4
 slider_knob
 bounds:12,2,8,8
 slider_knob_down
