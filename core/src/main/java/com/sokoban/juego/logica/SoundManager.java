@@ -131,6 +131,11 @@ public class SoundManager implements Disposable {
         }
     }
     
+       public void setGlobalVolume(float volume) {
+        setSoundVolume(volume);
+        setMusicVolume(volume);
+    }
+    
     @Override
     public void dispose() {
         if (currentMusic != null) {

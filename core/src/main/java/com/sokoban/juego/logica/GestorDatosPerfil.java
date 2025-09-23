@@ -17,11 +17,13 @@ public class GestorDatosPerfil {
         public String avatar;
         public long ultimaSesion;
         public List<Partida> historial;
+         public boolean tutorialCompletado; 
 
-        public DatosPerfil(String avatar, long ultimaSesion, List<Partida> historial) {
+        public DatosPerfil(String avatar, long ultimaSesion, List<Partida> historial, boolean tutorialCompletado) {
             this.avatar = avatar;
             this.ultimaSesion = ultimaSesion;
             this.historial = historial;
+            this.tutorialCompletado = tutorialCompletado;
         }
     }
     
@@ -65,7 +67,7 @@ public class GestorDatosPerfil {
     public DatosPerfil cargarDatosPerfil() {
         File archivo = obtenerArchivoPerfil();
         if (archivo == null || !archivo.exists()) {
-            return new DatosPerfil("default_avatar.png", 0, new ArrayList<>());
+            return new DatosPerfil("default_avatar.png", 0, new ArrayList<>(), false);
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
@@ -76,10 +78,14 @@ public class GestorDatosPerfil {
             for (int i = 0; i < historialCount; i++) {
                 historial.add(Partida.leerDeArchivo(raf));
             }
-            return new DatosPerfil(avatar, ultimaSesion, historial);
+            boolean tutorialCompletado = false;
+            if (raf.getFilePointer() < raf.length()) {
+                tutorialCompletado = raf.readBoolean();
+            }
+            return new DatosPerfil(avatar, ultimaSesion, historial, tutorialCompletado);
         } catch (IOException e) {
             System.err.println("Error al cargar datos del perfil, usando defaults: " + e.getMessage());
-            return new DatosPerfil("default_avatar.png", 0, new ArrayList<>());
+            return new DatosPerfil("default_avatar.png", 0, new ArrayList<>(), false);
         }
     }
 
@@ -94,9 +100,17 @@ public class GestorDatosPerfil {
             for (Partida p : datos.historial) {
                 p.escribirEnArchivo(raf);
             }
+            raf.writeBoolean(datos.tutorialCompletado);
         } catch (IOException e) {
             System.err.println("Error al guardar datos del perfil: " + e.getMessage());
         }
+    }
+    
+   public void marcarTutorialCompletado() {
+        DatosPerfil datos = cargarDatosPerfil();
+        datos.tutorialCompletado = true;
+        guardarDatosPerfil(datos);
+        System.out.println("Tutorial marcado como completado para el usuario.");
     }
 
     public void guardarAvatar(String nombreAvatar) {

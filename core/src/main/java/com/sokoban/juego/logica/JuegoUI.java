@@ -139,15 +139,14 @@ public class JuegoUI {
         movimientosRealizados++;
         actualizarInformacion(0);
         movimientosLabel.clearActions();
+
         movimientosLabel.addAction(Actions.sequence(
                 Actions.parallel(
                         Actions.scaleTo(1.2f, 1.2f, 0.1f, Interpolation.pow2Out),
                         Actions.color(COLOR_TEXTO_DESTACADO, 0.1f)
                 ),
-                Actions.parallel(
-                        Actions.scaleTo(1f, 1f, 0.15f, Interpolation.bounceOut),
-                        Actions.color(COLOR_TEXTO_PRINCIPAL, 0.15f)
-                )
+                Actions.scaleTo(1f, 1f, 0.15f, Interpolation.bounceOut),
+                Actions.run(() -> actualizarInformacion(0))
         ));
     }
 
@@ -155,15 +154,11 @@ public class JuegoUI {
         if (movimientosRealizados > 0) {
             movimientosRealizados--;
             actualizarInformacion(0);
+            movimientosLabel.clearActions();
+
             movimientosLabel.addAction(Actions.sequence(
-                    Actions.parallel(
-                            Actions.color(new Color(0.3f, 1f, 0.3f, 1f), 0.2f),
-                            Actions.scaleTo(1.1f, 1.1f, 0.2f)
-                    ),
-                    Actions.parallel(
-                            Actions.color(COLOR_TEXTO_PRINCIPAL, 0.3f),
-                            Actions.scaleTo(1f, 1f, 0.3f)
-                    )
+                    Actions.color(new Color(0.3f, 1f, 0.3f, 1f), 0.1f),
+                    Actions.run(() -> actualizarInformacion(0))
             ));
         }
     }

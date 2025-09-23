@@ -141,7 +141,7 @@ public class ConfiguracionScreen implements Screen {
 
         addButtonEffects(guardarButton, Color.GREEN);
         addButtonEffects(volverButton, Color.ORANGE);
-        
+
         Slider.SliderStyle sliderStyle = new Slider.SliderStyle(skin.get("default-horizontal", Slider.SliderStyle.class));
         float knobSize = 25f;
         float barHeight = 12f;
@@ -183,12 +183,29 @@ public class ConfiguracionScreen implements Screen {
         Table buttonTable = new Table();
         buttonTable.add(guardarButton).width(160).height(50).padRight(75); // Mucha más separación
         buttonTable.add(volverButton).width(160).height(50).padLeft(75);
+        TextButton keymapButton = new TextButton(game.bundle.get("mapeo.mapeotitulo"), skin);
+        addButtonEffects(keymapButton, Color.TEAL);
+        buttonTable.add(keymapButton).width(200).height(50).padLeft(25).padRight(25);
 
+        keymapButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                game.setScreen(new CortinaTransicion(game, ConfiguracionScreen.this, new MapeoScreen(game)));
+            }
+        });
         container.add(buttonTable).row();
 
         root.add(container);
 
-        // --- Listeners ---
+        volumenSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                float nuevoVolumen = volumenSlider.getValue();
+                SoundManager.getInstance().setGlobalVolume(nuevoVolumen);
+            }
+        });
+
         guardarButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -318,7 +335,7 @@ public class ConfiguracionScreen implements Screen {
 
                 Locale locale = new Locale(idiomaSelectBox.getSelected());
                 game.bundle = I18NBundle.createBundle(Gdx.files.internal("i18n/messages"), locale);
-                game.setVolumen(volumenSlider.getValue());
+                SoundManager.getInstance().setGlobalVolume(volumenSlider.getValue());
 
                 Gdx.app.postRunnable(() -> {
                     SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
@@ -439,7 +456,7 @@ public class ConfiguracionScreen implements Screen {
 
         dialogFont.getData().setScale(1f);
         dialogFont.setColor(Color.WHITE);
-  
+
         dialogBatch.setColor(Color.WHITE);
         dialogBatch.end();
     }

@@ -26,6 +26,8 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
+import com.sokoban.juego.logica.GestorConfiguracion;
+import com.sokoban.juego.logica.GestorMapeo;
 import com.sokoban.juego.logica.GestorUsuarios;
 import com.sokoban.juego.logica.SoundManager;
 import java.io.IOException;
@@ -72,8 +74,8 @@ public class LoginScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-           TextureAtlas atlas = new TextureAtlas("mario.atlas");
-            skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
+        TextureAtlas atlas = new TextureAtlas("mario.atlas");
+        skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
         backgroundTexture = new Texture("menu/fondo.png");
         backgroundTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
@@ -110,7 +112,7 @@ public class LoginScreen implements Screen {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                   SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 handleLogin(usernameField.getText(), passwordField.getText());
             }
         });
@@ -134,7 +136,7 @@ public class LoginScreen implements Screen {
         registerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                   SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 Screen newScreen = new RegistroScreen(game);
                 game.setScreen(new CortinaTransicion(game, LoginScreen.this, newScreen));
             }
@@ -148,7 +150,7 @@ public class LoginScreen implements Screen {
         root.add(bottomRight).expandX().center().padTop(20);
     }
 
-      private void handleLogin(String username, String password) {
+    private void handleLogin(String username, String password) {
         SoundManager.getInstance().play(SoundManager.SoundEffect.PAUSA);
         mostrarDialog("Verificando credenciales...");
 
@@ -159,7 +161,11 @@ public class LoginScreen implements Screen {
                 Gdx.app.postRunnable(() -> {
                     if (idiomaCargado != null) {
                         game.setIdioma(idiomaCargado);
-                        
+                        Object[] config = GestorConfiguracion.getInstancia().cargarConfiguracion();
+                        float volumenGuardado = (Float) config[0];
+                        SoundManager.getInstance().setGlobalVolume(volumenGuardado);
+                        GestorMapeo.getInstancia().cargarControles();
+
                         mostrarDialog("¡Inicio de sesión exitoso!");
                         Timer.schedule(new Timer.Task() {
                             @Override
@@ -184,12 +190,16 @@ public class LoginScreen implements Screen {
                 Gdx.app.postRunnable(() -> {
                     mostrarDialog("Error de disco. Intenta de nuevo.");
                     Timer.schedule(new Timer.Task() {
-                        @Override public void run() { ocultarDialog(); }
+                        @Override
+                        public void run() {
+                            ocultarDialog();
+                        }
                     }, 4f);
                 });
             }
         }).start();
     }
+
     private void addAnimations() {
         titleLabel.setColor(1, 1, 1, 0);
         titleLabel.setScale(0.5f);
@@ -297,7 +307,7 @@ public class LoginScreen implements Screen {
         backgroundBatch.begin();
         backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
         backgroundBatch.end();
-        backgroundBatch.dispose(); 
+        backgroundBatch.dispose();
 
         stage.getViewport().apply();
         stage.act(delta);
@@ -315,11 +325,11 @@ public class LoginScreen implements Screen {
 
         dialogFont.getData().setScale(dialogScale * 0.8f);
         layout.setText(dialogFont, mensajeDialog);
-        
+
         float textWidth = layout.width;
         float paddingX = 40 * dialogScale;
         float maxWidth = Math.min(screenWidth * 0.8f, 600 * dialogScale);
-        
+
         float dialogWidth = Math.max(200 * dialogScale, Math.min(maxWidth, textWidth + paddingX * 2));
         float dialogHeight;
 
@@ -344,7 +354,7 @@ public class LoginScreen implements Screen {
         float textY = dialogY + (dialogHeight + layout.height) / 2;
         dialogFont.setColor(0.1f, 0.1f, 0.1f, dialogAlpha);
         dialogFont.draw(dialogBatch, layout, textX, textY);
-        
+
         dialogFont.getData().setScale(1f);
         dialogFont.setColor(Color.WHITE);
         dialogBatch.setColor(Color.WHITE);
@@ -359,20 +369,33 @@ public class LoginScreen implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+    }
 
     @Override
     public void dispose() {
-        if (stage != null) stage.dispose();
-        if (skin != null) skin.dispose();
-        if (dialogBatch != null) dialogBatch.dispose();
-        if (cuadroTexture != null) cuadroTexture.dispose();
-        if (backgroundTexture != null) backgroundTexture.dispose();
+        if (stage != null) {
+            stage.dispose();
+        }
+        if (skin != null) {
+            skin.dispose();
+        }
+        if (dialogBatch != null) {
+            dialogBatch.dispose();
+        }
+        if (cuadroTexture != null) {
+            cuadroTexture.dispose();
+        }
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+        }
     }
 }

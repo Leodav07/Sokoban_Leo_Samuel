@@ -26,6 +26,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorUsuarios;
 import com.sokoban.juego.logica.SoundManager;
+import com.sokoban.juego.logica.GestorDatosPerfil;
+import com.sokoban.juego.logica.accounts.GestorProgreso;
+import com.sokoban.juego.niveles.TutorialScreen;
 
 public class MenuScreen implements Screen {
 
@@ -62,8 +65,8 @@ public class MenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-           TextureAtlas atlas = new TextureAtlas("mario.atlas");
-            skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
+        TextureAtlas atlas = new TextureAtlas("mario.atlas");
+        skin = new Skin(Gdx.files.internal("skin/mario_skin.json"), atlas);
         viewport.apply(true);
 
         backgroundTexture = new Texture("menu/fondo.png");
@@ -93,24 +96,30 @@ public class MenuScreen implements Screen {
         jugarButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                Screen newScreen = new LvlSelectScreen(game);
-                game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
-                 SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+
+                GestorDatosPerfil.DatosPerfil datos = GestorDatosPerfil.getInstancia().cargarDatosPerfil();
+
+                if (!datos.tutorialCompletado && GestorProgreso.getInstancia().getNivelesCompletados() == 0) {
+                    game.setScreen(new CortinaTransicion(game, MenuScreen.this, new TutorialScreen(game)));
+                } else {
+                    game.setScreen(new CortinaTransicion(game, MenuScreen.this, new LvlSelectScreen(game)));
+                }
             }
         });
 
         miPerfilButton.addListener(new ChangeListener() {
-             @Override
+            @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 Screen newScreen = new MiPerfilScreen(game);
                 game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
-                  SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
-                  
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+
             }
         });
-        
-         rankingButton.addListener(new ChangeListener() {
-             @Override
+
+        rankingButton.addListener(new ChangeListener() {
+            @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 Screen newScreen = new RankingScreen(game);
                 game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
@@ -122,12 +131,12 @@ public class MenuScreen implements Screen {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
                 stage.addAction(Actions.sequence(
-                    Actions.fadeOut(0.3f),
-                    Actions.run(() -> {
-                        GestorUsuarios.cerrarSesion();
-                        game.setScreen(new CortinaTransicion(game, MenuScreen.this, new LoginScreen(game)));
-                        SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);  
-                    })
+                        Actions.fadeOut(0.3f),
+                        Actions.run(() -> {
+                            GestorUsuarios.cerrarSesion();
+                            game.setScreen(new CortinaTransicion(game, MenuScreen.this, new LoginScreen(game)));
+                            SoundManager.getInstance().play(SoundManager.SoundEffect.ERROR_MENU);
+                        })
                 ));
             }
         });
@@ -146,16 +155,16 @@ public class MenuScreen implements Screen {
 
         TextButton gameConfigButton = new TextButton(game.bundle.get("menu.configuracion"), skin);
         addButtonEffects(gameConfigButton, Color.ORANGE);
-        
+
         bottomRight = new Table();
         bottomRight.add(gameConfigButton).width(120).height(30);
-        
+
         gameConfigButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-               Screen newScreen = new ConfiguracionScreen(game);
-               game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
-               SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
+                Screen newScreen = new ConfiguracionScreen(game);
+                game.setScreen(new CortinaTransicion(game, MenuScreen.this, newScreen));
+                SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
             }
         });
 
@@ -182,37 +191,37 @@ public class MenuScreen implements Screen {
         jugarButton.setColor(1, 1, 1, 0);
         jugarButton.setScale(0.8f);
         jugarButton.addAction(Actions.delay(0.2f, Actions.parallel(
-            Actions.fadeIn(0.6f, Interpolation.pow2Out),
-            Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
+                Actions.fadeIn(0.6f, Interpolation.pow2Out),
+                Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
 
         miPerfilButton.setColor(1, 1, 1, 0);
         miPerfilButton.setScale(0.8f);
         miPerfilButton.addAction(Actions.delay(0.4f, Actions.parallel(
-            Actions.fadeIn(0.6f, Interpolation.pow2Out),
-            Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
+                Actions.fadeIn(0.6f, Interpolation.pow2Out),
+                Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
-        
-         rankingButton.setColor(1, 1, 1, 0);
+
+        rankingButton.setColor(1, 1, 1, 0);
         rankingButton.setScale(0.8f);
         rankingButton.addAction(Actions.delay(0.4f, Actions.parallel(
-            Actions.fadeIn(0.6f, Interpolation.pow2Out),
-            Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
+                Actions.fadeIn(0.6f, Interpolation.pow2Out),
+                Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
 
         salirButton.setColor(1, 1, 1, 0);
         salirButton.setScale(0.8f);
         salirButton.addAction(Actions.delay(0.6f, Actions.parallel(
-            Actions.fadeIn(0.6f, Interpolation.pow2Out),
-            Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
+                Actions.fadeIn(0.6f, Interpolation.pow2Out),
+                Actions.scaleTo(1f, 1f, 0.6f, Interpolation.bounceOut)
         )));
 
         bottomRight.setColor(1, 1, 1, 0);
         bottomRight.addAction(Actions.delay(0.8f, Actions.fadeIn(0.5f, Interpolation.pow2Out)));
 
         jugarButton.addAction(Actions.delay(1.2f, Actions.forever(Actions.sequence(
-            Actions.moveBy(0, 3f, 2f, Interpolation.sine),
-            Actions.moveBy(0, -3f, 2f, Interpolation.sine)
+                Actions.moveBy(0, 3f, 2f, Interpolation.sine),
+                Actions.moveBy(0, -3f, 2f, Interpolation.sine)
         ))));
 
         addPulseAnimation(miPerfilButton, 1.5f);
@@ -222,12 +231,10 @@ public class MenuScreen implements Screen {
 
     private void addPulseAnimation(TextButton button, float delay) {
         button.addAction(Actions.delay(delay, Actions.forever(Actions.sequence(
-            Actions.scaleTo(1.01f, 1.01f, 3f, Interpolation.sine),
-            Actions.scaleTo(1f, 1f, 3f, Interpolation.sine)
+                Actions.scaleTo(1.01f, 1.01f, 3f, Interpolation.sine),
+                Actions.scaleTo(1f, 1f, 3f, Interpolation.sine)
         ))));
     }
-
-    
 
     @Override
     public void render(float delta) {
@@ -267,12 +274,22 @@ public class MenuScreen implements Screen {
     public void hide() {
     }
 
-     @Override
+    @Override
     public void dispose() {
-        if (batch != null) batch.dispose();
-        if (backgroundTexture != null) backgroundTexture.dispose();
-        if (titleTexture != null) titleTexture.dispose();
-        if (stage != null) stage.dispose();
-        if (skin != null) skin.dispose();
+        if (batch != null) {
+            batch.dispose();
+        }
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+        }
+        if (titleTexture != null) {
+            titleTexture.dispose();
+        }
+        if (stage != null) {
+            stage.dispose();
+        }
+        if (skin != null) {
+            skin.dispose();
+        }
     }
 }
