@@ -48,15 +48,14 @@ public class GestorDatosPerfil {
         return obtenerArchivoPerfil(usuario.getUsername());
     }
 
-    // <<-- NUEVO MÉTODO para cargar solo el avatar de un usuario específico -->>
     public String cargarAvatarDeUsuario(String username) {
         File archivo = obtenerArchivoPerfil(username);
         if (archivo == null || !archivo.exists()) {
-            return "default_avatar.png"; // Avatar por defecto si el usuario no tiene perfil
+            return "default_avatar.png";
         }
     
         try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
-            // El primer dato guardado en el archivo es el nombre del avatar
+        
             return raf.readUTF();
         } catch (IOException e) {
             System.err.println("Error al cargar avatar para " + username + ", usando default: " + e.getMessage());

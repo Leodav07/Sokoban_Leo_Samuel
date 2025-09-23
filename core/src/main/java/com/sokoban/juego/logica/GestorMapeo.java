@@ -16,7 +16,7 @@ public class GestorMapeo {
     private static final String USERS_BASE_DIR = "users";
     private static GestorMapeo instancia;
 
-    // Teclas actuales del juego (públicas para fácil acceso)
+  
     public static int ARRIBA = Input.Keys.UP;
     public static int ABAJO = Input.Keys.DOWN;
     public static int IZQUIERDA = Input.Keys.LEFT;

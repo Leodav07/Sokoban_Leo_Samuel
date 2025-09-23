@@ -47,7 +47,7 @@ public class Caja extends Elemento {
    
     public void setTexturaEnObjetivo(Texture texturaEnObjetivo) {
         this.texturaEnObjetivo = texturaEnObjetivo;
-        // Si actualmente está en objetivo, actualizar la textura
+     
         if (estaEnObjetivo) {
             this.textura = texturaEnObjetivo;
         }

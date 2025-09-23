@@ -28,6 +28,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -123,10 +124,7 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         SoundManager.getInstance().stopMusic();
         gestorProgreso = GestorProgreso.getInstancia();
 
-        dialogFont = new BitmapFont();
-        dialogFont.setColor(Color.RED);
-        dialogFont.getData().setScale(1.5f);
-
+      
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -146,7 +144,10 @@ public class LvlSelectScreen implements Screen, InputProcessor {
             skin = new Skin();
             font = new BitmapFont(); // Fallback
         }
-
+        
+       
+        
+        
         dialogBatch = new SpriteBatch();
         cuadroTexture = new Texture("skin/cuadro.png");
         cuadroTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -300,8 +301,10 @@ public class LvlSelectScreen implements Screen, InputProcessor {
         batch.draw(frameParaDibujar, playerVisualPosition.x, playerVisualPosition.y);
 
         // <<-- CAMBIO: Dibujar el texto de ayuda en la esquina -->>
-        String instructions = "ENTER: Seleccionar | BACKSPACE: Volver";
-        font.draw(batch, instructions, 5, 15); // Dibuja en la esquina inferior izquierda
+        Label instructions = new Label("ENTER: Seleccionar | BACKSPACE: Volver", skin);
+      
+       
+        font.draw(batch, instructions.getText(), 5, 15); // Dibuja en la esquina inferior izquierda
 
         batch.end();
     }

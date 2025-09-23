@@ -42,7 +42,7 @@ public class ConfiguracionScreen implements Screen {
     private OrthographicCamera backgroundCamera;
     private FitViewport backgroundViewport;
 
-    // Sistema de diálogos estilo RegistroScreen
+  
     private SpriteBatch dialogBatch;
     private Texture cuadroTexture;
     private BitmapFont dialogFont;
@@ -122,10 +122,9 @@ public class ConfiguracionScreen implements Screen {
         Object[] config = GestorConfiguracion.getInstancia().cargarConfiguracion();
         float volumen = (Float) config[0];
         String idioma = (String) config[1];
-        // --- Título ---
+        
         titleLabel = new Label(game.bundle.get("config.configuracion"), skin, "title");
 
-        // --- Controles ---
         volumenLabel = new Label(game.bundle.get("config.volumen"), skin, "subtitle");
         volumenSlider = new Slider(0f, 1f, 0.01f, false, skin);
         volumenSlider.setValue(volumen);
@@ -135,7 +134,7 @@ public class ConfiguracionScreen implements Screen {
         idiomaSelectBox.setItems("es", "en", "fr");
         idiomaSelectBox.setSelected(idioma);
 
-        // --- Botones ---
+     
         guardarButton = new TextButton(game.bundle.get("config.guardar"), skin);
         volverButton = new TextButton(game.bundle.get("config.volver"), skin);
 
@@ -148,7 +147,7 @@ public class ConfiguracionScreen implements Screen {
         sliderStyle.background.setMinHeight(barHeight);
         sliderStyle.knob.setMinHeight(knobSize);
         sliderStyle.knob.setMinWidth(knobSize);
-        // Asegurarse de que los estados hover y presionado también sean grandes
+       
         if (sliderStyle.knobOver != null) {
             sliderStyle.knobOver.setMinHeight(knobSize);
             sliderStyle.knobOver.setMinWidth(knobSize);
@@ -159,29 +158,25 @@ public class ConfiguracionScreen implements Screen {
         }
         volumenSlider.setStyle(sliderStyle);
 
-        // Layout principal centrado
         Table container = new Table();
         container.center();
 
-        container.add(titleLabel).padBottom(80).row(); // Título más arriba
+        container.add(titleLabel).padBottom(80).row(); 
 
-        // Sección de volumen
         Table volumenSection = new Table();
         volumenSection.add(volumenLabel).left().padBottom(15).row();
-        volumenSection.add(volumenSlider).width(400).height(60).row(); // Slider más grueso y ancho
-
+        volumenSection.add(volumenSlider).width(400).height(60).row(); 
         container.add(volumenSection).padBottom(40).row();
 
-        // Sección de idioma
+       
         Table idiomaSection = new Table();
         idiomaSection.add(idiomaLabel).left().padBottom(15).row();
-        idiomaSection.add(idiomaSelectBox).width(200).height(45).row(); // SelectBox más compacto
+        idiomaSection.add(idiomaSelectBox).width(200).height(45).row();
 
-        container.add(idiomaSection).padBottom(80).row(); // Más separación antes de botones
-
-        // Botones con mucha más separación
+        container.add(idiomaSection).padBottom(80).row();
+       
         Table buttonTable = new Table();
-        buttonTable.add(guardarButton).width(160).height(50).padRight(240); // Mucha más separación
+        buttonTable.add(guardarButton).width(160).height(50).padRight(240); 
         buttonTable.add(volverButton).width(160).height(50).padRight(20);
         TextButton keymapButton = new TextButton(game.bundle.get("mapeo.mapeotitulo"), skin);
         addButtonEffects(keymapButton, Color.TEAL);
@@ -241,11 +236,10 @@ public class ConfiguracionScreen implements Screen {
     }
 
     private void addAnimations() {
-        // Animación de entrada general
+        
         stage.getRoot().setColor(1, 1, 1, 0);
         stage.getRoot().addAction(Actions.fadeIn(0.5f, Interpolation.pow2Out));
 
-        // Animación del título
         titleLabel.setColor(1, 1, 1, 0);
         titleLabel.setScale(0.8f);
         titleLabel.addAction(Actions.delay(0.1f, Actions.parallel(
@@ -422,7 +416,7 @@ public class ConfiguracionScreen implements Screen {
         float screenWidth = dialogViewport.getScreenWidth();
         float screenHeight = dialogViewport.getScreenHeight();
 
-        dialogFont.getData().setScale(dialogScale * 1.0f); // Texto más grande
+        dialogFont.getData().setScale(dialogScale * 1.0f);
         layout.setText(dialogFont, mensajeDialog);
 
         float textWidth = layout.width;
@@ -466,7 +460,7 @@ public class ConfiguracionScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // 1. RENDERIZAR FONDO
+     
         if (backgroundTexture != null && backgroundBatch != null) {
             backgroundViewport.apply();
             backgroundCamera.update();
@@ -476,12 +470,12 @@ public class ConfiguracionScreen implements Screen {
             backgroundBatch.end();
         }
 
-        // 2. RENDERIZAR UI
+      
         stage.getViewport().apply();
         stage.act(delta);
         stage.draw();
 
-        // 3. RENDERIZAR DIÁLOGO
+       
         if (mostrarDialog) {
             dialogViewport.apply();
             renderDialog();

@@ -143,7 +143,6 @@ public class LoginScreen implements Screen {
         });
 
         bottomRight = new Table();
-        bottomRight.add(new Label("¿No tienes una cuenta?", skin)).padRight(15);
         bottomRight.add(registerButton).width(150).height(35);
 
         root.row();

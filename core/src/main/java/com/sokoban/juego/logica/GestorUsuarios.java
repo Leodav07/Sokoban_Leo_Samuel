@@ -21,7 +21,7 @@ public class GestorUsuarios {
 private static final Pattern VALID_PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d).{8,}$");
 
     private GestorUsuarios() {
-        // Asegura que el directorio base de usuarios exista
+     
         File usersDir = new File(USERS_BASE_DIR);
         if (!usersDir.exists()) {
             usersDir.mkdirs();

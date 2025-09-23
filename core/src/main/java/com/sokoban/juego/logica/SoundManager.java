@@ -20,7 +20,7 @@ public class SoundManager implements Disposable {
     public enum SoundEffect {
         BOSS_TERMINADO,
         GUARDADO,
-        // NIVEL_TEMA se movió a MusicTrack
+       
         ERROR_MENU,
         MOVER_BLOQUE,
         NIVEL_COMPLETADO,
@@ -29,10 +29,9 @@ public class SoundManager implements Disposable {
         SMB3_MATCH
     }
 
-    // <<-- CAMBIO: El enum de música ahora maneja múltiples pistas con sus rutas -->>
     public enum MusicTrack {
         MENU_TEMA("sonidos/menuPrincipal.wav"),
-        NIVEL_TEMA("sonidos/nivelTema.mp3"); // Asumiendo que el archivo se llama así
+        NIVEL_TEMA("sonidos/nivelTema.mp3"); 
 
         private final String filePath;
 
@@ -67,7 +66,6 @@ public class SoundManager implements Disposable {
         assetManager.load("sonidos/seleccionMenu.wav", Sound.class);
         assetManager.load("sonidos/smb3_nspade_match.wav", Sound.class);
 
-        // <<-- CAMBIO: Se cargan todas las pistas de música definidas en el enum -->>
         for (MusicTrack track : MusicTrack.values()) {
             assetManager.load(track.getFilePath(), Music.class);
         }
@@ -82,7 +80,7 @@ public class SoundManager implements Disposable {
     }
 
     public void cacheSounds() {
-        // <<-- CAMBIO: Se elimina NIVEL_TEMA de la caché de sonidos -->>
+     
         soundCache.put(SoundEffect.BOSS_TERMINADO, assetManager.get("sonidos/bossTerminado.wav", Sound.class));
         soundCache.put(SoundEffect.ERROR_MENU, assetManager.get("sonidos/errorMenu.wav", Sound.class));
         soundCache.put(SoundEffect.GUARDADO, assetManager.get("sonidos/guardado.wav", Sound.class));
@@ -99,8 +97,7 @@ public class SoundManager implements Disposable {
             sound.play(soundVolume);
         }
     }
-
-    // <<-- CAMBIO: El método ahora usa la ruta del enum para reproducir la música correcta -->>
+    
     public void playMusic(MusicTrack track, boolean loop) {
         if (currentMusic != null) {
             currentMusic.stop();

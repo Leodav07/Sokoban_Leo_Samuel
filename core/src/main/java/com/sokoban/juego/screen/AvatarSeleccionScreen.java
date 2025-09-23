@@ -41,7 +41,7 @@ public class AvatarSeleccionScreen implements Screen {
     private FitViewport backgroundViewport;
     private final List<Texture> avatarTextures = new ArrayList<>();
 
-    // Sistema de diálogo personalizado
+    
     private SpriteBatch dialogBatch;
     private Texture cuadroTexture;
     private BitmapFont dialogFont;
@@ -53,7 +53,7 @@ public class AvatarSeleccionScreen implements Screen {
     private final OrthographicCamera dialogCamera;
     private final ScreenViewport dialogViewport;
     
-    // Variables para manejar la confirmación
+  
     private boolean esperandoConfirmacion = false;
     private String avatarSeleccionado;
     private Table tablaConfirmacion;
@@ -75,10 +75,9 @@ public class AvatarSeleccionScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         
         try {
-            // CORREGIDO: Cargar skin con atlas como en las otras pantallas
+          
             TextureAtlas atlas = new TextureAtlas("mario.atlas");
             
-            // Configurar filtrado nearest neighbor
             for (TextureAtlas.AtlasRegion region : atlas.getRegions()) {
                 region.getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             }
@@ -103,16 +102,16 @@ public class AvatarSeleccionScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        Label titulo = new Label(game.bundle.get("avatar.seleccionaunavatar"), skin, "title");
-        titulo.setFontScale(0.5f);
-        root.add(titulo).padBottom(20).row();
+        //Label titulo = new Label(game.bundle.get("avatar.seleccionaunavatar"), skin, "title");
+     //   titulo.setFontScale(0.5f);
+      //  root.add(titulo).padBottom(20).row();
         
         Table avatarGrid = new Table();
         int colCount = 0;
         for (final String avatarName : avatares) {
             try {
                 Texture avatarTex = new Texture(Gdx.files.internal("avatares/" + avatarName));
-                // Aplicar filtrado nearest neighbor a los avatares también
+               
                 avatarTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 avatarTextures.add(avatarTex);
                 
@@ -132,7 +131,7 @@ public class AvatarSeleccionScreen implements Screen {
                     colCount = 0;
                 }
             } catch (Exception e) {
-                // Avatar no encontrado, continuar con el siguiente
+              
             }
         }
 
@@ -158,8 +157,7 @@ public class AvatarSeleccionScreen implements Screen {
         
         TextButton siButton = new TextButton(game.bundle.get("avatar.si"), skin);
         TextButton noButton = new TextButton(game.bundle.get("avatar.no"), skin);
-        
-        // Aplicar efectos hover como en otras pantallas
+      
         addButtonEffects(siButton, Color.GREEN);
         addButtonEffects(noButton, Color.RED);
         
@@ -192,8 +190,7 @@ public class AvatarSeleccionScreen implements Screen {
 
         mostrarDialog(game.bundle.get("avatar.quiereseleccionar"));
     }
-    
-    // Método para efectos de botones (copiado de MenuScreen)
+   
     private void addButtonEffects(TextButton button, Color hoverColor) {
         button.addListener(new ClickListener() {
             @Override
@@ -214,7 +211,6 @@ public class AvatarSeleccionScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
-        // Dibujar fondo
         if (backgroundTexture != null && backgroundBatch != null) {
             backgroundViewport.apply();
             backgroundCamera.update();
@@ -223,13 +219,12 @@ public class AvatarSeleccionScreen implements Screen {
             backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
             backgroundBatch.end();
         }
-        
-        // Dibujar UI
+   
         stage.getViewport().apply();
         stage.act(delta);
         stage.draw();
 
-        // Dibujar diálogo si es necesario
+    
         if (mostrarDialog) {
             dialogViewport.apply();
             renderDialog();

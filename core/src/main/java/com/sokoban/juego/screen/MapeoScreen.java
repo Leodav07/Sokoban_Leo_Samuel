@@ -120,12 +120,14 @@ public class MapeoScreen implements Screen, InputProcessor {
 
         TextButton guardarBtn = new TextButton(game.bundle.get("mapeo.guardar"), skin);
         TextButton volverBtn = new TextButton(game.bundle.get("mapeo.regresar"), skin);
+        guardarBtn.getLabel().setFontScale(0.6f);
+        volverBtn.getLabel().setFontScale(0.6f);
 
         Table actionTable = new Table();
-        actionTable.add(guardarBtn).width(150).height(40).pad(20);
-        actionTable.add(volverBtn).width(150).height(40).pad(20);
+        actionTable.add(guardarBtn).width(150).height(40).pad(20).padLeft(80);
+        actionTable.add(volverBtn).width(150).height(40).pad(20).padRight(80);
 
-        root.add(actionTable).padTop(30).row();
+        root.add(actionTable).padTop(20).row();
 
         addKeyListener(btnArriba, "arriba");
         addKeyListener(btnAbajo, "abajo");
