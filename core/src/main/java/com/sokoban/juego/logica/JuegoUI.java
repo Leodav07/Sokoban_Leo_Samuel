@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.niveles.ConfigNiveles;
+import com.badlogic.gdx.utils.Align;
 
 public class JuegoUI {
 
@@ -141,7 +142,7 @@ public class JuegoUI {
         this.movimientosRealizados = 0;
         this.movimientosPar = ConfigNiveles.getMovimientosObjetivo(nivel);
         this.tiempoInicio = System.currentTimeMillis();
-
+        this.resultDialog = null;
         // Actualizar labels con mejor formato
         nivelLabel.setText(game.bundle.get("juego.nivel") + nivelActual + " - " + ConfigNiveles.getNombreNivel(nivelActual).toUpperCase());
         instruccionesLabel.setText(game.bundle.get("juego.funciones"));
@@ -165,7 +166,8 @@ public class JuegoUI {
         movimientosRealizados++;
         actualizarInformacion(0);
 
-        // Animación más vistosa para el contador
+        movimientosLabel.clearActions();
+
         movimientosLabel.addAction(Actions.sequence(
                 Actions.parallel(
                         Actions.scaleTo(1.2f, 1.2f, 0.1f, Interpolation.pow2Out),
@@ -200,9 +202,9 @@ public class JuegoUI {
     private void actualizarInformacion(long tiempoPausado) {
         String movText = game.bundle.get("juego.movimiento") + movimientosRealizados + " / " + movimientosPar;
         if (movimientosRealizados <= movimientosPar) {
-            movimientosLabel.setColor(new Color(0.3f, 1f, 0.3f, 1f)); 
+            movimientosLabel.setColor(new Color(0.3f, 1f, 0.3f, 1f));
         } else {
-            movimientosLabel.setColor(new Color(1f, 0.7f, 0.3f, 1f)); 
+            movimientosLabel.setColor(new Color(1f, 0.7f, 0.3f, 1f));
         }
         movimientosLabel.setText(movText);
 
@@ -285,7 +287,7 @@ public class JuegoUI {
         int screenWidth = Gdx.graphics.getWidth();
         int screenHeight = Gdx.graphics.getHeight();
 
-        shapeRenderer.getProjectionMatrix().setToOrtho2D(0, 0, screenWidth, screenHeight);
+        shapeRenderer.setProjectionMatrix(resultStage.getCamera().combined);
 
         // Fondo animado de victoria
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -355,133 +357,133 @@ public class JuegoUI {
     }
 
     private void crearDialogoResultado() {
-    resultDialog = new Dialog(game.bundle.get("juego.nivelcompletado"), skin) {
-        @Override
-        protected void result(Object object) {
-            mostrandoVictoria = false;
+        resultDialog = new Dialog(game.bundle.get("juego.nivelcompletado"), skin) {
+            @Override
+            protected void result(Object object) {
+                mostrandoVictoria = false;
+            }
+        };
+
+        // --- CONFIGURACIÓN DEL DIÁLOGO PRINCIPAL ---
+        resultDialog.getTitleLabel().setColor(COLOR_TEXTO_DESTACADO);
+        resultDialog.getTitleLabel().setFontScale(0.5f);
+        resultDialog.padTop(120); // <-- CAMBIO: Aumentado para bajar el título y que no se corte
+
+        Table content = resultDialog.getContentTable();
+        content.pad(10).padTop(25); // Un relleno general para el contenido
+
+        // --- CÁLCULO DE DATOS ---
+        int estrellasGanadas = calcularEstrellasPartida(movimientosFinal, tiempoFinal);
+        String estrellasStr = generarStringEstrellas(estrellasGanadas);
+
+        // --- ELEMENTOS DE LA UI ---
+        // 1. Estrellas
+        Label estrellasLabel = new Label(estrellasStr, skin, "lvltitle");
+        estrellasLabel.setColor(COLOR_ESTRELLAS);
+        estrellasLabel.setFontScale(2.3f);
+        estrellasLabel.setAlignment(Align.center); // <-- CAMBIO: Aseguramos la alineación
+        content.add(estrellasLabel).center().growX().padBottom(15);
+        content.row();
+
+        // 2. Primer Separador
+        Label separador1 = new Label("-----------------", skin, "lvl");
+        separador1.setColor(Color.BLACK);
+        separador1.setAlignment(Align.center); // <-- CAMBIO: Forzamos el centrado del texto
+        content.add(separador1).center().growX().pad(5, 20, 15, 20);
+        content.row();
+
+        // 3. Tabla de Estadísticas
+        Table statsTable = new Table();
+
+        // Fila de Movimientos
+        Label movTitleLabel = new Label(game.bundle.get("juego.movimiento"), skin, "lvl");
+        movTitleLabel.setColor(Color.BLACK);
+        movTitleLabel.setFontScale(0.9f);
+        statsTable.add(movTitleLabel).left(); // Alineado a la izquierda
+
+        Label movLabel = new Label(movimientosFinal + " / " + movimientosPar, skin, "lvl");
+        if (movimientosFinal <= movimientosPar) {
+            movLabel.setColor(new Color(0.2f, 0.7f, 0.2f, 1f));
+        } else {
+            movLabel.setColor(new Color(0.8f, 0.5f, 0.1f, 1f));
         }
-    };
-    
-    // Configurar estilo del título - MÁS PEQUEÑO Y MÁS ABAJO
-    resultDialog.getTitleLabel().setColor(COLOR_TEXTO_DESTACADO);
-    resultDialog.getTitleLabel().setFontScale(0.6f); // Reducido aún más de 0.8f a 0.6f
-    resultDialog.padTop(120); // Reducir padding superior para bajar el título
-    resultDialog.padLeft(100);
-    
-    // Calcular estrellas
-    int estrellasGanadas = calcularEstrellasPartida(movimientosFinal, tiempoFinal);
-    String estrellasStr = generarStringEstrellas(estrellasGanadas);
-    
-    // Contenido del diálogo mejorado
-    Table content = new Table();
-    
-    // Título de estrellas con efecto - MÁS GRANDE
-    Label tituloEstrellas = new Label(game.bundle.get("juego.puntajefinal"), skin, "lvltitle");
-    tituloEstrellas.setColor(Color.BLACK); // Cambio a negro
-    tituloEstrellas.setFontScale(1.0f); // Aumentado de 0.8f a 1.0f
-    content.add(tituloEstrellas).colspan(2).padBottom(15).padRight(30 + 50); // Más espacio
-    content.row();
-    
-    // Estrellas con mejor presentación - MÁS GRANDES
-    Label estrellasLabel = new Label(estrellasStr, skin, "lvltitle");
-    estrellasLabel.setColor(COLOR_ESTRELLAS);
-    estrellasLabel.setFontScale(1.6f); // Aumentado de 1.4f a 1.6f
-    content.add(estrellasLabel).colspan(2).padBottom(30).padRight(30 + 50); // Más espacio
-    content.row();
-    
-    // Separador visual
-    Label separador1 = new Label("─────────────────", skin, "lvl");
-    separador1.setColor(Color.BLACK); // Cambio a negro
-    content.add(separador1).colspan(2).center().padBottom(20).padRight(30 + 50); // Más espacio
-    content.row();
-    
-    // Información detallada con mejor formato - MÁS GRANDE
-    Label movTitleLabel = new Label(game.bundle.get("juego.movimiento"), skin, "lvl");
-    movTitleLabel.setColor(Color.BLACK); // Cambio a negro
-    movTitleLabel.setFontScale(0.85f); // Aumentado de tamaño por defecto
-    content.add(movTitleLabel).left().padRight(25 + 30 + 50); // Más espacio a la derecha
-    
-    Label movLabel = new Label(movimientosFinal + " / " + movimientosPar, skin, "lvl");
-    if (movimientosFinal <= movimientosPar) {
-        movLabel.setColor(new Color(0.2f, 0.7f, 0.2f, 1f)); // Verde más oscuro
-    } else {
-        movLabel.setColor(new Color(0.8f, 0.5f, 0.1f, 1f)); // Naranja más oscuro
+        movLabel.setFontScale(0.9f);
+        statsTable.add(movLabel).right().expandX(); // Alineado a la derecha, expandiendo el espacio
+        statsTable.row();
+
+        // Fila de Tiempo
+        Label tiempoTitleLabel = new Label(game.bundle.get("juego.tiempo"), skin, "lvl");
+        tiempoTitleLabel.setColor(Color.BLACK);
+        tiempoTitleLabel.setFontScale(0.9f);
+        statsTable.add(tiempoTitleLabel).left().padTop(10); // Alineado a la izquierda
+
+        Label tiempoResultLabel = new Label(formatearTiempo(tiempoFinal), skin, "lvl");
+        tiempoResultLabel.setColor(Color.BLACK);
+        tiempoResultLabel.setFontScale(0.9f);
+        statsTable.add(tiempoResultLabel).right().expandX().padTop(10); // Alineado a la derecha
+
+        // <-- CAMBIO CLAVE: Hacemos que la tabla de stats ocupe todo el ancho disponible -->
+        content.add(statsTable).growX().padLeft(40).padRight(40).padBottom(15);
+        content.row();
+
+        // 4. Segundo Separador
+        Label separador2 = new Label("-----------------", skin, "lvl");
+        separador2.setColor(Color.BLACK);
+        separador2.setAlignment(Align.center); // <-- CAMBIO: Forzamos el centrado del texto
+        content.add(separador2).center().growX().pad(5, 20, 20, 20);
+        content.row();
+
+        // 5. Puntaje Final
+        Label puntajeTitleLabel = new Label(game.bundle.get("juego.puntajefinal"), skin, "lvltitle");
+        puntajeTitleLabel.setColor(Color.BLACK);
+        puntajeTitleLabel.setFontScale(1.0f);
+        content.add(puntajeTitleLabel).center().padBottom(5);
+        content.row();
+
+        Label puntajeLabel = new Label(String.valueOf(puntajeFinal), skin, "lvltitle");
+        puntajeLabel.setColor(COLOR_ESTRELLAS);
+        puntajeLabel.setFontScale(1.8f);
+        content.add(puntajeLabel).center().padBottom(30); // Más espacio antes del botón
+        content.row();
+
+        // 6. Botón de Continuar
+        TextButton continuarBtn = new TextButton(game.bundle.get("juego.continuar"), skin);
+        continuarBtn.getLabel().setFontScale(0.8f);
+        continuarBtn.getLabel().setColor(Color.BLACK);
+        content.add(continuarBtn).center().width(200).height(50);
+
+        continuarBtn.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
+            @Override
+            public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+                mostrandoVictoria = false;
+                resultDialog.hide();
+            }
+        });
+
+        // --- CONFIGURACIÓN FINAL Y ANIMACIONES (Sin cambios aquí) ---
+        resultDialog.setSize(DIALOG_WIDTH + 20, DIALOG_HEIGHT + 50);
+        resultDialog.setPosition(
+                (resultStage.getWidth() - resultDialog.getWidth()) / 2,
+                (resultStage.getHeight() - resultDialog.getHeight()) / 2
+        );
+
+        resultDialog.setScale(0.5f);
+        resultDialog.setColor(1, 1, 1, 0);
+        resultDialog.addAction(Actions.sequence(
+                Actions.delay(0.2f),
+                Actions.parallel(
+                        Actions.scaleTo(1.1f, 1.1f, 0.4f, Interpolation.elasticOut),
+                        Actions.fadeIn(0.4f, Interpolation.pow2Out)
+                ),
+                Actions.scaleTo(1f, 1f, 0.2f, Interpolation.bounceOut)
+        ));
+
+        content.setColor(1, 1, 1, 0);
+        content.addAction(Actions.delay(0.4f, Actions.fadeIn(0.5f, Interpolation.pow2Out)));
+
+        resultStage.addActor(resultDialog);
     }
-    movLabel.setFontScale(1.0f); // Aumentado de 0.9f a 1.0f
-    content.add(movLabel).left();
-    content.row();
-    
-    Label tiempoTitleLabel = new Label(game.bundle.get("juego.tiempo"), skin, "lvl");
-    tiempoTitleLabel.setColor(Color.BLACK); // Cambio a negro
-    tiempoTitleLabel.setFontScale(0.85f); // Aumentado de tamaño por defecto
-    content.add(tiempoTitleLabel).left().padRight(25 + 30 + 50).padTop(15); // Más espacio
-    
-    Label tiempoResultLabel = new Label(formatearTiempo(tiempoFinal), skin, "lvl");
-    tiempoResultLabel.setColor(Color.BLACK); // Cambio a negro
-    tiempoResultLabel.setFontScale(1.0f); // Aumentado de 0.9f a 1.0f
-    content.add(tiempoResultLabel).left().padTop(15);
-    content.row();
-    
-    // Separador
-    Label separador2 = new Label("─────────────────", skin, "lvl");
-    separador2.setColor(Color.BLACK); // Cambio a negro
-    content.add(separador2).colspan(2).center().padTop(25).padBottom(20).padRight(30 + 50); // Más espacio
-    content.row();
-    
-    // Puntaje final con efecto especial - MÁS GRANDE
-    Label puntajeTitleLabel = new Label(game.bundle.get("juego.puntajefinal"), skin, "lvltitle");
-    puntajeTitleLabel.setColor(Color.BLACK); // Cambio a negro
-    puntajeTitleLabel.setFontScale(1.0f); // Aumentado
-    content.add(puntajeTitleLabel).colspan(2).center().padBottom(10).padRight(30 + 50 );
-    content.row();
-    
-    Label puntajeLabel = new Label(String.valueOf(puntajeFinal), skin, "lvltitle");
-    puntajeLabel.setColor(COLOR_ESTRELLAS);
-    puntajeLabel.setFontScale(1.7f); // Aumentado de 1.5f a 1.7f
-    content.add(puntajeLabel).colspan(2).center().padBottom(25).padRight(30 + 50); // Más espacio para el botón
-    
-    resultDialog.getContentTable().add(content).pad(35); // Más padding general
-    
-    // Botón con mejor estilo - DENTRO DE LA CAJA
-    TextButton continuarBtn = new TextButton(game.bundle.get("juego.continuar"), skin);
-    continuarBtn.getLabel().setFontScale(0.85f); // Ligeramente más grande
-    continuarBtn.getLabel().setColor(Color.BLACK); // Texto del botón en negro
-    
-    // Agregar el botón directamente al contenido en lugar de usar button()
-    content.row();
-    content.add(continuarBtn).colspan(2).center().padTop(15).padRight(30 + 50).width(150).height(40);
-    
-    // Manejar el click del botón manualmente
-    continuarBtn.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
-        @Override
-        public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
-            mostrandoVictoria = false;
-            resultDialog.hide();
-        }
-    });
-    
-    // Configurar tamaño y posición - LIGERAMENTE MÁS GRANDE
-    resultDialog.setSize(DIALOG_WIDTH + 50, DIALOG_HEIGHT + 30); // Un poco más grande
-    resultDialog.setPosition((2000 - DIALOG_WIDTH) / 2, (480 - DIALOG_HEIGHT - 30) / 2);
-    
-    // Animación de entrada espectacular
-    resultDialog.setScale(0.5f);
-    resultDialog.setColor(1, 1, 1, 0);
-    resultDialog.addAction(Actions.sequence(
-        Actions.delay(0.2f),
-        Actions.parallel(
-            Actions.scaleTo(1.1f, 1.1f, 0.4f, Interpolation.elasticOut),
-            Actions.fadeIn(0.4f, Interpolation.pow2Out)
-        ),
-        Actions.scaleTo(1f, 1f, 0.2f, Interpolation.bounceOut)
-    ));
-    
-    // Animación del contenido
-    content.setColor(1, 1, 1, 0);
-    content.addAction(Actions.delay(0.4f, Actions.fadeIn(0.5f, Interpolation.pow2Out)));
-    
-    resultStage.addActor(resultDialog);
-}
+
     private int calcularEstrellasPartida(int movimientos, long tiempo) {
         int estrellas = 1; // Mínimo por completar
 
@@ -498,9 +500,9 @@ public class JuegoUI {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 3; i++) {
             if (i < cantidad) {
-                sb.append("★ ");
+                sb.append("* ");
             } else {
-                sb.append("☆ ");
+                sb.append("- ");
             }
         }
         return sb.toString().trim();

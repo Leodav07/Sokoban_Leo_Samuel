@@ -166,35 +166,33 @@ public class ProcesoRegresar implements Runnable {
         }
     }
 
-    private void restaurarCajas(List<EstadoJuego.PosicionElemento> cajasAnteriores) {
-        synchronized (mapa) {
-            for (int y = 0; y < filas; y++) {
-                for (int x = 0; x < columnas; x++) {
-                    if (mapa[y][x] instanceof Caja) {
-                        if (layout[y][x] == 3) {
-                            mapa[y][x] = new Objetivo(x, y, metaImg);
-                        } else {
-                            mapa[y][x] = new Terreno(x, y, sueloImg);
-                        }
+   private void restaurarCajas(List<EstadoJuego.PosicionElemento> cajasAnteriores) {
+    synchronized (mapa) {
+        for (int y = 0; y < filas; y++) {
+            for (int x = 0; x < columnas; x++) {
+                if (mapa[y][x] instanceof Caja) {
+                    if (layout[y][x] == 3) { // Si había una caja sobre un objetivo
+                        mapa[y][x] = new Objetivo(x, y, metaImg);
+                    } else { // Si estaba en suelo normal
+                        mapa[y][x] = new Terreno(x, y, sueloImg);
                     }
                 }
             }
-
-            for (EstadoJuego.PosicionElemento cajaPosicion : cajasAnteriores) {
-                Caja caja;
-                if (cajaEnObjetivoImg != null && !cajaEnObjetivoImg.equals(cajaImg)) {
-                    caja = new Caja(cajaPosicion.x, cajaPosicion.y, cajaImg, cajaEnObjetivoImg, tileSize);
-                } else {
-                    caja = new Caja(cajaPosicion.x, cajaPosicion.y, cajaImg, tileSize);
-                }
-
-                caja.setEstaEnObjetivo(cajaPosicion.estaEnObjetivo);
-                mapa[cajaPosicion.y][cajaPosicion.x] = caja;
-            }
-
-            actualizarEstadoCajas();
         }
+        for (EstadoJuego.PosicionElemento cajaPosicion : cajasAnteriores) {
+            Caja caja;
+            if (cajaEnObjetivoImg != null) {
+                caja = new Caja(cajaPosicion.x, cajaPosicion.y, cajaImg, cajaEnObjetivoImg, tileSize);
+            } else {
+                caja = new Caja(cajaPosicion.x, cajaPosicion.y, cajaImg, tileSize);
+            }
+           
+            mapa[cajaPosicion.y][cajaPosicion.x] = caja;
+        }
+
+        actualizarEstadoCajas();
     }
+}
 
     private void actualizarEstadoCajas() {
         for (int y = 0; y < filas; y++) {

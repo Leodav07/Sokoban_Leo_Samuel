@@ -182,6 +182,14 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             return;
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
+        if (!mostrandoResultados) { 
+            System.out.println("DEBUG: Forzando la pantalla de resultados...");
+            onNivelCompletadoInterno(); 
+        }
+        return; // Importante para no procesar más teclas en este frame
+    }
+        
         if (motorMovimiento == null || nivelCompletado
                 || mostrandoResultados || gestorPausa.estaPausado()) {
             return;
