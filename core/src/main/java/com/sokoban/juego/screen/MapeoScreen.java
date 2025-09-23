@@ -1,14 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.sokoban.juego.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,16 +16,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sokoban.juego.Main;
 import com.sokoban.juego.logica.GestorMapeo;
 import com.sokoban.juego.logica.SoundManager;
 
-/**
- *
- * @author hnleo
- */
 public class MapeoScreen implements Screen, InputProcessor {
 
     private final Main game;
@@ -68,7 +58,6 @@ public class MapeoScreen implements Screen, InputProcessor {
             skin = new Skin();
         }
 
-        // Cargar las teclas actuales
         GestorMapeo.getInstancia().cargarControles();
         keyArriba = GestorMapeo.ARRIBA;
         keyAbajo = GestorMapeo.ABAJO;
@@ -84,7 +73,7 @@ public class MapeoScreen implements Screen, InputProcessor {
         stage.addActor(root);
 
         Label titleLabel = new Label(game.bundle.get("mapeo.mapeotitulo"), skin, "title");
-        titleLabel.setFontScale(0.4f);
+        titleLabel.setFontScale(0.7f);
         root.add(titleLabel).padBottom(30).row();
 
         Table mappingTable = new Table();
@@ -95,14 +84,37 @@ public class MapeoScreen implements Screen, InputProcessor {
         btnIzquierda = new TextButton(Input.Keys.toString(keyIzquierda), skin);
         btnDerecha = new TextButton(Input.Keys.toString(keyDerecha), skin);
 
-        mappingTable.add(new Label(game.bundle.get("mapeo.moverarriba"), skin)).left();
-        mappingTable.add(btnArriba).width(200).height(40).row();
-        mappingTable.add(new Label(game.bundle.get("mapeo.moverabajo"), skin)).left();
-        mappingTable.add(btnAbajo).width(200).height(40).row();
-        mappingTable.add(new Label(game.bundle.get("mapeo.moverizquierda"), skin)).left();
-        mappingTable.add(btnIzquierda).width(200).height(40).row();
-        mappingTable.add(new Label(game.bundle.get("mapeo.moverderecha"), skin)).left();
-        mappingTable.add(btnDerecha).width(200).height(40).row();
+        // <<-- CAMBIO: Se reduce la escala de la fuente para el texto de los botones -->>
+        float buttonTextScale = 0.5f;
+        btnArriba.getLabel().setFontScale(buttonTextScale);
+        btnAbajo.getLabel().setFontScale(buttonTextScale);
+        btnIzquierda.getLabel().setFontScale(buttonTextScale);
+        btnDerecha.getLabel().setFontScale(buttonTextScale);
+
+        float buttonWidth = 200;
+        float buttonHeight = 40;
+        
+        float labelScale = 0.5f;
+        Label arribaLabel = new Label(game.bundle.get("mapeo.moverarriba"), skin);
+        arribaLabel.setFontScale(labelScale);
+        
+        Label abajoLabel = new Label(game.bundle.get("mapeo.moverabajo"), skin);
+        abajoLabel.setFontScale(labelScale);
+
+        Label izquierdaLabel = new Label(game.bundle.get("mapeo.moverizquierda"), skin);
+        izquierdaLabel.setFontScale(labelScale);
+
+        Label derechaLabel = new Label(game.bundle.get("mapeo.moverderecha"), skin);
+        derechaLabel.setFontScale(labelScale);
+
+        mappingTable.add(arribaLabel).left();
+        mappingTable.add(btnArriba).width(buttonWidth).height(buttonHeight).row();
+        mappingTable.add(abajoLabel).left();
+        mappingTable.add(btnAbajo).width(buttonWidth).height(buttonHeight).row();
+        mappingTable.add(izquierdaLabel).left();
+        mappingTable.add(btnIzquierda).width(buttonWidth).height(buttonHeight).row();
+        mappingTable.add(derechaLabel).left();
+        mappingTable.add(btnDerecha).width(buttonWidth).height(buttonHeight).row();
 
         root.add(mappingTable).row();
 
@@ -125,7 +137,6 @@ public class MapeoScreen implements Screen, InputProcessor {
             public void changed(ChangeEvent event, Actor actor) {
                 SoundManager.getInstance().play(SoundManager.SoundEffect.GUARDADO);
                 GestorMapeo.getInstancia().guardarControles(keyArriba, keyAbajo, keyIzquierda, keyDerecha);
-                // Aquí podrías mostrar un diálogo de confirmación
             }
         });
 
@@ -144,9 +155,11 @@ public class MapeoScreen implements Screen, InputProcessor {
             public void changed(ChangeEvent event, Actor actor) {
                 if (listeningButton != null) {
                     listeningButton.setText(Input.Keys.toString(getKeyCode(keyId)));
+                    listeningButton.getLabel().setFontScale(0.5f); // Restaurar escala
                 }
                 listeningButton = button;
                 button.setText(game.bundle.get("mapeo.pulsar"));
+                button.getLabel().setFontScale(0.5f); // Texto "Pulsar..." a tamaño normal
                 SoundManager.getInstance().play(SoundManager.SoundEffect.PAUSA);
             }
         });
@@ -181,13 +194,15 @@ public class MapeoScreen implements Screen, InputProcessor {
             }
 
             listeningButton.setText(Input.Keys.toString(keycode));
-            listeningButton = null; 
+            listeningButton.getLabel().setFontScale(0.5f); // Restaurar a escala pequeña
+            listeningButton = null;
             SoundManager.getInstance().play(SoundManager.SoundEffect.SELECCION_MENU);
-            return true; 
+            return true;
         }
-        return false; 
+        return false;
     }
 
+    // ... (El resto de la clase permanece igual) ...
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -197,7 +212,6 @@ public class MapeoScreen implements Screen, InputProcessor {
         backgroundBatch.begin();
         backgroundBatch.draw(backgroundTexture, 0, 0, backgroundViewport.getWorldWidth(), backgroundViewport.getWorldHeight());
         backgroundBatch.end();
-
         stage.getViewport().apply();
         stage.act(delta);
         stage.draw();
