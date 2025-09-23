@@ -4,31 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.sokoban.juego.Main;
-import com.sokoban.juego.logica.Caja;
-import com.sokoban.juego.logica.Colisiones;
-import com.sokoban.juego.logica.Elemento;
-import com.sokoban.juego.logica.Fondo;
-import com.sokoban.juego.logica.GestorDatosPerfil;
-import com.sokoban.juego.logica.GestorUsuarios;
-import com.sokoban.juego.logica.JuegoUI;
-import com.sokoban.juego.logica.Jugador;
-import com.sokoban.juego.logica.Motor;
-import com.sokoban.juego.logica.Muro;
-import com.sokoban.juego.logica.Objetivo;
-import com.sokoban.juego.logica.Partida;
+import com.sokoban.juego.logica.*;
 import com.sokoban.juego.logica.Pausa.EstadoJuego;
 import com.sokoban.juego.logica.Pausa.GestorDePausa;
-import com.sokoban.juego.logica.Terreno;
-import com.sokoban.juego.logica.accounts.GestorProgreso;
 import com.sokoban.juego.logica.Pausa.MenuPausaListener;
-import com.sokoban.juego.logica.SoundManager;
+import com.sokoban.juego.logica.accounts.GestorProgreso;
 import com.sokoban.juego.logica.accounts.ProgresoPorNivel;
-import com.sokoban.juego.niveles.NivelSieteScreen;
 
 public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener {
 
+    // ... (variables de instancia sin cambios) ...
     protected Elemento[][] mapa;
     protected int filas, columnas;
     protected Texture muroImg, cajaImg, metaImg, sueloImg, jugadorImg, fondoImg;
@@ -51,21 +37,17 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
     protected final long DURACION_RESULTADOS = 3000;
     private Main game;
     protected MapaBaseListener mapaListener;
+    
 
     public interface MapaBaseListener {
-
         void onVolverMenuPrincipal();
-
         void onSalirJuego();
-
         void onReiniciarNivel();
         void onNivelFinalizado();
     }
 
     protected abstract int[][] getLayout();
-
     protected abstract int getMovimientosObjetivo();
-
     protected abstract long getTiempoObjetivo();
 
     public MapaBase(int filas, int columnas, Texture muroImg, Texture cajaImg,
@@ -92,10 +74,12 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         gestorPausa = new GestorDePausa(game);
         gestorPausa.setMenuPausaListener(this);
         
-      //  SoundManager.getInstance().playMusic(SoundManager.MusicTrack.NIVEL_TEMA, true);
+        // <<-- CAMBIO: Música del nivel activada. Asegúrate de que tu SoundManager esté actualizado. -->>
+        SoundManager.getInstance().playMusic(SoundManager.MusicTrack.NIVEL_TEMA, true);
     }
 
-    public void setMapaListener(MapaBaseListener listener) {
+    // ... (métodos setMapaListener, cargarMapa, update, etc. sin cambios)...
+        public void setMapaListener(MapaBaseListener listener) {
         this.mapaListener = listener;
     }
 
@@ -170,10 +154,9 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             colisionador.detener();
         }
     }
-
+    
     public void verificarTeclas() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)
-                || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             if (gestorPausa.estaPausado()) {
                 gestorPausa.reanudar();
             } else {
@@ -182,67 +165,63 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             return;
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
-        if (!mostrandoResultados) { 
-            System.out.println("DEBUG: Forzando la pantalla de resultados...");
-            onNivelCompletadoInterno(); 
-        }
-        return; // Importante para no procesar más teclas en este frame
-    }
-        
-        if (motorMovimiento == null || nivelCompletado
-                || mostrandoResultados || gestorPausa.estaPausado()) {
+        if (motorMovimiento == null || nivelCompletado || mostrandoResultados || gestorPausa.estaPausado() || motorMovimiento.estaEjecutandoUndo()) {
             return;
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
-            if (motorMovimiento.estaEjecutandoUndo()) {
-                return;
-            }
-
             if (motorMovimiento.puedeHacerUndo()) {
-                boolean regresarSolicitado = motorMovimiento.realizarUndo(
-                        gameUI.getMovimientosRealizados(),
-                        gameUI.getScoreActual()
-                );
-                if (regresarSolicitado) {
-                    System.out.println("Regresar solicitado - procesando en hilo separado");
-                } else {
-                    System.out.println("No se pudo solicitar Regresar");
-                }
-            } else {
-
+                motorMovimiento.realizarUndo(gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
             }
             return;
         }
 
-        if (motorMovimiento.estaEjecutandoUndo()) {
-
-            return;
-        }
-
-        boolean seMovio = false;
+        // <<-- CAMBIO: Lógica de movimiento refactorizada para añadir sonidos -->>
+        int dx = 0, dy = 0;
+        Jugador.DireccionMovimiento dir = null;
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            jugador.cambiarDireccion(Jugador.DireccionMovimiento.ARRIBA);
-            seMovio = motorMovimiento.moverJugador(0, 1,
-                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+            dy = 1;
+            dir = Jugador.DireccionMovimiento.ARRIBA;
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            jugador.cambiarDireccion(Jugador.DireccionMovimiento.ABAJO);
-            seMovio = motorMovimiento.moverJugador(0, -1,
-                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+            dy = -1;
+            dir = Jugador.DireccionMovimiento.ABAJO;
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-            jugador.cambiarDireccion(Jugador.DireccionMovimiento.IZQUIERDA);
-            seMovio = motorMovimiento.moverJugador(-1, 0,
-                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+            dx = -1;
+            dir = Jugador.DireccionMovimiento.IZQUIERDA;
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-            jugador.cambiarDireccion(Jugador.DireccionMovimiento.DERECHA);
-            seMovio = motorMovimiento.moverJugador(1, 0,
-                    gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+            dx = 1;
+            dir = Jugador.DireccionMovimiento.DERECHA;
         }
 
-        if (seMovio && gameUI != null) {
-            gameUI.incrementarMovimientos();
+        // Si se presionó una tecla de movimiento, procesamos la acción
+        if (dx != 0 || dy != 0) {
+            jugador.cambiarDireccion(dir);
+
+            // Verificamos si la acción será empujar una caja ANTES de movernos.
+            // NOTA: ¡Esto necesita que añadas getGridX() y getGridY() a tu clase Jugador!
+            int targetX = jugador.getX() + dx;
+            int targetY = jugador.getY()+ dy;
+            boolean esEmpujeDeCaja = false;
+
+            if (targetX >= 0 && targetX < columnas && targetY >= 0 && targetY < filas) {
+                if (mapa[targetY][targetX] instanceof Caja) {
+                    esEmpujeDeCaja = true;
+                }
+            }
+
+            // Realizamos el movimiento
+            boolean seMovio = motorMovimiento.moverJugador(dx, dy, gameUI.getMovimientosRealizados(), gameUI.getScoreActual());
+
+            // Si el movimiento fue exitoso, reproducimos el sonido correspondiente
+            if (seMovio) {
+                if (esEmpujeDeCaja) {
+                    SoundManager.getInstance().play(SoundManager.SoundEffect.MOVER_BLOQUE);
+                } else {
+                    // Aquí podrías poner un sonido de paso si lo tuvieras.
+                }
+                gameUI.incrementarMovimientos();
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
@@ -253,8 +232,9 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
             gestorProgreso.mostrarEstadisticas();
         }
     }
-
-    @Override
+    
+    // ... (El resto de la clase permanece exactamente igual) ...
+        @Override
     public void onMovimientoRealizado() {
     }
 
@@ -344,8 +324,6 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
       }
     }
 
-    protected void onFinalizarNivelCustom() {
-    }
 
     @Override
     public void onContinuar() {
@@ -406,8 +384,6 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         }
 
         if (jugador != null) {
-        // Ahora simplemente le pedimos al jugador que se dibuje a sí mismo.
-        // Él ya sabe cómo calcular su posición suavemente.
         jugador.dibujar(batch, TILE, (int)offsetX, (int)offsetY, filas);
     }
 
@@ -449,6 +425,8 @@ public abstract class MapaBase implements MenuPausaListener, Motor.MotorListener
         gameUI.resize(width, height);
     }
 }
+    
+     protected void onFinalizarNivelCustom() {}
 
     public void dispose() {
         if (motorMovimiento != null) {

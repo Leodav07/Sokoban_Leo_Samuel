@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.sokoban.juego.Main;
+import com.sokoban.juego.logica.SoundManager;
 
 public class MenuPausa {
 
@@ -342,6 +343,8 @@ public class MenuPausa {
                 listener.onReiniciarNivel();
                 break;
             case MENU_PRINCIPAL:
+                SoundManager.getInstance().stopMusic();
+                SoundManager.getInstance().playMusic(SoundManager.MusicTrack.MENU_TEMA, true);
                 listener.onVolverMenuPrincipal();
                 break;
             case SALIR_JUEGO:
